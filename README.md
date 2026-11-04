@@ -5,6 +5,18 @@
 
 Features include a 4,800×3,200 scrolling handcrafted Western map, 27 buildings, multiple frontier settlements with interactive characters, horseback riding, 6-shot revolver gunplay, reloading, bandit combat, money and shops, a doctor and saloon, enemy pursuit, a wanted system, wildlife, a day/night cycle, an objective marker, a map and journal, health tonics, save/load, story ending and free roam.
 
+## Great Frontier hotfix v1.4.1 (November 2026)
+
+This is a **playtest hotfix before Milestone 2**, responding to feedback that drifters attacked too quickly, saving was unclear, and the territory was too small.
+
+- **16× total explorable area:** World bounds are now 19,200 × 12,800 (previously 4,800 × 3,200). All original towns, missions, and map art keep their positions. Outer regions are drawn from deterministic terrain cells only when visible, avoiding a 245-million-pixel world texture. These additional regions are currently wilderness/exploration zones, not densely authored new towns.
+- **More forgiving opening:** random bandits cannot spawn within 950 px of the starting position or in protected towns. New games have 50 seconds of bandit protection, and loaded saves have 18 seconds. Ordinary drifters engage at closer range and won't start a firefight while you stand in a protected settlement. Mission enemies still defend their missions.
+- **Reliable, visible save reporting:** Press **F5** during normal play, pause, or conversation. Saving performs an atomic disk write and reports a timestamp and exact file path, or a visible error if it fails. Pausing shows the latest save status. The save file remains at `~/.local/share/dust-and-debt/save.json`; the title screen's **L** key loads it.
+- **Whole-territory map:** Press **M** to see the 16× region overview. The original hand-drawn map occupies the northwest portion, with procedural region labels outside it. Old saves remain loadable.
+- **Regression tests:** `tests/frontier_hotfix_test.py` checks protected spawning, the expanded dimensions, disk save/reload, and rendering far out in the new frontier. GitHub Actions workflow is configured in `.github/workflows/linux-tests.yml`; check the repository Actions tab for execution results.
+
+**Important:** No save migration or deletion is required. After pulling, verify F5 displays the saved file path, quit to the title screen, and press L to check that position and money are restored.
+
 ## Frontier Conversations v1.4 (November 2026)
 
 **Milestone 1 of the sequential roadmap.** Talk to ordinary townsfolk with **E** and select one of three replies using **1**, **2**, or **3**; **Esc** exits the choice menu. You can ask for local news, ask how people view your reputation, or say goodbye. Greetings and reactions reflect your honor and wanted status. Story mission-giver dialogue is unchanged. The feature uses the existing Tkinter renderer and requires no new assets or dependencies.
