@@ -5,6 +5,14 @@
 
 Features include a 4,800×3,200 scrolling handcrafted Western map, 27 buildings, multiple frontier settlements with interactive characters, horseback riding, 6-shot revolver gunplay, reloading, bandit combat, money and shops, a doctor and saloon, enemy pursuit, a wanted system, wildlife, a day/night cycle, an objective marker, a map and journal, health tonics, save/load, story ending and free roam.
 
+## v2.1.1 Input and overlay fixes (November 2026)
+
+- **E** now exclusively talks/interacts outdoors, even when an NPC stands beside a building entrance. In particular, talking to **Sheriff Bell** beside the jail no longer mistakenly enters the jail.
+- **Shift+E** explicitly enters a nearby building when its entrance is within range. The X11 Shift event modifier and held Shift key are both recognized.
+- Mounting Whiskey with **H** explicitly disengages Dead Eye. **Q** remains the dedicated Dead Eye toggle.
+- Dust storms now show directional gusts rather than an all-screen yellow wash; Dead Eye retains its distinct sepia overlay, so these two effects no longer look identical.
+- New automated regression test: `tests/input_fix_test.py`, covering the jail entrance, both interaction controls, horseback Dead Eye state, and weather rendering. No save migration is needed.
+
 ## v2.1 Frontier Reborn — major content expansion (November 2026)
 
 This source update fills part of the large 19,200 × 12,800 wilderness with **six new named settlements**, residents, activities, and handcrafted two-stage side jobs. All original towns and the main four-job campaign remain.
