@@ -1047,10 +1047,23 @@ class Game:
    sx,sy=self.pos(self.x,self.y)
    self.canvas.create_line(sx,sy,self.mouse[0],self.mouse[1],fill='#ebcd83',dash=(5,9),width=2)
   # Nightfall through stippled dark field, with a warmer lantern-light ellipse around the player.
+  self.draw_weather()
   if self.clock>=20 or self.clock<5:
    self.canvas.create_rectangle(0,0,VW,VH,fill='#11192b',stipple='gray50',outline='')
   elif self.clock>=18 or self.clock<7:
    self.canvas.create_rectangle(0,0,VW,VH,fill='#342e37',stipple='gray75',outline='')
+
+ def draw_weather(self):
+  kind=self.weather_kind()
+  if kind=='clear':return
+  c=self.canvas
+  for index in range(30 if kind=='rain' else 22):
+   seed=(index*1931+71)%10007
+   px=(seed*37+self.frame*(7 if kind=='rain' else 2))%VW
+   py=(seed*59+self.frame*(13 if kind=='rain' else 1))%VH
+   if kind=='rain':c.create_line(px,py,px-5,py+13,fill='#9db1b2',width=1)
+   else:c.create_oval(px-2,py-1,px+3,py+2,fill='#c4aa7c',outline='')
+  if kind=='dust':c.create_rectangle(0,0,VW,VH,fill='#aa814e',stipple='gray75',outline='')
 
  def draw_hud(self):
   self.panel(13,13,307,86)
@@ -1071,7 +1084,8 @@ class Game:
   self.draw_text(642,20,f'{hours%12 or 12}:{mins:02d} {"AM" if hours<12 else "PM"}  |  {self.region_name(self.x,self.y).upper()}',11,'#e2c48f',True)
   stars='★'*min(5,math.ceil(self.wanted))
   self.draw_text(642,43,self.law_status+' '+(stars if stars else '—'),15,'#e7a16b' if stars else '#b9a78b',True)
-  self.draw_text(642,69,'H: HORSE   F5: SAVE   F1: HELP',10,'#e9d6b2')
+  self.draw_text(642,69,'H: HORSE   F5: SAVE   V: SOUND',10,'#e9d6b2')
+  self.draw_text(642,84,'WEATHER: '+self.weather_kind().upper(),9,'#ead9b1')
   self.panel(13,505,550,83)
   self.draw_text(25,514,'CHAPTER '+ ('EPILOGUE' if self.stage==8 else str(1+self.stage//2))+'  ·  '+MISSIONS[self.stage][0].upper(),12,'#e6bc79',True)
   self.draw_text(25,539,MISSIONS[self.stage][1],12,'#f4e5ce',width=510)
@@ -1082,6 +1096,9 @@ class Game:
    self.draw_text(25,566,f'TARGET: {distance} m    DIRECTION: {self.cardinal(angle)}',10,'#bbac89',True)
   else:self.draw_text(25,566,'The frontier is yours now.',10,'#bbac89')
   self.draw_minimap(758,396,187,190)
+  if self.waypoint:
+   dx=self.waypoint[0]-self.x;dy=self.waypoint[1]-self.y
+   self.draw_text(572,558,f'PIN {int(math.hypot(dx,dy))} m / {self.cardinal(math.atan2(dy,dx))}',11,'#f6d68d',True)
   for i,(s,t) in enumerate(self.toast[-3:]):
    self.draw_text(480,114+i*23,s,13,'#ffe7a8',True,anchor='center')
   nearest=None;dist=65
@@ -1126,6 +1143,10 @@ class Game:
   if target:
    tx=x+10+target[0]*sx;ty=y+27+target[1]*sy
    self.canvas.create_oval(tx-5,ty-5,tx+5,ty+5,outline='#f5df91',width=2)
+  if self.waypoint:
+   wx=x+10+self.waypoint[0]*sx;wy=y+27+self.waypoint[1]*sy
+   self.canvas.create_line(wx-5,wy,wx+5,wy,fill='#8ce0c4',width=2)
+   self.canvas.create_line(wx,wy-5,wx,wy+5,fill='#8ce0c4',width=2)
   px=x+10+self.x*sx;py=y+27+self.y*sy
   self.canvas.create_oval(px-4,py-4,px+4,py+4,fill='#f1e8c6',outline='#2d322b')
 
@@ -1175,9 +1196,16 @@ class Game:
   if target:
    tx=x+target[0]/WW*w;ty=y+target[1]/WH*h
    self.canvas.create_oval(tx-8,ty-8,tx+8,ty+8,outline='#fff2ac',width=3)
+  if self.contract:
+   bx=x+self.contract['location'][0]/WW*w;by=y+self.contract['location'][1]/WH*h
+   self.canvas.create_oval(bx-6,by-6,bx+6,by+6,fill='#9d3d34',outline='#2d211e',width=2)
+  if self.waypoint:
+   wx=x+self.waypoint[0]/WW*w;wy=y+self.waypoint[1]/WH*h
+   self.canvas.create_line(wx-9,wy,wx+9,wy,fill='#157661',width=3)
+   self.canvas.create_line(wx,wy-9,wx,wy+9,fill='#157661',width=3)
   px=x+self.x/WW*w;py=y+self.y/WH*h
   self.canvas.create_oval(px-7,py-7,px+7,py+7,fill='#d94530',outline='#fff8d7',width=2)
-  self.draw_text(480,520,'M TO CLOSE  •  RED = YOU  •  GOLD RING = OBJECTIVE  •  19,200 × 12,800' ,11,'#e2c397',anchor='center')
+  self.draw_text(480,520,'CLICK: PIN  •  C: CLEAR  •  GOLD: QUEST  •  MAROON: BOUNTY',11,'#e2c397',anchor='center')
 
  def draw_journal(self):
   self.panel(132,59,700,485)
@@ -1196,7 +1224,7 @@ class Game:
  def draw_help(self):
   self.panel(190,52,580,506)
   self.draw_text(216,110,'HOW TO SURVIVE THE FRONTIER',20,'#efc58a',True)
-  controls=[('WASD / ARROWS','Walk / steer horse'),('SHIFT','Sprint / gallop'),('MOUSE / LEFT CLICK','Aim and shoot'),('SPACE','Fire in facing direction'),('R','Reload revolver'),('Q','Toggle Dead Eye (slow-motion)'),('E / SHIFT+E','Talk / enter buildings / interact'),('H','Mount or dismount Whiskey'),('1','Drink a health tonic'),('M / J','Territory map / journal'),('B','Open an indoor shop at its counter'),('F5','Save game'),('F11','Toggle fullscreen'),('ESC','Pause'),('F1','Close this screen')]
+  controls=[('WASD / ARROWS','Walk / steer horse'),('SHIFT','Sprint / gallop'),('MOUSE / LEFT CLICK','Aim and shoot'),('SPACE','Fire in facing direction'),('R','Reload revolver'),('Q','Toggle Dead Eye (slow-motion)'),('E / SHIFT+E','Talk / enter buildings / interact'),('H','Mount or dismount Whiskey'),('1','Drink a health tonic'),('M / J','Territory map / journal'),('B','Shop / accept bounty near sheriff'),('V','Toggle sound (off by default)'),('F5','Save game'),('F11','Toggle fullscreen'),('ESC','Pause'),('F1','Close this screen')]
   for i,(k,v) in enumerate(controls):
    yy=143+i*24
    self.draw_text(218,yy,k,12,'#f4d59e',True)
