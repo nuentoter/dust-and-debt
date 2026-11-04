@@ -5,6 +5,15 @@
 
 Features include a 4,800×3,200 scrolling handcrafted Western map, 27 buildings, multiple frontier settlements with interactive characters, horseback riding, 6-shot revolver gunplay, reloading, bandit combat, money and shops, a doctor and saloon, enemy pursuit, a wanted system, wildlife, a day/night cycle, an objective marker, a map and journal, health tonics, save/load, story ending and free roam.
 
+## v2.1.2 — Dust Hollow mission spawn fix (November 2026)
+
+- Corrected the five Dust Hollow mission rider spawn locations. One original position was **inside the Cabin building's collision rectangle**, trapping the enemy behind a bullet-blocking wall and preventing the five-rider quest from completing.
+- All story mission riders and bosses now pass a walkable-spawn check before being created. A blocked candidate is moved to a nearby clear position.
+- Fix also applies when **loading a save during an active mission**. Previously defeated mission riders stay defeated using the existing `stage_kills` save field. No new game is required.
+- Regression test `tests/mission_spawn_test.py` verifies clear spawn positions, unobstructed shooting approaches, save/reload with four of five Dust Hollow riders defeated, continuation to the next mission, and safe spawns in later boss encounters.
+
+**To resume a stuck mission:** press **F5** to save, quit to the desktop, pull the latest GitHub changes, relaunch the game, and press **L** at the title screen. The remaining rider respawns at a reachable position. If your last save predates some kills, those kills may need to be repeated.
+
 ## v2.1.1 Input and overlay fixes (November 2026)
 
 - **E** now exclusively talks/interacts outdoors, even when an NPC stands beside a building entrance. In particular, talking to **Sheriff Bell** beside the jail no longer mistakenly enters the jail.
