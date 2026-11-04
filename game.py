@@ -13,6 +13,26 @@ SAVE=os.path.join(os.path.expanduser('~'),'.local','share','dust-and-debt','save
 VW,VH=960,600
 WW,WH=4800,3200
 FPS=33
+VERSION='1.3 — Outlaw Systems'
+# Interiors are lightweight procedural rooms: no extra graphics libraries or image files.
+INTERIOR_TYPES={
+ 'Sheriff':'office','Sheriff Annex':'office','Saloon':'saloon','Sagebrush Saloon':'saloon',
+ 'General Store':'store','Trading Post':'store','Doctor':'doctor','Stable':'stable',
+ 'Livery':'stable','Hotel':'hotel','Station':'station','Cabin':'home',
+ 'Fishing Shack':'home','Lake Cabin':'home','Ranch':'home','South Ranch':'home',
+ 'Assay Office':'store','Bunkhouse':'hotel','Ghost Chapel':'chapel',
+ 'Old Mission':'chapel','Outpost':'hideout','Smuggler Shed':'hideout',
+ 'Watchtower':'home','Mesa Camp':'hideout','Copper Mine':'hideout',
+ 'Riverside Camp':'home'}
+SHOP_GOODS={
+ 'store': [('Revolver rounds (30)',18,'ammo'),('Health tonic',22,'tonic'),('Trail supplies',8,'supplies')],
+ 'saloon':[('Hot meal (+35 health)',7,'meal'),('Coffee (pass 2 hours)',3,'coffee'),('Health tonic',26,'tonic')],
+ 'doctor':[('Full treatment',15,'heal'),('Health tonic',20,'tonic')],
+ 'stable':[('Care for Whiskey',5,'horse'),('Health tonic',24,'tonic')],
+ 'hotel':[('Rent a room (sleep 8 hours)',10,'sleep'),('Hot meal (+35 health)',9,'meal')],
+ 'office':[('Pay off your bounty',0,'bounty')],
+ 'station':[('Travel supplies (30 rounds)',22,'ammo')],
+}
 random.seed()
 
 BUILDINGS=[('Sheriff',320,300,196,130),('Saloon',565,315,238,160),('General Store',854,318,204,144),('Doctor',320,694,169,120),('Stable',835,728,210,144),('Hotel',540,735,215,168),('Station',1150,1321,240,115),('Cabin',1670,320,140,110),('Outpost',1960,1150,140,100),('Ranch',1470,850,160,125),
@@ -60,7 +80,7 @@ class Actor:
 
 class Game:
  def __init__(self,root):
-  self.root=root;root.title('DUST & DEBT | A Western Adventure')
+  self.root=root;root.title('DUST & DEBT | Outlaw Systems v1.3')
   root.resizable(False,False)
   self.canvas=tk.Canvas(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
@@ -80,12 +100,19 @@ class Game:
  def reset(self):
   self.x,self.y=698.,610.;self.hp=100.;self.maxhp=100;self.money=35;self.ammo=6;self.reserve=42;self.tonics=2
   self.stage=0;self.kills=0;self.wanted=0.;self.law_timer=0.;self.clock=8.0;self.mounted=False
+  self.honor=50;self.crimes=0;self.law_status='PEACE';self.deadeye=100.;self.deadeye_active=False;self.deadeye_regen_delay=0.;self.witness_timer=0.;self.law_spawn_timer=0.;self.shot_trails=[]
   self.horse_x,self.horse_y=764.,646.;self.horse_hp=100
   self.facing=(0.,-1.);self.shot_timer=0;self.reload_timer=0;self.invuln=0
   self.actors=[];self.bullets=[];self.effects=[];self.dialog=None;self.dialog_from='';self.toast=[]
   self.camx=0;self.camy=0;self.map_open=False;self.journal_open=False;self.show_help=False
+  self.interior=None;self.indoor_x=480.;self.indoor_y=465.;self.shop_open=False
+  self.npc_schedule_tick=0;self.npc_home={}
+  for a in self.actors:
+   if a.kind=='civilian':self.npc_home[a.name]=(a.x,a.y)
   self.wins=0;self.mission_activated=set();self.ledger=False;self.quest_total=0;self.death_count=0;self.last_region='Cinder Creek'
-  for n,x,y,kind in NPCS: self.actors.append(Actor(x,y,kind,n,100,100,42))
+  for n,x,y,kind in NPCS:
+   self.actors.append(Actor(x,y,kind,n,100,100,42))
+   if kind=='civilian':self.npc_home[n]=(x,y)
   self.spawn_roamers()
 
  def spawn_roamers(self):
@@ -129,6 +156,10 @@ class Game:
  def key_down(self,e):
   key=e.keysym.lower();first=key not in self.keys;self.keys.add(key)
   if not first:return
+  if key=='q' and self.screen=='playing' and not self.dialog and not self.interior and not self.map_open and not self.journal_open:
+   self.deadeye_active=not self.deadeye_active and self.deadeye>0
+   self.notify('DEAD EYE '+('ENGAGED' if self.deadeye_active else 'DISENGAGED'),1.0)
+   return
   if key=='f11':
    self.fullscreen=not self.fullscreen;self.root.attributes('-fullscreen',self.fullscreen);return
   if self.screen=='title':
@@ -146,12 +177,28 @@ class Game:
   if self.dialog:
    if key in ('return','space','e'):self.advance_dialog()
    return
-  if key=='escape':self.screen='playing' if self.screen=='paused' else 'paused';return
+  if self.shop_open:
+   if key in ('escape','b','e'):self.shop_open=False
+   elif key in ('1','2','3','4'):self.buy_item(int(key)-1)
+   return
+  if self.interior:
+   if key=='b' and self.indoor_y<380:self.use_counter()
+   elif key=='e':
+    if self.indoor_y>475:self.leave_interior()
+    elif self.indoor_y<360:self.use_counter()
+    else:self.notify('Walk up to the counter or the exit, then press E.')
+   elif key=='escape':self.leave_interior()
+   elif key=='f5':self.save();self.notify('Game saved.')
+   elif key=='f1':self.show_help=not self.show_help
+   return
+  if key=='escape':self.screen='playing' if self.screen=='paused' else 'paused';self.deadeye_active=False;return
   if self.screen=='paused':return
   if key=='f1':self.show_help=not self.show_help
-  elif key=='m':self.map_open=not self.map_open;self.journal_open=False
-  elif key=='j':self.journal_open=not self.journal_open;self.map_open=False
-  elif key=='e':self.interact()
+  elif key=='m':self.map_open=not self.map_open;self.journal_open=False;self.deadeye_active=False
+  elif key=='j':self.journal_open=not self.journal_open;self.map_open=False;self.deadeye_active=False
+  elif key=='e':
+   if ('shift_l' in self.keys or 'shift_r' in self.keys) and self.near_door():self.enter_interior(self.near_door())
+   else:self.interact()
   elif key=='h':self.toggle_horse()
   elif key=='r':self.reload()
   elif key=='1':self.tonic()
@@ -163,7 +210,7 @@ class Game:
   if self.screen=='title':
    if 397<e.y<458:self.new_game()
    elif 467<e.y<515 and os.path.exists(SAVE):self.continue_game()
-  elif self.screen=='playing' and not self.dialog and not self.map_open and not self.journal_open:
+  elif self.screen=='playing' and not self.interior and not self.dialog and not self.map_open and not self.journal_open:
    self.mouse_down=True;self.mouse=(e.x,e.y);self.fire()
   elif self.screen in ('death','ending'):self.key_down(type('E',(),{'keysym':'Return'})())
  def new_game(self):self.reset();self.screen='playing';self.say('NARRATOR',['1889. The borderlands have no patience for saints.','Your name is Jesse Vale. You have $35, six rounds, and a horse named Whiskey.','Sheriff Bell is looking for someone with nothing left to lose. Find him at the jail.']);self.save()
@@ -171,8 +218,11 @@ class Game:
   self.reset()
   try:
    with open(SAVE) as f:s=json.load(f)
-   for k in ('x','y','hp','money','ammo','reserve','tonics','stage','kills','wanted','clock','mounted','horse_x','horse_y','ledger','death_count'):
+   for k in ('x','y','hp','money','ammo','reserve','tonics','stage','kills','wanted','clock','mounted','horse_x','horse_y','ledger','death_count','honor','crimes','deadeye'):
     if k in s:setattr(self,k,s[k])
+   self.deadeye=max(0.,min(100.,float(self.deadeye)))
+   self.honor=max(0,min(100,int(self.honor)))
+   self.law_status='WANTED' if self.wanted>=1.2 else ('INVESTIGATING' if self.wanted>0 else 'PEACE')
    self.mission_activated=set(s.get('mission_activated',[]))
    # Quest combat must regenerate after loading (kill progress is persisted).
    tag={1:'hollow',4:'blackspur',6:'crow'}.get(self.stage)
@@ -182,12 +232,12 @@ class Game:
     self.spawn_mission(tag,positions,{'hollow':95,'blackspur':105,'crow':115}[tag],boss=(1480,1030) if tag=='crow' else None)
     eliminated=int(s.get('stage_kills',0))
     for a in [a for a in self.actors if a.kind=='mission_'+tag][:eliminated]:a.dead=True
-   self.screen='playing';self.notify('Welcome back to Cinder Creek.')
+   self.screen='playing';self.notify('Welcome back to the frontier.')
   except (OSError,ValueError,TypeError,KeyError) as ex:
    self.new_game();self.notify('Save unavailable. New game started.')
  def save(self):
   if self.screen not in ('playing','paused','ending'):return
-  d={k:getattr(self,k) for k in ('x','y','hp','money','ammo','reserve','tonics','stage','kills','wanted','clock','mounted','horse_x','horse_y','ledger','death_count')}
+  d={k:getattr(self,k) for k in ('x','y','hp','money','ammo','reserve','tonics','stage','kills','wanted','clock','mounted','horse_x','horse_y','ledger','death_count','honor','crimes','deadeye')}
   d['mission_activated']=list(self.mission_activated)
   tag={1:'hollow',4:'blackspur',6:'crow'}.get(self.stage)
   if tag:
@@ -211,6 +261,11 @@ class Game:
    if a.dead or a.kind.startswith('mission_') or a.kind in ('bandit','animal','deputy'):continue
    dist=math.hypot(a.x-self.x,a.y-self.y)
    if dist<best:nearest=a;best=dist
+  # Original mission givers stand near doors: always give close conversations
+  # priority so entering an office cannot block story progression.
+  door=self.near_door()
+  if door and (nearest is None or best>46):
+   self.enter_interior(door);return
   if nearest is None:
    if self.stage==4 and math.hypot(self.x-2040,self.y-1280)<95 and self.enemies_remaining('blackspur')==0:
     self.ledger=True;self.quest(5);self.say('JESSE',['Under a loose floorboard: the stolen manifest.','The pages name Crow as the man who bought the railroad robbery. Nell needs to see this.'])
@@ -227,6 +282,8 @@ class Game:
     self.money+=250;self.wanted=0;self.stage=8;self.wins+=1;self.save();self.screen='ending'
    elif self.wanted>0:
     self.say('SHERIFF BELL',['You are carrying heat. The law does not overlook trouble in Cinder Creek.','Keep your hands clean and stay out of sight until your wanted level cools.'])
+   elif self.honor<30:self.say('SHERIFF BELL',['I know what you have been doing out there, Vale. Folks remember.','A clean slate is earned, not handed over.'])
+   elif self.honor>=75:self.say('SHERIFF BELL',['People are beginning to speak well of you, Jesse.','There is still a place for an honest gun on the frontier.'])
    else:self.say('SHERIFF BELL',['Crow left friends scattered across the territory. They may still be worth a bounty.','Watch your ammunition and keep your horse watered.'])
   elif k=='station':
    if self.stage==3:
@@ -249,7 +306,188 @@ class Game:
   elif k=='saloon':
    if self.money>=5:self.money-=5;self.hp=min(100,self.hp+20);self.say('MAE',['Five dollars for a drink and a quiet chair.','Your wounds sting a little less now.']);self.save()
    else:self.say('MAE',['Whiskey costs $5. Stories are free.'])
-  else:self.say(nearest.name.upper(),[random.choice(['A storm is coming off the mesa.','Best stay out of Blackspur country.','Folks say the railroad has been paying bandits.','Cinder Creek was never a peaceful town.'])])
+  else:self.say(nearest.name.upper(),[('I have seen your face on the wanted posters. Keep walking.' if self.law_status=='WANTED' else 'We have heard about your trouble. Do not bring it here.' if self.honor<30 else 'People say you have been helping the territory.' if self.honor>=75 else random.choice(['A storm is coming off the mesa.','Best stay out of Blackspur country.','Folks say the railroad has been paying bandits.','Cinder Creek was never a peaceful town.']))])
+
+ def near_door(self):
+  if self.mounted:return None
+  closest=None;dist=58
+  for n,bx,by,bw,bh in BUILDINGS:
+   if n not in INTERIOR_TYPES:continue
+   # Doors are painted on the south face of each building.
+   x,y=bx+bw/2,by+bh+19
+   d=math.hypot(self.x-x,self.y-y)
+   if d<dist:closest=n;dist=d
+  return closest
+
+ def enter_interior(self,name):
+  self.deadeye_active=False
+  self.interior=name;self.indoor_x=480.;self.indoor_y=465.;self.shop_open=False
+  self.keys.clear();self.notify('Entered '+name+' — E at counter; E at south door to leave.',4)
+
+ def leave_interior(self):
+  if not self.interior:return
+  name=self.interior
+  self.interior=None;self.shop_open=False;self.keys.clear()
+  self.notify('Back outside '+name+'.',1.7)
+
+ def update_indoor(self,dt):
+  vx=int('d' in self.keys or 'right' in self.keys)-int('a' in self.keys or 'left' in self.keys)
+  vy=int('s' in self.keys or 'down' in self.keys)-int('w' in self.keys or 'up' in self.keys)
+  mag=math.hypot(vx,vy)
+  if mag:
+   self.indoor_x=max(225,min(735,self.indoor_x+vx/mag*165*dt))
+   self.indoor_y=max(340,min(510,self.indoor_y+vy/mag*165*dt))
+  self.clock=(self.clock+dt*.020)%24
+
+ def use_counter(self):
+  kind=INTERIOR_TYPES.get(self.interior,'home')
+  if kind in SHOP_GOODS:
+   if kind=='office' and self.wanted<=0:
+    self.say('DEPUTY',['No warrants out for you. Keep it that way.']);return
+   self.shop_open=True;self.keys.clear();return
+  talks={'home':'The hearth is cold, but the roof still holds.',
+         'chapel':'The frontier holds many sins, and few confessions.',
+         'hideout':'Dusty supplies. Looks like the owners left in a hurry.'}
+  self.say(self.interior.upper(),talks.get(kind,'Nothing here but frontier dust.'))
+
+ def buy_item(self,index):
+  kind=INTERIOR_TYPES.get(self.interior,'home')
+  goods=SHOP_GOODS.get(kind,[])
+  if index>=len(goods):return
+  label,cost,action=goods[index]
+  if action=='bounty':cost=int(math.ceil(self.wanted*28))
+  if self.money<cost:self.notify('Not enough money for '+label+'.');return
+  if action=='heal' and self.hp>=100:self.notify('Already at full health.');return
+  if action=='bounty' and self.wanted<=0:self.notify('No bounty to pay.');return
+  self.money-=cost
+  if action=='bounty':self.change_honor(2,'Settled a debt with the law')
+  if action=='ammo':self.reserve+=30
+  elif action=='tonic':self.tonics+=1
+  elif action=='supplies':self.hp=min(100,self.hp+15)
+  elif action=='meal':self.hp=min(100,self.hp+35)
+  elif action=='coffee':self.clock=(self.clock+2)%24
+  elif action=='heal':self.hp=100
+  elif action=='horse':self.horse_hp=100
+  elif action=='sleep':self.clock=(self.clock+8)%24;self.hp=min(100,self.hp+25)
+  elif action=='bounty':self.wanted=0;self.law_timer=0;self.law_status='PEACE';self.witness_timer=0
+  self.notify('Purchased '+label+f' for ${cost}.',3)
+  self.save()
+
+ def change_honor(self,amount,reason=''):
+  before=self.honor
+  self.honor=max(0,min(100,self.honor+amount))
+  if self.honor!=before and reason:self.notify(('HONOR + ' if amount>0 else 'HONOR - ')+str(abs(self.honor-before))+'  •  '+reason,2.3)
+
+ def report_crime(self,severity,reason):
+  # A crime witnessed near town escalates immediately; elsewhere it may take
+  # longer to reach the law. Mission firefights against bandits are legal.
+  self.crimes+=1
+  nearby=any(not a.dead and a.kind in ('civilian','sheriff','store','doctor','station','saloon','stable') and math.hypot(a.x-self.x,a.y-self.y)<310 for a in self.actors)
+  witnessed=nearby or self.in_town(self.x,self.y)
+  self.wanted=min(5.,self.wanted+severity*(1 if witnessed else .55))
+  self.law_timer=max(self.law_timer,5. if witnessed else 2.)
+  self.witness_timer=5. if witnessed else 0.
+  self.law_status='WANTED' if self.wanted>=1.2 else 'INVESTIGATING'
+  if witnessed:self.notify('WITNESSES ALERTED: '+reason,2.0)
+  else:self.notify('CRIME REPORTED: '+reason,2.0)
+
+ def update_law(self,dt):
+  if self.wanted<=0:
+   self.wanted=0.;self.law_status='PEACE';return
+  self.law_timer=max(0.,self.law_timer-dt)
+  self.witness_timer=max(0.,self.witness_timer-dt)
+  if self.law_timer==0:
+   rate=.008 if self.in_town(self.x,self.y) else .035
+   if not any(a.kind=='deputy' and not a.dead and math.hypot(a.x-self.x,a.y-self.y)<230 for a in self.actors):
+    self.wanted=max(0,self.wanted-dt*rate)
+  self.law_status='WANTED' if self.wanted>=1.2 else ('INVESTIGATING' if self.wanted>0 else 'PEACE')
+
+ def draw_scattered_props(self):
+  # Deterministic lightweight foreground accents; no new graphics dependencies.
+  # World base image stays unchanged for v1.2 save/map compatibility.
+  cell=104
+  left=max(0,int(self.camx//cell)-1);top=max(0,int(self.camy//cell)-1)
+  right=min(int(WW//cell),int((self.camx+VW)//cell)+1)
+  bottom=min(int(WH//cell),int((self.camy+VH)//cell)+1)
+  for gy in range(top,bottom+1):
+   for gx in range(left,right+1):
+    h=(gx*92821+gy*68917+gx*gy*103)%997
+    if h%7>2:continue
+    wx=gx*cell+20+h%55;wy=gy*cell+17+(h//7)%53
+    if self.in_town(wx,wy) or any(bx-30<wx<bx+bw+30 and by-30<wy<by+bh+30 for _,bx,by,bw,bh in BUILDINGS):continue
+    sx,sy=self.pos(wx,wy)
+    if h%4==0:  # dry grass
+     for o in (-5,0,5):self.canvas.create_line(sx+o,sy+5,sx+o-2,sy-4-(h%5),fill='#997f4c',width=2)
+    elif h%4==1: # small stones
+     self.canvas.create_oval(sx-6,sy-2,sx+8,sy+5,fill='#8d806b',outline='#635b4b')
+    else: # sage scrub
+     self.canvas.create_oval(sx-9,sy-6,sx+9,sy+5,fill='#697052',outline='#474f3a')
+     self.canvas.create_line(sx-6,sy,sx+7,sy-3,fill='#9b976a',width=2)
+
+ def update_npc_schedules(self):
+  # Named townsfolk commute between nearby safe outdoor points across the day.
+  hour=self.clock
+  for a in self.actors:
+   if a.dead or a.kind!='civilian':continue
+   home=self.npc_home.get(a.name,(a.x,a.y))
+   if 7<=hour<18:
+    shift= (48 if (sum(ord(c) for c in a.name)%2) else -48)
+    target=(home[0]+shift,home[1]+45)
+   elif 18<=hour<22:target=(home[0]-36,home[1]+22)
+   else:target=home
+   if self.can_move(*target,9):a.destination=target
+   else:a.destination=home
+
+ def draw_interior(self):
+  c=self.canvas;kind=INTERIOR_TYPES.get(self.interior,'home')
+  colors={'saloon':('#76523b','#b18354'),'store':('#5d6347','#ac885a'),
+          'office':('#5c5c60','#8f7862'),'hotel':('#6a4f64','#c29d77'),
+          'stable':('#64573f','#aa936a'),'doctor':('#768177','#b9a993'),
+          'station':('#585c68','#aa8863'),'chapel':('#555365','#8f765b'),
+          'home':('#695747','#967651'),'hideout':('#483c36','#7c6652')}
+  wall,floor=colors.get(kind,colors['home'])
+  c.create_rectangle(0,0,VW,VH,fill='#1b1716',outline='')
+  c.create_rectangle(175,100,785,538,fill=wall,outline='#271c19',width=12)
+  c.create_rectangle(192,220,768,520,fill=floor,outline='#d1a978',width=4)
+  for xx in range(210,770,38):c.create_line(xx,220,xx,520,fill='#66533f',width=1)
+  for yy in range(248,525,34):c.create_line(192,yy,768,yy,fill='#836647',width=1)
+  c.create_rectangle(300,242,660,314,fill='#51382e',outline='#e1b77a',width=4)
+  for xx in (330,390,450,510,570,630):c.create_oval(xx-6,257,xx+6,268,fill='#b89469',outline='#39291e')
+  c.create_rectangle(438,514,522,540,fill='#392a26',outline='#e6ca95',width=4)
+  c.create_rectangle(230,360,325,425,fill='#51362f',outline='#cfab7a',width=3)
+  c.create_rectangle(640,365,735,435,fill='#51362f',outline='#cfab7a',width=3)
+  if kind=='saloon':
+   for xx in (280,680):
+    c.create_oval(xx-30,365,xx+30,408,fill='#c5a575',outline='#4b3127',width=3)
+  elif kind=='hotel':
+   for xx in (275,680):c.create_rectangle(xx-38,358,xx+38,436,fill='#b5b09b',outline='#4b3331',width=5)
+  elif kind=='stable':
+   for xx in (257,675):c.create_oval(xx-25,360,xx+25,420,fill='#795139',outline='#452f22',width=4)
+  elif kind=='chapel':
+   c.create_line(480,239,480,296,fill='#eed8a7',width=8);c.create_line(458,257,502,257,fill='#eed8a7',width=8)
+  c.create_oval(self.indoor_x-10,self.indoor_y+8,self.indoor_x+11,self.indoor_y+15,fill='#49372e',outline='')
+  c.create_rectangle(self.indoor_x-9,self.indoor_y-9,self.indoor_x+9,self.indoor_y+10,fill='#35565b',outline='#172a2e',width=2)
+  c.create_oval(self.indoor_x-8,self.indoor_y-20,self.indoor_x+8,self.indoor_y-7,fill='#d0a078',outline='')
+  c.create_rectangle(self.indoor_x-14,self.indoor_y-20,self.indoor_x+14,self.indoor_y-16,fill='#5f3d2c',outline='')
+  self.panel(200,18,560,70)
+  self.draw_text(480,30,self.interior.upper(),21,'#f2d7a0',True,anchor='center')
+  self.draw_text(480,60,'WASD: WALK   E: INTERACT   ESC: OUTSIDE',11,'#debd86',anchor='center')
+  if self.indoor_y<365:self.draw_text(480,330,'[ E ]  COUNTER',14,'#ffe5ac',True,anchor='center')
+  if self.indoor_y>475:self.draw_text(480,550,'[ E ]  EXIT TO STREET',13,'#f3d79e',True,anchor='center')
+  self.draw_text(18,562,f'HEALTH {int(self.hp)}   $ {self.money}   TONICS {self.tonics}   AMMO {self.ammo}/{self.reserve}',12,'#ecd0a0',True)
+  for i,(msg,remaining) in enumerate(self.toast[-2:]):self.draw_text(480,104+i*23,msg,12,'#fff0c4',True,anchor='center')
+
+ def draw_shop(self):
+  kind=INTERIOR_TYPES.get(self.interior,'home')
+  goods=SHOP_GOODS.get(kind,[])
+  self.panel(205,128,550,350,'#211d1a','#d4a76a')
+  self.draw_text(480,147,'TRADING COUNTER',23,'#ffe0a9',True,anchor='center')
+  self.draw_text(232,191,f'YOUR MONEY: ${self.money}',14,'#f0c994',True)
+  for i,(name,price,action) in enumerate(goods):
+   if action=='bounty':price=int(math.ceil(self.wanted*28))
+   self.draw_text(232,239+i*53,f'{i+1}   {name}',15,'#f7e1c2')
+   self.draw_text(700,239+i*53,f'${price}',15,'#d6ac76',True,anchor='e')
+  self.draw_text(480,445,'PRESS NUMBER TO BUY    •    B / ESC TO CLOSE',12,'#f0d2a6',True,anchor='center')
 
  def toggle_horse(self):
   if self.mounted:
@@ -268,20 +506,20 @@ class Game:
  def fire(self):
   if self.screen!='playing' or self.dialog or self.shot_timer>0 or self.reload_timer>0 or self.map_open or self.journal_open:return
   if self.ammo<=0:self.reload();return
-  self.ammo-=1;self.shot_timer=.25
+  self.ammo-=1;self.shot_timer=.17 if self.deadeye_active else .25
   mx,my=self.mouse;dx=(mx+self.camx)-self.x;dy=(my+self.camy)-self.y
   if abs(dx)+abs(dy)<15:dx,dy=self.facing
   mag=max(.001,math.hypot(dx,dy));dx/=mag;dy/=mag
   self.facing=(dx,dy)
   self.bullets.append([self.x+dx*19,self.y+dy*19,dx*710,dy*710,1.0,True])
   self.effects.append([self.x+dx*22,self.y+dy*22,.14,'flash'])
-  if self.in_town(self.x,self.y):
-   self.wanted=min(5.,self.wanted+.55);self.law_timer=3.
+  self.shot_trails.append([self.x+dx*18,self.y+dy*18,self.x+dx*210,self.y+dy*210,.13])
+  if self.in_town(self.x,self.y):self.report_crime(.40,'Gunshots in town')
   if self.ammo==0:self.notify('Cylinder empty — R to reload.',1.5)
 
  def respawn(self):
   self.death_count+=1;self.hp=100;self.x,self.y=700,620;self.money=max(0,self.money-25);self.wanted=0
-  self.ammo=6;self.reserve=max(24,self.reserve);self.tonics=max(1,self.tonics);self.mounted=False
+  self.deadeye_active=False;self.deadeye=100.;self.ammo=6;self.reserve=max(24,self.reserve);self.tonics=max(1,self.tonics);self.mounted=False
   self.horse_x,self.horse_y=764,646;self.screen='playing';self.notify('You woke up at the doctor. Lost up to $25.');self.save()
 
  def loop(self):
@@ -297,6 +535,18 @@ class Game:
 
  def update(self,dt):
   self.frame+=1;self.clock=(self.clock+dt*.032)%24
+  self.deadeye_regen_delay=max(0,self.deadeye_regen_delay-dt)
+  if self.deadeye_active:
+   self.deadeye=max(0.,self.deadeye-dt*25)
+   self.deadeye_regen_delay=1.8
+   if self.deadeye<=0:self.deadeye_active=False;self.notify('Dead Eye exhausted.',1.5)
+  elif self.deadeye_regen_delay<=0:self.deadeye=min(100.,self.deadeye+dt*11)
+  world_dt=dt*(.25 if self.deadeye_active else 1.)
+  if self.interior:
+   self.update_indoor(dt)
+   for toast in self.toast:toast[1]-=dt
+   self.toast=[t for t in self.toast if t[1]>0]
+   return
   self.shot_timer=max(0,self.shot_timer-dt);self.invuln=max(0,self.invuln-dt)
   if self.reload_timer>0:
    self.reload_timer-=dt
@@ -304,6 +554,8 @@ class Game:
     n=min(6-self.ammo,self.reserve);self.ammo+=n;self.reserve-=n;self.notify('Revolver reloaded.',1.1)
   for toast in self.toast:toast[1]-=dt
   self.toast=[t for t in self.toast if t[1]>0]
+  for trail in self.shot_trails:trail[4]-=dt
+  self.shot_trails=[v for v in self.shot_trails if v[4]>0]
   for fx in self.effects:fx[2]-=dt
   self.effects=[a for a in self.effects if a[2]>0]
   vx=(int('d' in self.keys or 'right' in self.keys)-int('a' in self.keys or 'left' in self.keys))
@@ -314,18 +566,16 @@ class Game:
    if self.can_move(self.x+vx*speed*dt,self.y,16 if self.mounted else 10):self.x+=vx*speed*dt
    if self.can_move(self.x,self.y+vy*speed*dt,16 if self.mounted else 10):self.y+=vy*speed*dt
    self.facing=(vx,vy)
+  if self.frame%120==0:self.update_npc_schedules()
   if self.frame%40==0:
    region=self.region_name(self.x,self.y)
    if region!=self.last_region:
     self.last_region=region;self.notify('NOW ENTERING: '+region.upper(),3.4)
   if self.mouse_down:self.fire()
   self.camx=max(0,min(WW-VW,int(self.x-VW/2)));self.camy=max(0,min(WH-VH,int(self.y-VH/2)))
-  if self.wanted>0:
-   self.law_timer=max(0,self.law_timer-dt)
-   if self.law_timer==0 and not self.in_town(self.x,self.y):self.wanted=max(0,self.wanted-dt*.027)
-   if self.law_timer==0 and self.in_town(self.x,self.y):self.wanted=max(0,self.wanted-dt*.008)
-  self.update_ai(dt)
-  self.update_bullets(dt)
+  self.update_law(dt)
+  self.update_ai(world_dt)
+  self.update_bullets(world_dt)
   if self.stage==1 and self.enemies_remaining('hollow')==0:self.quest(2);self.say('JESSE',['Dust Hollow is quiet. Five more graves for the desert.','Bell promised eighty dollars. Time to collect.'])
   if self.stage==6 and self.enemies_remaining('crow')==0:self.quest(7);self.say('JESSE',['Crow is down. His reign ends here, on a patch of dirt nobody will remember.','Bell deserves to hear it from me.'])
   if self.hp<=0:self.screen='death';self.mounted=False
@@ -339,11 +589,15 @@ class Game:
    dist=math.hypot(a.x-self.x,a.y-self.y)
    ishostile=a.kind in ('bandit','deputy') or a.kind.startswith('mission_')
    if a.kind=='civilian':
-    if self.wanted>1 and dist<220:dx,dy=a.x-self.x,a.y-self.y
+    if (self.law_status=='WANTED' or (self.witness_timer>0 and dist<310)) and dist<280:dx,dy=a.x-self.x,a.y-self.y
     else:
-     if a.wander<0:
-      a.wander=random.uniform(1,4);a.dx=random.uniform(-1,1);a.dy=random.uniform(-1,1)
-     dx,dy=a.dx,a.dy
+     dest=getattr(a,'destination',None)
+     if dest and math.hypot(dest[0]-a.x,dest[1]-a.y)>20:
+      dx,dy=dest[0]-a.x,dest[1]-a.y
+     else:
+      if a.wander<0:
+       a.wander=random.uniform(1.5,4);a.dx=random.uniform(-1,1);a.dy=random.uniform(-1,1)
+      dx,dy=a.dx,a.dy
     mag=max(1,math.hypot(dx,dy));self.move_actor(a,dx/mag*a.speed*dt,dy/mag*a.speed*dt)
    elif a.kind=='animal':
     if dist<130:dx,dy=a.x-self.x,a.y-self.y
@@ -351,8 +605,8 @@ class Game:
      if a.wander<0:a.wander=random.uniform(1,3);a.dx=random.uniform(-1,1);a.dy=random.uniform(-1,1)
      dx,dy=a.dx,a.dy
     mag=max(1,math.hypot(dx,dy));self.move_actor(a,dx/mag*a.speed*dt,dy/mag*a.speed*dt)
-   elif ishostile and dist<480:
-    if a.kind=='deputy' and self.wanted<.5:a.dead=True;continue
+   elif ishostile and dist<(620 if a.kind=='deputy' else 480):
+    if a.kind=='deputy' and self.law_status!='WANTED':a.dead=True;continue
     dx=self.x-a.x;dy=self.y-a.y;mag=max(.001,dist)
     if dist>155:self.move_actor(a,dx/mag*a.speed*dt,dy/mag*a.speed*dt)
     if dist<340 and a.shoot<=0:
@@ -360,9 +614,11 @@ class Game:
      scatter=random.uniform(-.14,.14)
      angle=math.atan2(dy,dx)+scatter
      self.bullets.append([a.x,a.y,math.cos(angle)*340,math.sin(angle)*340,1.3,False])
-  if self.wanted>=1.2 and self.law_timer<=0:
+  if self.law_status=='WANTED':
    deputies=sum(not a.dead and a.kind=='deputy' for a in self.actors)
-   if deputies<min(4,1+int(self.wanted)) and self.frame%180==0:
+   self.law_spawn_timer=max(0.,self.law_spawn_timer-dt)
+   if deputies<min(5,1+int(self.wanted)) and self.law_spawn_timer<=0:
+    self.law_spawn_timer=max(1.1,4.0-self.wanted*.4)
     ang=random.random()*math.tau;x=self.x+math.cos(ang)*370;y=self.y+math.sin(ang)*320
     if self.can_move(x,y):self.actors.append(Actor(x,y,'deputy','Deputy',95,95,94))
 
@@ -381,27 +637,27 @@ class Game:
       if a.dead or a.kind=='animal' and a.name=='Jackrabbit' and random.random()<.12:continue
       if math.hypot(a.x-px,a.y-py)<(17 if a.name=='Crow' else 13):
        if a.kind in ('sheriff','store','doctor','stable','saloon','station'):
-        self.wanted=min(5,self.wanted+2);self.law_timer=6
-        self.notify('LAW ALERT: You attacked an innocent!')
+        self.report_crime(2,'Assault on a citizen');self.change_honor(-8,'Assault')
         a.hp-=32
        elif a.kind=='civilian':
-        self.wanted=min(5,self.wanted+2);self.law_timer=6;a.hp-=55
+        self.report_crime(2,'Assault on a citizen');self.change_honor(-8,'Assault');a.hp-=55
        else:a.hp-=52
-       self.effects.append([px,py,.30,'hit']);collided=True
+       self.effects.append([px,py,.30,'hit']);self.effects.append([px,py,.52,'spark']);collided=True
        if a.hp<=0:
         a.dead=True
         if a.kind in ('bandit','deputy') or a.kind.startswith('mission_'):
-         if a.kind=='deputy':self.wanted=min(5,self.wanted+1.5)
+         if a.kind=='deputy':self.report_crime(2.5,'Lawman killed');self.change_honor(-18,'Killed a lawman')
          else:
           reward=8 if a.kind=='bandit' else 5
-          self.money+=reward;self.kills+=1;self.notify('Outlaw down! +$'+str(reward),1.7)
-        elif a.kind in ('civilian','sheriff','store','doctor','stable','saloon','station'):self.wanted=5.;self.notify('MURDER! Wanted level maximum.')
+          self.money+=reward;self.kills+=1;self.deadeye=min(100.,self.deadeye+12);self.change_honor(1,'Outlaw defeated');self.notify('Outlaw down! +$'+str(reward),1.7)
+        elif a.kind in ('civilian','sheriff','store','doctor','stable','saloon','station'):
+         self.report_crime(5,'Murder');self.change_honor(-20,'Killed a civilian');self.wanted=5.;self.notify('MURDER! Wanted level maximum.')
        break
     else:
      if math.hypot(self.x-px,self.y-py)<(17 if self.mounted else 11):
       collided=True
       if self.invuln<=0:
-       self.hp-=random.randrange(9,18);self.invuln=.35;self.effects.append([px,py,.35,'hit'])
+       self.hp-=random.randrange(9,18);self.invuln=.35;self.effects.append([px,py,.35,'hit']);self.effects.append([px,py,.5,'spark'])
       break
     if collided:break
    if not collided and b[4]>0:kept.append(b)
@@ -474,18 +730,27 @@ class Game:
 
  def draw_world(self):
   self.canvas.create_image(-self.camx,-self.camy,image=self.world,anchor='nw')
+  self.draw_scattered_props()
   for a in sorted(self.actors,key=lambda a:a.y):self.draw_actor(a)
   if self.stage==4 and self.enemies_remaining('blackspur')==0 and not self.ledger:
    x,y=self.pos(2040,1280)
    self.canvas.create_rectangle(x-9,y-12,x+9,y+12,fill='#e5c283',outline='#423628',width=2)
    self.draw_text(x,y-32,'E: TAKE LEDGER',12,'#fff2b6',True,anchor='center')
   self.draw_player()
+  for x1,y1,x2,y2,age in self.shot_trails:
+   u,v=self.pos(x1,y1);w,z=self.pos(x2,y2)
+   self.canvas.create_line(u,v,w,z,fill='#f5d093' if self.deadeye_active else '#d4ac72',width=2)
   for b in self.bullets:
    bx,by=self.pos(b[0],b[1]);self.canvas.create_oval(bx-3,by-3,bx+3,by+3,fill='#ffe1a4' if b[5] else '#f18f61',outline='')
   for x,y,t,kind in self.effects:
    sx,sy=self.pos(x,y);radius=int(4+t*25)
-   col={'dust':'#d2b388','hit':'#b7523b','flash':'#ffe4ac'}.get(kind,'white')
+   col={'dust':'#d2b388','hit':'#b7523b','flash':'#ffe4ac','spark':'#ffe7b0'}.get(kind,'white')
    self.canvas.create_oval(sx-radius,sy-radius,sx+radius,sy+radius,outline=col,width=3)
+  if self.deadeye_active:
+   self.canvas.create_rectangle(0,0,VW,VH,fill='#ad7f39',stipple='gray75',outline='')
+   self.canvas.create_oval(self.mouse[0]-18,self.mouse[1]-18,self.mouse[0]+18,self.mouse[1]+18,outline='#f7e5a8',width=3)
+   sx,sy=self.pos(self.x,self.y)
+   self.canvas.create_line(sx,sy,self.mouse[0],self.mouse[1],fill='#ebcd83',dash=(5,9),width=2)
   # Nightfall through stippled dark field, with a warmer lantern-light ellipse around the player.
   if self.clock>=20 or self.clock<5:
    self.canvas.create_rectangle(0,0,VW,VH,fill='#11192b',stipple='gray50',outline='')
@@ -498,16 +763,19 @@ class Game:
   self.canvas.create_rectangle(25,49,209,66,fill='#3b2222',outline='#91684b')
   self.canvas.create_rectangle(27,51,27+180*max(0,self.hp)/100,64,fill='#a74c40',outline='')
   self.draw_text(218,50,f'{max(0,int(self.hp))} HP',11,'#e7d3b5',True)
-  self.draw_text(26,73,f'$ {self.money}    TONICS {self.tonics}    KILLS {self.kills}',10,'#edc995',True)
-  self.panel(333,13,285,66)
+  self.draw_text(26,73,f'$ {self.money}   HONOR {self.honor}   TONICS {self.tonics}',10,'#edc995',True)
+  self.panel(333,13,285,86)
   self.draw_text(345,21,'COLT PEACEMAKER',11,'#e3c18c',True)
   self.draw_text(345,42,f'{self.ammo} / {self.reserve}',22,'#f2e0bd',True)
   if self.reload_timer>0:self.draw_text(445,46,'RELOADING',12,'#e9a268',True)
+  self.canvas.create_rectangle(346,75,596,83,fill='#4d3827',outline='#8b7550')
+  self.canvas.create_rectangle(347,76,347+248*self.deadeye/100,82,fill='#e3c078',outline='')
+  self.draw_text(505,60,'Q: DEAD EYE' if not self.deadeye_active else 'DEAD EYE ACTIVE',10,'#e9d5a4',True)
   self.panel(631,13,315,86)
   hours=int(self.clock);mins=int((self.clock-hours)*60)
   self.draw_text(642,20,f'{hours%12 or 12}:{mins:02d} {"AM" if hours<12 else "PM"}  |  {self.region_name(self.x,self.y).upper()}',11,'#e2c48f',True)
   stars='★'*min(5,math.ceil(self.wanted))
-  self.draw_text(642,43,'WANTED '+(stars if stars else '—'),15,'#e7a16b' if stars else '#b9a78b',True)
+  self.draw_text(642,43,self.law_status+' '+(stars if stars else '—'),15,'#e7a16b' if stars else '#b9a78b',True)
   self.draw_text(642,69,'H: HORSE    E: TALK    F1: HELP',10,'#e9d6b2')
   self.panel(13,505,550,83)
   self.draw_text(25,514,'CHAPTER '+ ('EPILOGUE' if self.stage==8 else str(1+self.stage//2))+'  ·  '+MISSIONS[self.stage][0].upper(),12,'#e6bc79',True)
@@ -527,6 +795,8 @@ class Game:
    q=math.hypot(a.x-self.x,a.y-self.y)
    if q<dist:nearest=a;dist=q
   if nearest and not self.dialog:self.draw_text(480,474,'[ E ]  TALK TO '+nearest.name.upper(),14,'#fff0c4',True,anchor='center')
+  door=self.near_door()
+  if door:self.draw_text(480,451,'[ SHIFT+E ] ENTER '+door.upper(),14,'#ffebb7',True,anchor='center')
   if not self.mounted and math.hypot(self.x-self.horse_x,self.y-self.horse_y)<75:self.draw_text(480,448,'[ H ]  MOUNT WHISKEY',13,'#e3d29e',True,anchor='center')
 
  def region_name(self,x,y):
@@ -598,16 +868,16 @@ class Game:
   self.canvas.create_line(160,280,801,280,fill='#8d744e',width=2)
   self.draw_text(160,305,'YOUR RECORD',12,'#b89c70',True)
   self.draw_text(160,340,f'Outlaws defeated: {self.kills}       Money: ${self.money}',15,'#f1dfbd')
-  self.draw_text(160,382,f'Wanted: {math.ceil(self.wanted)} stars       Times defeated: {self.death_count}',15,'#f1dfbd')
+  self.draw_text(160,382,f'Honor: {self.honor}/100    Law: {self.law_status}    Crimes: {self.crimes}',15,'#f1dfbd')
   self.draw_text(160,424,f'Missions finished: {min(4,self.stage//2)} / 4       Story: {"COMPLETE" if self.stage==8 else "IN PROGRESS"}',15,'#f1dfbd')
   self.draw_text(480,516,'J TO CLOSE',12,'#e2bb7e',True,anchor='center')
 
  def draw_help(self):
-  self.panel(190,89,580,418)
+  self.panel(190,52,580,506)
   self.draw_text(216,110,'HOW TO SURVIVE THE FRONTIER',20,'#efc58a',True)
-  controls=[('WASD / ARROWS','Walk / steer horse'),('SHIFT','Sprint / gallop'),('MOUSE / LEFT CLICK','Aim and shoot'),('SPACE','Fire in facing direction'),('R','Reload revolver'),('E','Talk / collect quest items'),('H','Mount or dismount Whiskey'),('1','Drink a health tonic'),('M / J','Territory map / journal'),('F5','Save game'),('F11','Toggle fullscreen'),('ESC','Pause'),('F1','Close this screen')]
+  controls=[('WASD / ARROWS','Walk / steer horse'),('SHIFT','Sprint / gallop'),('MOUSE / LEFT CLICK','Aim and shoot'),('SPACE','Fire in facing direction'),('R','Reload revolver'),('Q','Toggle Dead Eye (slow-motion)'),('E / SHIFT+E','Talk / enter buildings / interact'),('H','Mount or dismount Whiskey'),('1','Drink a health tonic'),('M / J','Territory map / journal'),('B','Open an indoor shop at its counter'),('F5','Save game'),('F11','Toggle fullscreen'),('ESC','Pause'),('F1','Close this screen')]
   for i,(k,v) in enumerate(controls):
-   yy=156+i*24
+   yy=143+i*24
    self.draw_text(218,yy,k,12,'#f4d59e',True)
    self.draw_text(440,yy,v,12,'#e3d2b8')
 
@@ -620,7 +890,7 @@ class Game:
   self.draw_text(480,393,'ENTER  /  CLICK  —  NEW GAME',16,'#f6d5a0',True,anchor='center')
   if os.path.exists(SAVE):self.draw_text(480,473,'L  /  CLICK  —  CONTINUE',16,'#f0c28a',True,anchor='center')
   else:self.draw_text(480,473,'NO SAVED GAME YET',13,'#8c806e',anchor='center')
-  self.draw_text(480,554,'Built for Linux  •  960×600  •  Python + Tkinter  •  Original artwork',11,'#d6b38e',anchor='center')
+  self.draw_text(480,554,'Outlaw Systems v1.3  •  Linux  •  Python + Tkinter  •  Original artwork',11,'#d6b38e',anchor='center')
 
  def draw_pause(self):
   self.canvas.create_rectangle(0,0,VW,VH,fill='#17130f',stipple='gray50',outline='')
@@ -651,6 +921,12 @@ class Game:
   if self.screen=='title':self.draw_title();return
   if self.screen=='death':self.draw_death();return
   if self.screen=='ending':self.draw_ending();return
+  if self.interior:
+   self.draw_interior()
+   if self.shop_open:self.draw_shop()
+   if self.show_help:self.draw_help()
+   self.draw_dialog()
+   return
   self.draw_world();self.draw_hud()
   if self.screen=='paused':self.draw_pause()
   if self.map_open:self.draw_map()
@@ -666,6 +942,9 @@ class Game:
 def main():
  if '--self-test' in sys.argv:
   assert len(MISSIONS)==9 and len(BUILDINGS)>=25 and (WW,WH)==(4800,3200)
+  assert all(t in INTERIOR_TYPES for t in ('Saloon','General Store','Hotel','Sheriff'))
+  assert len(SHOP_GOODS)>=6
+  assert VERSION.startswith('1.3')
   assert os.path.exists(os.path.join(ASSETS,'world.png'))
   assert os.path.exists(os.path.join(ASSETS,'title.png'))
   print('Self-test OK: story, buildings, and artwork present.')

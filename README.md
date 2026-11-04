@@ -5,9 +5,39 @@
 
 Features include a 4,800×3,200 scrolling handcrafted Western map, 27 buildings, multiple frontier settlements with interactive characters, horseback riding, 6-shot revolver gunplay, reloading, bandit combat, money and shops, a doctor and saloon, enemy pursuit, a wanted system, wildlife, a day/night cycle, an objective marker, a map and journal, health tonics, save/load, story ending and free roam.
 
+## Outlaw Systems v1.3 (November 2026)
+
+This release adapts gameplay ideas from **A Western Tale** (Godot) to Dust & Debt's lightweight Python/Tkinter engine, without requiring Godot or third-party Python libraries.
+
+- **Dead Eye:** Press **Q** while outdoors to toggle slow motion. World actors and bullets move at 25% speed while you can continue moving and firing normally. Dead Eye consumes its 100-point meter at 25 per real-time second, regenerates after a short cooldown, and gains 12 points when you defeat an outlaw. The HUD displays the meter; Dead Eye adds a sepia tint, targeting line and aiming reticle. Press Q again to turn it off.
+- **Honor:** 0–100 reputation score (starts at 50). Defeating outlaws raises honor slightly; assaults and murder lower it. Paying off a bounty restores a small amount. Civilians and Sheriff Bell react differently to your record.
+- **Law enforcement:** Peace → Investigating → Wanted. Firing in town or attacking bystanders can attract witnesses and raise the wanted level. Deputies pursue when sufficiently wanted. Heat decays only while not actively pursued, and more slowly in town; paying off a bounty clears the status. Crimes and honor persist in saves.
+- **Combat feedback:** Short-lived bullet trails, hit sparks, distinct Dead Eye aiming overlays and clearer crime notifications.
+- **Layered scenery:** Deterministic foreground grass, scrub and rock details drawn over the existing world map. Existing coordinates, collision footprints and quest positions stay fixed. This is a *lightweight procedural overlay*, not a full tilemap engine conversion.
+- **Existing games:** Older save files remain readable, with missing honor, crime and Dead Eye fields initialized to sensible defaults. Original missions and Living Frontier interiors are unchanged.
+
+**Controls:** Q toggles Dead Eye. Use the mouse to aim and left-click to fire. R reloads. F1 shows the complete controls. Save with F5.
+
+**Asset note:** A Western Tale contains some third-party assets with explicit CC0 license files, but this release does not import its third-party sprites or music. Those need an asset-by-asset provenance and visual compatibility review before reuse.
+
+**Validation:** `python3 game.py --self-test` checks assets and core game definitions. For an automated graphical smoke check, run `xvfb-run -a python3 tests/smoke_test.py` (requires Xvfb). Final gameplay compatibility should be verified on your own Linux installation.
+
+## Living Frontier v1.2 (November 2026)
+
+**New in this update:**
+- Explore **27 enterable buildings** across the existing 4,800 × 3,200 world. Doors are on the south-facing side: dismount, approach the middle of the building's south wall, and press **Shift+E** (or **E** when no NPC is close).
+- Each building has its own procedurally rendered indoor room, including saloons, stores, sheriff's offices, doctors, stables, hotels, cabins and more.
+- Walk indoors with **WASD** or arrow keys. Walk north to the counter and press **E** (or **B**) to open a shop, or south to the door and **E** to leave. **Esc** also leaves a room.
+- Working **number-key shop menus**: buy ammunition, health tonics, supplies, meals, treatment, horse care, lodging, and pay off wanted bounties. Prices are deducted and items take effect immediately.
+- Civilian NPCs now follow simple time-of-day outdoor routes between home, daytime and evening positions, while avoiding building footprints. Existing quest NPCs remain available at their original locations.
+- Existing missions, combat and outdoor map coordinates are preserved. Saves are compatible with the earlier Expanded Frontier edition.
+- Save while indoors with **F5**. Reloading starts outdoors near the building you entered.
+
+**Scope note:** This release adds functional single-room interiors and basic NPC daily movement. It does not yet include elaborate multi-room buildings, sophisticated indoor NPC conversations, indoor combat or navigation pathfinding around distant obstacles.
+
 ## Expanded Territory — Map Update
 
-The world is now **4,800 × 3,200 pixels** (four times the original territory), with **27 enterable-area landmarks/building exteriors**, roads, river bridges, an extended railroad, and distinct biomes. Key locations:
+The world is now **4,800 × 3,200 pixels** (four times the original territory), with **27 building exteriors with enterable interiors**, roads, river bridges, an extended railroad, and distinct biomes. Key locations:
 
 - **Cinder Creek** — original town, sheriff, saloon, shops and story starting point
 - **Dust Hollow** — outlaw camp to the northeast of Cinder Creek
@@ -49,7 +79,10 @@ The game opens a 960×600 window and targets modest older computers. Press **F11
 | Mouse aim + left click | Fire revolver |
 | Space | Fire towards mouse pointer |
 | R | Reload six-round revolver |
-| E | Talk to people / pick up evidence |
+| E | Talk, enter buildings if clear, use indoor counters and exits |
+| Shift+E | Enter nearby building even when an NPC stands near its door |
+| B | Open a shop while near an indoor counter |
+| 1–4 | Select items in an indoor shop |
 | H | Mount/dismount Whiskey when near him |
 | 1 | Use health tonic |
 | M | World map |
