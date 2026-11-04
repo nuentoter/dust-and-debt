@@ -10,7 +10,7 @@ def main():
   game.SAVE=os.path.join(tmp,'save.json')
   root=tk.Tk();root.withdraw()
   g=game.Game(root);g.new_game();g.dialog=None
-  assert game.VERSION.startswith('1.5')
+  assert hasattr(g,'npc_schedule') and hasattr(g,'daily_period')
   assert len([a for a in g.actors if a.kind=='civilian'])>=16
   martha=next(a for a in g.actors if a.name=='Martha')
   sheriff=next(a for a in g.actors if a.name=='Sheriff Bell')
