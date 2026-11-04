@@ -18,3 +18,5 @@ jobs:
         run: xvfb-run -a python3 tests/dialogue_test.py
       - name: Great Frontier regression tests
         run: xvfb-run -a python3 tests/frontier_hotfix_test.py
+      - name: Living Towns regression tests
+        run: xvfb-run -a python3 tests/living_towns_test.py
