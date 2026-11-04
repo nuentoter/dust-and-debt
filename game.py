@@ -6,6 +6,8 @@ import tkinter as tk
 from tkinter import messagebox
 import os, math, random, json, time, textwrap, sys, shutil
 from dataclasses import dataclass
+from frontier_expansion import (SETTLEMENTS,SIDE_JOBS,extra_buildings,extra_npcs,resource_nodes,
+                                nearby_settlement,get_settlement,get_job,draw_frontier_towns)
 
 ROOT=os.path.dirname(os.path.abspath(__file__))
 ASSETS=os.path.join(ROOT,'assets')
@@ -14,7 +16,7 @@ VW,VH=960,600
 OLD_WW,OLD_WH=4800,3200
 WW,WH=19200,12800  # 16x original area, drawn incrementally
 FPS=33
-VERSION='2.0 — Complete Frontier'
+VERSION='2.1 — Frontier Reborn'
 # Interiors are lightweight procedural rooms: no extra graphics libraries or image files.
 INTERIOR_TYPES={
  'Sheriff':'office','Sheriff Annex':'office','Saloon':'saloon','Sagebrush Saloon':'saloon',
@@ -65,6 +67,13 @@ MISSIONS=[
  ('A Debt Settled','Return to Sheriff Bell to collect the final reward.'),
  ('Free Roam','The story is complete. Explore, hunt outlaws, and live another day.')]
 
+# Expansion definitions leave every original mission and old-town coordinate intact.
+for _name,_x,_y,_w,_h,_kind in extra_buildings():
+ BUILDINGS.append((_name,_x,_y,_w,_h))
+ INTERIOR_TYPES[_name]=_kind
+NPCS.extend(extra_npcs())
+RESOURCE_NODES=resource_nodes()
+
 @dataclass
 class Actor:
  x:float
@@ -83,7 +92,7 @@ class Actor:
 
 class Game:
  def __init__(self,root):
-  self.root=root;root.title('DUST & DEBT | Complete Frontier v2.0')
+  self.root=root;root.title('DUST & DEBT | Frontier Reborn v2.1')
   root.resizable(False,False)
   self.canvas=tk.Canvas(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
@@ -119,6 +128,8 @@ class Game:
    self.actors.append(Actor(x,y,kind,n,100,100,42))
    if kind=='civilian':self.npc_home[n]=(x,y)
   self.contract=None;self.bounties_done=0;self.encounter_cooldown=35.
+  self.side_job=None;self.side_completed=[];self.gathered_nodes=[];self.camps_used=[]
+  self.visited_settlements=[];self.settlement_news_timer=0.
   self.spawn_roamers()
   self.update_npc_schedules()
   self.safe_timer=50.
@@ -333,6 +344,11 @@ class Game:
    self.mission_activated=set(s.get('mission_activated',[]))
    self.waypoint=s.get('waypoint')
    self.sound_on=bool(s.get('sound_on',False))
+   self.side_job=s.get('side_job')
+   self.side_completed=list(s.get('side_completed',[]))
+   self.gathered_nodes=list(s.get('gathered_nodes',[]))
+   self.camps_used=list(s.get('camps_used',[]))
+   self.visited_settlements=list(s.get('visited_settlements',[]))
    self.contract=s.get('contract')
    if self.contract and not self.contract.get('finished',False):self.spawn_contract_target()
    # Quest combat must regenerate after loading (kill progress is persisted).
@@ -371,6 +387,9 @@ class Game:
   d['mission_activated']=list(self.mission_activated)
   d['contract']=self.contract;d['bounties_done']=self.bounties_done
   d['waypoint']=self.waypoint;d['sound_on']=self.sound_on
+  d['side_job']=self.side_job;d['side_completed']=self.side_completed
+  d['gathered_nodes']=self.gathered_nodes;d['camps_used']=self.camps_used
+  d['visited_settlements']=self.visited_settlements
   d['save_version']=VERSION
   tag={1:'hollow',4:'blackspur',6:'crow'}.get(self.stage)
   if tag:d['stage_kills']=sum(a.dead for a in self.actors if a.kind=='mission_'+tag)
@@ -1027,6 +1046,7 @@ class Game:
  def terrain_obstacle(self,x,y):
   # Consistent cover objects on procedural terrain; roads remain passable.
   if x<OLD_WW and y<OLD_WH:return None
+  if nearby_settlement(x,y,520):return None
   tile=112;tx=int(x//tile);ty=int(y//tile)
   for cy in range(ty-1,ty+2):
    for cx in range(tx-1,tx+2):
@@ -1090,6 +1110,7 @@ class Game:
  def draw_world(self):
   self.draw_far_terrain()
   self.canvas.create_image(-self.camx,-self.camy,image=self.world,anchor='nw')
+  draw_frontier_towns(self.canvas,self.camx,self.camy,VW,VH)
   self.draw_scattered_props()
   visible=(a for a in self.actors if self.camx-45<=a.x<=self.camx+VW+45 and self.camy-50<=a.y<=self.camy+VH+50)
   for a in sorted(visible,key=lambda a:a.y):self.draw_actor(a)
@@ -1368,7 +1389,7 @@ def main():
   assert len(MISSIONS)==9 and len(BUILDINGS)>=25 and (WW,WH)==(19200,12800)
   assert all(t in INTERIOR_TYPES for t in ('Saloon','General Store','Hotel','Sheriff'))
   assert len(SHOP_GOODS)>=6
-  assert VERSION.startswith('2.0')
+  assert VERSION.startswith('2.1')
   assert os.path.exists(os.path.join(ASSETS,'world.png'))
   assert os.path.exists(os.path.join(ASSETS,'title.png'))
   print('Self-test OK: story, buildings, and artwork present.')
