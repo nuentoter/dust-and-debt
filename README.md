@@ -5,6 +5,19 @@
 
 Features include a 4,800×3,200 scrolling handcrafted Western map, 27 buildings, multiple frontier settlements with interactive characters, horseback riding, 6-shot revolver gunplay, reloading, bandit combat, money and shops, a doctor and saloon, enemy pursuit, a wanted system, wildlife, a day/night cycle, an objective marker, a map and journal, health tonics, save/load, story ending and free roam.
 
+## Frontier Conversations v1.4 (November 2026)
+
+**Milestone 1 of the sequential roadmap.** Talk to ordinary townsfolk with **E** and select one of three replies using **1**, **2**, or **3**; **Esc** exits the choice menu. You can ask for local news, ask how people view your reputation, or say goodbye. Greetings and reactions reflect your honor and wanted status. Story mission-giver dialogue is unchanged. The feature uses the existing Tkinter renderer and requires no new assets or dependencies.
+
+Run the existing smoke test and new dialogue regression test in a virtual display:
+
+```bash
+xvfb-run -a python3 tests/smoke_test.py
+xvfb-run -a python3 tests/dialogue_test.py
+```
+
+The dialogue implementation was tested in a Linux virtual display, but final Archcraft playtesting is still requested before Milestone 1 is marked complete.
+
 ## Outlaw Systems v1.3 (November 2026)
 
 This release adapts gameplay ideas from **A Western Tale** (Godot) to Dust & Debt's lightweight Python/Tkinter engine, without requiring Godot or third-party Python libraries.
