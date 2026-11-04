@@ -5,6 +5,19 @@
 
 Features include a 4,800×3,200 scrolling handcrafted Western map, 27 buildings, multiple frontier settlements with interactive characters, horseback riding, 6-shot revolver gunplay, reloading, bandit combat, money and shops, a doctor and saloon, enemy pursuit, a wanted system, wildlife, a day/night cycle, an objective marker, a map and journal, health tonics, save/load, story ending and free roam.
 
+## v1.9 World Polish (November 2026)
+
+The map and interiors now have more detail, with low-cost procedural weather and an optional audio cue.
+
+- **Navigation:** Press **M** for the full territory map and **click** anywhere inside the map to place a personal waypoint. The waypoint is shown on the full map and minimap, and a distance/direction indicator appears during play. Press **C** during outdoor gameplay to clear it. Active bounty targets are marked in maroon; the original mission target remains gold.
+- **Weather:** Region- and game-time-dependent rain or dust overlays; clear weather remains common. Weather is procedural and requires no extra graphics or Python libraries.
+- **Interiors:** Added distinctive thematic furnishings and color details to saloons, sheriff offices, doctors, stores, stations, hotels, cabins, stables, chapels and hideouts; counters and exits retain their original interaction positions.
+- **Audio:** Press **V** to toggle a small number of optional system-bell cues, including gunshots and completed bounties. Audio is **off by default** and depends on the user's Linux desktop bell configuration; it is not a soundtrack or a full sample-based audio engine.
+- **Compatibility:** Waypoints and sound preferences are optional save fields. Older saves and original quests remain compatible. No additional dependencies.
+- **Testing:** `tests/world_polish_test.py` covers map interaction, waypoint persistence, weather, interiors and disabled audio. The existing Linux CI suite also runs every previous milestone's checks.
+
+**Current scope:** Lightweight UI and atmosphere improvements, not a complete rebuild of the pixel art or a full sound engine. Archcraft-specific performance is not independently measured.
+
 ## Three-milestone update — v1.6 to v1.8 (November 2026)
 
 ### v1.6 Better Gunfights
