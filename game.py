@@ -13,7 +13,7 @@ SAVE=os.path.join(os.path.expanduser('~'),'.local','share','dust-and-debt','save
 VW,VH=960,600
 WW,WH=4800,3200
 FPS=33
-VERSION='1.3 — Outlaw Systems'
+VERSION='1.4 — Frontier Conversations'
 # Interiors are lightweight procedural rooms: no extra graphics libraries or image files.
 INTERIOR_TYPES={
  'Sheriff':'office','Sheriff Annex':'office','Saloon':'saloon','Sagebrush Saloon':'saloon',
@@ -80,7 +80,7 @@ class Actor:
 
 class Game:
  def __init__(self,root):
-  self.root=root;root.title('DUST & DEBT | Outlaw Systems v1.3')
+  self.root=root;root.title('DUST & DEBT | Frontier Conversations v1.4')
   root.resizable(False,False)
   self.canvas=tk.Canvas(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
@@ -103,7 +103,7 @@ class Game:
   self.honor=50;self.crimes=0;self.law_status='PEACE';self.deadeye=100.;self.deadeye_active=False;self.deadeye_regen_delay=0.;self.witness_timer=0.;self.law_spawn_timer=0.;self.shot_trails=[]
   self.horse_x,self.horse_y=764.,646.;self.horse_hp=100
   self.facing=(0.,-1.);self.shot_timer=0;self.reload_timer=0;self.invuln=0
-  self.actors=[];self.bullets=[];self.effects=[];self.dialog=None;self.dialog_from='';self.toast=[]
+  self.actors=[];self.bullets=[];self.effects=[];self.dialog=None;self.choice_dialog=None;self.dialog_from='';self.toast=[]
   self.camx=0;self.camy=0;self.map_open=False;self.journal_open=False;self.show_help=False
   self.interior=None;self.indoor_x=480.;self.indoor_y=465.;self.shop_open=False
   self.npc_schedule_tick=0;self.npc_home={}
@@ -139,6 +139,34 @@ class Game:
  def say(self,speaker,lines):
   if isinstance(lines,str):lines=[lines]
   self.dialog=[speaker,lines,0]
+ def offer_civilian_dialogue(self,a):
+  # Choice replies reflect reputation and the current legal situation.
+  if self.law_status=='WANTED':
+   greeting='Keep your hands where I can see them, stranger.'
+  elif self.honor>=75:greeting='Word is you have been helping folks around here.'
+  elif self.honor<30:greeting='You have made a name for yourself, and not a good one.'
+  else:greeting='Afternoon, traveler. What brings you this way?'
+  region=self.region_name(a.x,a.y)
+  rumors={
+   'Cinder Creek':'They say the sheriff has been looking for help with the Red Mesa riders.',
+   'Sagebrush Crossing':'Traders are wary of the roads after sundown.',
+   'Copper Ridge':'The mine is still drawing hopeful fools up into the hills.',
+  }
+  news=rumors.get(region,'Keep an eye on the trails. Riders disappear out here.')
+  law=('There is a price on your head. I would leave town quietly.' if self.law_status=='WANTED' else
+       'The law remembers your misdeeds.' if self.honor<30 else
+       'Folks trust you. That is worth something out here.' if self.honor>=75 else
+       'Keep your gun holstered in town and the deputies will leave you be.')
+  self.choice_dialog={'speaker':a.name.upper(),'prompt':greeting,'options':[
+   ('Any news?',news),('What do folks think of me?',law),('Goodbye.','Safe travels, stranger.') ]}
+
+ def select_dialogue_option(self,index):
+  choice=self.choice_dialog
+  if not choice or not 0<=index<len(choice['options']):return
+  _label,response=choice['options'][index]
+  speaker=choice['speaker'];self.choice_dialog=None
+  self.say(speaker,response)
+
  def quest(self,stage):
   self.stage=stage;self.notify('NEW OBJECTIVE: '+MISSIONS[stage][0].upper(),5)
   self.save()
@@ -176,6 +204,10 @@ class Game:
    return
   if self.dialog:
    if key in ('return','space','e'):self.advance_dialog()
+   return
+  if self.choice_dialog:
+   if key in ('1','2','3'):self.select_dialogue_option(int(key)-1)
+   elif key=='escape':self.choice_dialog=None
    return
   if self.shop_open:
    if key in ('escape','b','e'):self.shop_open=False
@@ -306,7 +338,7 @@ class Game:
   elif k=='saloon':
    if self.money>=5:self.money-=5;self.hp=min(100,self.hp+20);self.say('MAE',['Five dollars for a drink and a quiet chair.','Your wounds sting a little less now.']);self.save()
    else:self.say('MAE',['Whiskey costs $5. Stories are free.'])
-  else:self.say(nearest.name.upper(),[('I have seen your face on the wanted posters. Keep walking.' if self.law_status=='WANTED' else 'We have heard about your trouble. Do not bring it here.' if self.honor<30 else 'People say you have been helping the territory.' if self.honor>=75 else random.choice(['A storm is coming off the mesa.','Best stay out of Blackspur country.','Folks say the railroad has been paying bandits.','Cinder Creek was never a peaceful town.']))])
+  else:self.offer_civilian_dialogue(nearest)
 
  def near_door(self):
   if self.mounted:return None
@@ -525,7 +557,7 @@ class Game:
  def loop(self):
   now=time.monotonic();dt=min(.06,now-self.last);self.last=now
   try:
-   if self.screen=='playing' and not self.dialog:
+   if self.screen=='playing' and not self.dialog and not self.choice_dialog:
     self.update(dt)
    self.render()
   except Exception as ex:
@@ -839,6 +871,16 @@ class Game:
   self.draw_text(113,447,line,16,'#f2e2c9',width=727)
   self.draw_text(837,545,'ENTER / E  ▶',11,'#e2b477',True,anchor='e')
 
+ def draw_choice_dialogue(self):
+  if not self.choice_dialog:return
+  data=self.choice_dialog
+  self.panel(91,345,778,225,'#241d18','#c8a06a')
+  self.draw_text(113,358,data['speaker'],17,'#f4ca85',True)
+  self.draw_text(113,388,data['prompt'],15,'#f2e2c9',width=725)
+  for i,(label,_reply) in enumerate(data['options']):
+   self.draw_text(118,429+i*33,f'{i+1}. {label}',14,'#e8c38b',True)
+  self.draw_text(838,548,'1–3 CHOOSE  •  ESC LEAVE',10,'#e2b477',True,anchor='e')
+
  def draw_map(self):
   self.panel(120,48,720,506,'#26211b')
   self.draw_text(145,66,'TERRITORY MAP',24,'#ebca95',True)
@@ -926,6 +968,7 @@ class Game:
    if self.shop_open:self.draw_shop()
    if self.show_help:self.draw_help()
    self.draw_dialog()
+   self.draw_choice_dialogue()
    return
   self.draw_world();self.draw_hud()
   if self.screen=='paused':self.draw_pause()
@@ -933,6 +976,7 @@ class Game:
   if self.journal_open:self.draw_journal()
   if self.show_help:self.draw_help()
   self.draw_dialog()
+  self.draw_choice_dialogue()
 
  def quit(self):
   if self.screen in ('playing','paused','ending'):self.save()
@@ -944,7 +988,7 @@ def main():
   assert len(MISSIONS)==9 and len(BUILDINGS)>=25 and (WW,WH)==(4800,3200)
   assert all(t in INTERIOR_TYPES for t in ('Saloon','General Store','Hotel','Sheriff'))
   assert len(SHOP_GOODS)>=6
-  assert VERSION.startswith('1.3')
+  assert VERSION.startswith('1.4')
   assert os.path.exists(os.path.join(ASSETS,'world.png'))
   assert os.path.exists(os.path.join(ASSETS,'title.png'))
   print('Self-test OK: story, buildings, and artwork present.')
