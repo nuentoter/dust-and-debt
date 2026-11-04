@@ -4,7 +4,7 @@ Runtime: Python 3 and Tk 8.6 (tkinter), no pip modules required.
 """
 import tkinter as tk
 from tkinter import messagebox
-import os, math, random, json, time, textwrap, sys
+import os, math, random, json, time, textwrap, sys, shutil
 from dataclasses import dataclass
 
 ROOT=os.path.dirname(os.path.abspath(__file__))
@@ -14,7 +14,7 @@ VW,VH=960,600
 OLD_WW,OLD_WH=4800,3200
 WW,WH=19200,12800  # 16x original area, drawn incrementally
 FPS=33
-VERSION='1.9 — World Polish'
+VERSION='2.0 — Complete Frontier'
 # Interiors are lightweight procedural rooms: no extra graphics libraries or image files.
 INTERIOR_TYPES={
  'Sheriff':'office','Sheriff Annex':'office','Saloon':'saloon','Sagebrush Saloon':'saloon',
@@ -83,7 +83,7 @@ class Actor:
 
 class Game:
  def __init__(self,root):
-  self.root=root;root.title('DUST & DEBT | World Polish v1.9')
+  self.root=root;root.title('DUST & DEBT | Complete Frontier v2.0')
   root.resizable(False,False)
   self.canvas=tk.Canvas(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
@@ -109,7 +109,7 @@ class Game:
   self.facing=(0.,-1.);self.shot_timer=0;self.reload_timer=0;self.invuln=0;self.hit_marker=0.;self.combat_warning=0.
   self.actors=[];self.bullets=[];self.effects=[];self.dialog=None;self.choice_dialog=None;self.dialog_from='';self.toast=[]
   self.camx=0;self.camy=0;self.map_open=False;self.journal_open=False;self.show_help=False
-  self.waypoint=None;self.sound_on=False;self.last_bell=0.
+  self.waypoint=None;self.sound_on=False;self.last_bell=0.;self.autosave_timer=90.
   self.interior=None;self.indoor_x=480.;self.indoor_y=465.;self.shop_open=False
   self.npc_schedule_tick=0;self.npc_home={}
   for a in self.actors:
@@ -772,6 +772,9 @@ class Game:
   world_dt=dt*(.25 if self.deadeye_active else 1.)
   if self.interior:
    self.update_indoor(dt)
+   self.autosave_timer-=dt
+   if self.autosave_timer<=0:
+    self.autosave_timer=90.;self.save()
    for toast in self.toast:toast[1]-=dt
    self.toast=[t for t in self.toast if t[1]>0]
    return
@@ -812,7 +815,10 @@ class Game:
   if self.stage==1 and self.enemies_remaining('hollow')==0:self.quest(2);self.say('JESSE',['Dust Hollow is quiet. Five more graves for the desert.','Bell promised eighty dollars. Time to collect.'])
   if self.stage==6 and self.enemies_remaining('crow')==0:self.quest(7);self.say('JESSE',['Crow is down. His reign ends here, on a patch of dirt nobody will remember.','Bell deserves to hear it from me.'])
   if self.hp<=0:self.screen='death';self.mounted=False
-  if self.frame%300==0:self.save()
+  self.autosave_timer-=dt
+  if self.autosave_timer<=0:
+   self.autosave_timer=90.
+   self.save()
 
  def line_of_fire(self,x1,y1,x2,y2):
   # A few collision samples prevent shooting through buildings and future cover.
@@ -830,8 +836,10 @@ class Game:
   for a in self.actors:
    if a.dead:continue
    if a.kind in ('sheriff','store','doctor','stable','saloon','station','traveler'):continue
-   a.shoot=max(0,a.shoot-dt);a.wander-=dt
    dist=math.hypot(a.x-self.x,a.y-self.y)
+   # Dormant distant actors avoid unnecessary pathfinding and collision checks.
+   if dist>1200:continue
+   a.shoot=max(0,a.shoot-dt);a.wander-=dt
    ishostile=a.kind in ('bandit','deputy','bounty_target') or a.kind.startswith('mission_')
    if a.kind=='civilian':
     if (self.law_status=='WANTED' or (self.witness_timer>0 and dist<310)) and dist<280:dx,dy=a.x-self.x,a.y-self.y
@@ -1056,7 +1064,8 @@ class Game:
   self.draw_far_terrain()
   self.canvas.create_image(-self.camx,-self.camy,image=self.world,anchor='nw')
   self.draw_scattered_props()
-  for a in sorted(self.actors,key=lambda a:a.y):self.draw_actor(a)
+  visible=(a for a in self.actors if self.camx-45<=a.x<=self.camx+VW+45 and self.camy-50<=a.y<=self.camy+VH+50)
+  for a in sorted(visible,key=lambda a:a.y):self.draw_actor(a)
   if self.stage==4 and self.enemies_remaining('blackspur')==0 and not self.ledger:
    x,y=self.pos(2040,1280)
    self.canvas.create_rectangle(x-9,y-12,x+9,y+12,fill='#e5c283',outline='#423628',width=2)
@@ -1332,7 +1341,7 @@ def main():
   assert len(MISSIONS)==9 and len(BUILDINGS)>=25 and (WW,WH)==(19200,12800)
   assert all(t in INTERIOR_TYPES for t in ('Saloon','General Store','Hotel','Sheriff'))
   assert len(SHOP_GOODS)>=6
-  assert VERSION.startswith('1.9')
+  assert VERSION.startswith('2.0')
   assert os.path.exists(os.path.join(ASSETS,'world.png'))
   assert os.path.exists(os.path.join(ASSETS,'title.png'))
   print('Self-test OK: story, buildings, and artwork present.')
