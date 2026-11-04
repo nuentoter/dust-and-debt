@@ -5,6 +5,36 @@
 
 Features include a 4,800×3,200 scrolling handcrafted Western map, 27 buildings, multiple frontier settlements with interactive characters, horseback riding, 6-shot revolver gunplay, reloading, bandit combat, money and shops, a doctor and saloon, enemy pursuit, a wanted system, wildlife, a day/night cycle, an objective marker, a map and journal, health tonics, save/load, story ending and free roam.
 
+## v2.1 Frontier Reborn — major content expansion (November 2026)
+
+This source update fills part of the large 19,200 × 12,800 wilderness with **six new named settlements**, residents, activities, and handcrafted two-stage side jobs. All original towns and the main four-job campaign remain.
+
+### New frontier settlements
+
+- **Drybone Junction** — messenger routes and missing mail
+- **Ironwell** — ore surveys and a dangerous abandoned shaft
+- **Painted Mesa** — scouts and missing trail markers
+- **Saltwater Crossing** — lost ferry supplies and medicine
+- **Ember Gulch** — smuggling evidence
+- **Sundown Station** — telegraph repair clues
+
+Each settlement has a trading post, boarding house, clinic, named quest contact, merchant, medic, and three civilian residents. The new towns are placed near the existing road grid and are protected from ordinary bandit aggression. Town squares, buildings, signs, lanterns, hitching rails, water troughs, and camps are drawn using lightweight Tkinter primitives rather than enormous world textures.
+
+### New side missions and activities
+
+- **Six two-stage side jobs** — talk with a town's named guide (E), visit the two clue locations indicated on the map, and press **E** at each marked crate to progress. Each job pays a different reward, and all six can be completed in a single save. The journal (**J**) shows the current job and progress. Side-job rewards and completion flags persist.
+- **Resource gathering** — find herb and ore markers near settlements and press **F** to collect. Herb sites give a health tonic; ore sites pay $9. There are 12 collectible nodes, and collected sites stay collected in the save.
+- **Campfire rest** — press **T** near the center of a new settlement to recover 30 HP and advance six game hours. Each camp can be used once per save.
+- **Exploration rewards** — entering a new settlement for the first time awards $5 in trail supplies, with discovery progress saved.
+- **New civilian routines and local dialogue** — couriers, farmers and watchers follow differing daytime routes; townsfolk share local rumors and respond to honor and wanted status.
+- **World navigation** — settlement markers, side-objective clues, resource markers and on-screen prompts appear in addition to existing story/bounty/waypoint markers.
+
+### Compatibility and limitations
+
+Existing saves load without migration; new activity progress is optional save data. All new scenes are part of the same low-dependency Python/Tkinter game. This update adds a sizable playable layer to the expanded world, **not** dozens of fully scripted main-story chapters, advanced indoor AI, or a complete hand-painted 16× tileset. Side jobs are exploration/recovery missions; bounty hunting remains the combat-focused repeatable activity.
+
+Automated regression: `xvfb-run -a python3 tests/frontier_reborn_test.py`, included in GitHub Actions. Local Archcraft playtesting remains unverified.
+
 ## v2.0 Complete Frontier — source release (November 2026)
 
 **The seven-milestone development roadmap is implemented.** This version introduces reliability and performance work over v1.9:
