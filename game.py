@@ -16,7 +16,7 @@ VW,VH=960,600
 OLD_WW,OLD_WH=4800,3200
 WW,WH=19200,12800  # 16x original area, drawn incrementally
 FPS=33
-VERSION='2.1.1 — Input Fixes'
+VERSION='2.1.2 — Mission Spawn Fix'
 # Interiors are lightweight procedural rooms: no extra graphics libraries or image files.
 INTERIOR_TYPES={
  'Sheriff':'office','Sheriff Annex':'office','Saloon':'saloon','Sagebrush Saloon':'saloon',
@@ -92,7 +92,7 @@ class Actor:
 
 class Game:
  def __init__(self,root):
-  self.root=root;root.title('DUST & DEBT | Input Fixes v2.1.1')
+  self.root=root;root.title('DUST & DEBT | Mission Spawn Fix v2.1.2')
   root.resizable(False,False)
   self.canvas=tk.Canvas(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
@@ -332,18 +332,31 @@ class Game:
   self.save()
   return True
 
+ def safe_enemy_spawn(self,x,y):
+  # Don't place enemies inside cabins, walls or terrain cover.
+  if self.can_move(x,y,20):return (x,y)
+  for radius in range(35,366,35):
+   for dx,dy in ((radius,0),(-radius,0),(0,radius),(0,-radius),
+                 (radius,radius),(radius,-radius),(-radius,radius),(-radius,-radius)):
+    nx,ny=x+dx,y+dy
+    if self.can_move(nx,ny,20):return (nx,ny)
+  raise ValueError('No clear mission spawn near '+str((x,y)))
+
  def quest(self,stage):
   self.stage=stage;self.notify('NEW OBJECTIVE: '+MISSIONS[stage][0].upper(),5)
   self.save()
-  if stage==1:self.spawn_mission('hollow',[(1780,420),(1840,390),(1888,440),(1840,537),(1778,528)],95)
+  if stage==1:self.spawn_mission('hollow',[(1900,350),(2010,420),(2090,510),(1970,610),(1820,660)],95)
   if stage==4:self.spawn_mission('blackspur',[(1975,1290),(2080,1280),(2030,1340)],105)
   if stage==6:self.spawn_mission('crow',[(1370,1030),(1430,1100),(1510,1080),(1580,1030)],115,boss=(1480,1030))
  def spawn_mission(self,tag,positions,hp,boss=None):
   if tag in self.mission_activated:return
   self.mission_activated.add(tag)
   for i,(x,y) in enumerate(positions):
+   x,y=self.safe_enemy_spawn(x,y)
    self.actors.append(Actor(x,y,'mission_'+tag,tag.title()+' rider',hp,hp,91))
-  if boss:self.actors.append(Actor(boss[0],boss[1],'mission_'+tag,'Crow',240,240,105))
+  if boss:
+   bx,by=self.safe_enemy_spawn(*boss)
+   self.actors.append(Actor(bx,by,'mission_'+tag,'Crow',240,240,105))
  def enemies_remaining(self,tag):return sum(not a.dead and a.kind=='mission_'+tag for a in self.actors)
 
  def key_down(self,e):
@@ -449,7 +462,7 @@ class Game:
    tag={1:'hollow',4:'blackspur',6:'crow'}.get(self.stage)
    if tag:
     self.mission_activated.discard(tag)
-    positions={'hollow':[(1780,420),(1840,390),(1888,440),(1840,537),(1778,528)],'blackspur':[(1975,1290),(2080,1280),(2030,1340)],'crow':[(1370,1030),(1430,1100),(1510,1080),(1580,1030)]}[tag]
+    positions={'hollow':[(1900,350),(2010,420),(2090,510),(1970,610),(1820,660)],'blackspur':[(1975,1290),(2080,1280),(2030,1340)],'crow':[(1370,1030),(1430,1100),(1510,1080),(1580,1030)]}[tag]
     self.spawn_mission(tag,positions,{'hollow':95,'blackspur':105,'crow':115}[tag],boss=(1480,1030) if tag=='crow' else None)
     eliminated=int(s.get('stage_kills',0))
     for a in [a for a in self.actors if a.kind=='mission_'+tag][:eliminated]:a.dead=True
