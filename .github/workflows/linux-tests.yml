@@ -30,3 +30,5 @@ jobs:
         run: xvfb-run -a python3 tests/world_polish_test.py
       - name: Complete Frontier release regression
         run: xvfb-run -a python3 tests/release_test.py
+      - name: Frontier Reborn content regression
+        run: xvfb-run -a python3 tests/frontier_reborn_test.py
