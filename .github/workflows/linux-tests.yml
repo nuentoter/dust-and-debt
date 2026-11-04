@@ -20,3 +20,5 @@ jobs:
         run: xvfb-run -a python3 tests/frontier_hotfix_test.py
       - name: Living Towns regression tests
         run: xvfb-run -a python3 tests/living_towns_test.py
+      - name: Gunfight regression tests
+        run: xvfb-run -a python3 tests/combat_test.py
