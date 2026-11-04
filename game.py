@@ -654,6 +654,7 @@ class Game:
    for xx in (257,675):c.create_oval(xx-25,360,xx+25,420,fill='#795139',outline='#452f22',width=4)
   elif kind=='chapel':
    c.create_line(480,239,480,296,fill='#eed8a7',width=8);c.create_line(458,257,502,257,fill='#eed8a7',width=8)
+  self.draw_interior_details(kind)
   c.create_oval(self.indoor_x-10,self.indoor_y+8,self.indoor_x+11,self.indoor_y+15,fill='#49372e',outline='')
   c.create_rectangle(self.indoor_x-9,self.indoor_y-9,self.indoor_x+9,self.indoor_y+10,fill='#35565b',outline='#172a2e',width=2)
   c.create_oval(self.indoor_x-8,self.indoor_y-20,self.indoor_x+8,self.indoor_y-7,fill='#d0a078',outline='')
@@ -665,6 +666,41 @@ class Game:
   if self.indoor_y>475:self.draw_text(480,550,'[ E ]  EXIT TO STREET',13,'#f3d79e',True,anchor='center')
   self.draw_text(18,562,f'HEALTH {int(self.hp)}   $ {self.money}   TONICS {self.tonics}   AMMO {self.ammo}/{self.reserve}',12,'#ecd0a0',True)
   for i,(msg,remaining) in enumerate(self.toast[-2:]):self.draw_text(480,104+i*23,msg,12,'#fff0c4',True,anchor='center')
+
+ def draw_interior_details(self,kind):
+  c=self.canvas
+  # Distinct dressing stays away from the center walking lane and exit.
+  c.create_rectangle(342,345,618,444,fill='#775e46',outline='#c09969',width=2)
+  for xx in range(356,618,35):c.create_line(xx,347,xx,441,fill='#96734e')
+  if kind=='saloon':
+   for xx in (225,706):
+    for yy in (268,305,340):
+     c.create_rectangle(xx-12,yy-8,xx+12,yy+8,fill='#8f5837',outline='#ceab70')
+     c.create_oval(xx-4,yy-4,xx+4,yy+4,fill='#d7b66d',outline='')
+   c.create_text(480,358,text='SALOON',fill='#efd4a1',font=(self.font,12,'bold'))
+  elif kind in ('store','station'):
+   for yy in (272,312):
+    for xx in (250,300,665,708):
+     c.create_rectangle(xx-15,yy-11,xx+15,yy+11,fill='#c5a16b',outline='#55452f',width=2)
+  elif kind=='doctor':
+   c.create_rectangle(219,390,306,438,fill='#ded6bd',outline='#655b51',width=3)
+   c.create_line(273,263,273,295,fill='#e7ddd0',width=5)
+   c.create_line(256,278,290,278,fill='#e7ddd0',width=5)
+  elif kind=='office':
+   for xx in (256,706):
+    c.create_rectangle(xx-23,277,xx+23,310,fill='#584a3c',outline='#c4a477')
+    c.create_line(xx,281,xx,303,fill='#d3b888',width=2)
+   c.create_text(480,355,text='SHERIFF OFFICE',fill='#e4ceb0',font=(self.font,11,'bold'))
+  elif kind in ('home','hotel'):
+   c.create_rectangle(220,268,307,326,fill='#c0afa0',outline='#5c483e',width=3)
+   c.create_rectangle(227,271,300,286,fill='#e5d9bd',outline='')
+  elif kind=='stable':
+   for xx in (228,692):c.create_line(xx,250,xx,330,fill='#583e2b',width=8)
+  elif kind=='chapel':
+   for xx in (245,695):c.create_rectangle(xx-15,356,xx+15,416,fill='#523d35',outline='#b8a27c')
+  elif kind=='hideout':
+   for xx in (238,698):
+    c.create_oval(xx-17,365,xx+17,405,fill='#675c47',outline='#352c29',width=3)
 
  def draw_shop(self):
   kind=INTERIOR_TYPES.get(self.interior,'home')
