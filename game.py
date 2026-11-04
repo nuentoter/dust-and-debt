@@ -734,7 +734,18 @@ class Game:
    'Riverboat Eli':{'morning':(2490,2700),'working':(2550,2660),'evening':(2420,2730)},
    'Brother Thomas':{'morning':(3000,2860),'working':(3070,2865),'evening':(2970,2790)}
   }
-  target=routines.get(a.name,{}).get(period,home) if period!='night' else home
+  town=nearby_settlement(*home,550)
+  if town and a.name.endswith((' Courier',' Farmer',' Watcher')):
+   center=get_settlement(town)
+   cx,cy=center[2],center[3]
+   role=a.name.rsplit(' ',1)[-1]
+   shifts={'Courier':((80,120),(-80,95),(40,-90)),
+           'Farmer':((-90,-160),(285,-115),(105,-130)),
+           'Watcher':((-100,-130),(125,-45),(-80,-105))}
+   morning,work,evening=shifts[role]
+   offset={'morning':morning,'working':work,'evening':evening}.get(period)
+   target=(cx+offset[0],cy+offset[1]) if offset else home
+  else:target=routines.get(a.name,{}).get(period,home) if period!='night' else home
   return target if self.can_move(*target,9) else home
 
  def npc_activity(self,a):
@@ -750,6 +761,9 @@ class Game:
             'Lakekeeper Ada':'checking the lakeshore','Prospector Finn':'prospecting',
             'Mina the miner':'sorting ore','Rancher Amos':'checking the ranch',
             'Riverboat Eli':'watching the river','Brother Thomas':'tending the chapel'}
+  if period=='working' and a.name.endswith(' Courier'):return 'delivering freight'
+  if period=='working' and a.name.endswith(' Farmer'):return 'tending crops'
+  if period=='working' and a.name.endswith(' Watcher'):return 'patrolling the road'
   return specific.get(a.name,activities[period]) if period=='working' else activities[period]
 
  def update_npc_schedules(self):
