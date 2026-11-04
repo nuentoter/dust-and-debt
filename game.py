@@ -14,7 +14,7 @@ VW,VH=960,600
 OLD_WW,OLD_WH=4800,3200
 WW,WH=19200,12800  # 16x original area, drawn incrementally
 FPS=33
-VERSION='1.8 — Emergent Frontier'
+VERSION='1.9 — World Polish'
 # Interiors are lightweight procedural rooms: no extra graphics libraries or image files.
 INTERIOR_TYPES={
  'Sheriff':'office','Sheriff Annex':'office','Saloon':'saloon','Sagebrush Saloon':'saloon',
@@ -83,7 +83,7 @@ class Actor:
 
 class Game:
  def __init__(self,root):
-  self.root=root;root.title('DUST & DEBT | Emergent Frontier v1.8')
+  self.root=root;root.title('DUST & DEBT | World Polish v1.9')
   root.resizable(False,False)
   self.canvas=tk.Canvas(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
@@ -109,6 +109,7 @@ class Game:
   self.facing=(0.,-1.);self.shot_timer=0;self.reload_timer=0;self.invuln=0;self.hit_marker=0.;self.combat_warning=0.
   self.actors=[];self.bullets=[];self.effects=[];self.dialog=None;self.choice_dialog=None;self.dialog_from='';self.toast=[]
   self.camx=0;self.camy=0;self.map_open=False;self.journal_open=False;self.show_help=False
+  self.waypoint=None;self.sound_on=False;self.last_bell=0.
   self.interior=None;self.indoor_x=480.;self.indoor_y=465.;self.shop_open=False
   self.npc_schedule_tick=0;self.npc_home={}
   for a in self.actors:
@@ -218,6 +219,7 @@ class Game:
   self.money+=reward;self.bounties_done+=1;self.contract=None
   self.change_honor(2,'Bounty brought to justice')
   self.notify('BOUNTY COMPLETE: +$'+str(reward),5)
+  self.sound_cue()
   self.save()
 
  def spawn_road_encounter(self):
@@ -255,6 +257,8 @@ class Game:
    return
   if key=='f5' and self.screen in ('playing','paused'):
    self.save(manual=True);return
+  if key=='v' and self.screen in ('playing','paused'):
+   self.sound_on=not self.sound_on;self.notify('SOUND '+('ON' if self.sound_on else 'OFF'),2);self.sound_cue();return
   if key=='f11':
    self.fullscreen=not self.fullscreen;self.root.attributes('-fullscreen',self.fullscreen);return
   if self.screen=='title':
@@ -295,6 +299,7 @@ class Game:
   if key=='f1':self.show_help=not self.show_help
   elif key=='m':self.map_open=not self.map_open;self.journal_open=False;self.deadeye_active=False
   elif key=='j':self.journal_open=not self.journal_open;self.map_open=False;self.deadeye_active=False
+  elif key=='c' and self.waypoint is not None:self.waypoint=None;self.notify('Waypoint cleared.',2)
   elif key=='e':
    if ('shift_l' in self.keys or 'shift_r' in self.keys) and self.near_door():self.enter_interior(self.near_door())
    else:self.interact()
@@ -310,6 +315,8 @@ class Game:
   if self.screen=='title':
    if 397<e.y<458:self.new_game()
    elif 467<e.y<515 and os.path.exists(SAVE):self.continue_game()
+  elif self.screen=='playing' and self.map_open and not self.interior:
+   self.set_waypoint_from_map(e.x,e.y)
   elif self.screen=='playing' and not self.interior and not self.dialog and not self.map_open and not self.journal_open:
    self.mouse_down=True;self.mouse=(e.x,e.y);self.fire()
   elif self.screen in ('death','ending'):self.key_down(type('E',(),{'keysym':'Return'})())
@@ -324,6 +331,8 @@ class Game:
    self.honor=max(0,min(100,int(self.honor)))
    self.law_status='WANTED' if self.wanted>=1.2 else ('INVESTIGATING' if self.wanted>0 else 'PEACE')
    self.mission_activated=set(s.get('mission_activated',[]))
+   self.waypoint=s.get('waypoint')
+   self.sound_on=bool(s.get('sound_on',False))
    self.contract=s.get('contract')
    if self.contract and not self.contract.get('finished',False):self.spawn_contract_target()
    # Quest combat must regenerate after loading (kill progress is persisted).
@@ -343,6 +352,7 @@ class Game:
   d={k:getattr(self,k) for k in ('x','y','hp','money','ammo','reserve','tonics','stage','kills','wanted','clock','mounted','horse_x','horse_y','ledger','death_count','honor','crimes','deadeye')}
   d['mission_activated']=list(self.mission_activated)
   d['contract']=self.contract;d['bounties_done']=self.bounties_done
+  d['waypoint']=self.waypoint;d['sound_on']=self.sound_on
   d['save_version']=VERSION
   tag={1:'hollow',4:'blackspur',6:'crow'}.get(self.stage)
   if tag:d['stage_kills']=sum(a.dead for a in self.actors if a.kind=='mission_'+tag)
@@ -359,6 +369,30 @@ class Game:
    self.last_save_ok=False;self.save_error=str(ex)
    self.notify('SAVE FAILED: '+str(ex),6)
    return False
+
+ def set_waypoint_from_map(self,px,py):
+  x,y,w,h=150,110,658,394
+  if not (x<=px<=x+w and y<=py<=y+h):return False
+  wx=min(WW-25,max(25,int((px-x)/w*WW)))
+  wy=min(WH-25,max(25,int((py-y)/h*WH)))
+  self.waypoint=[wx,wy]
+  self.notify('Waypoint set: '+self.region_name(wx,wy),3)
+  return True
+
+ def weather_kind(self):
+  cycle=int(self.clock//3)
+  region=int(self.x//2400)+int(self.y//1600)
+  value=(cycle*7+region*11)%13
+  return 'rain' if value in (2,6) else ('dust' if value in (4,8,10) else 'clear')
+
+ def sound_cue(self):
+  # Optional low-rate system bell; no extra audio dependencies.
+  if not self.sound_on:return
+  now=time.monotonic()
+  if now-self.last_bell<.35:return
+  self.last_bell=now
+  try:self.root.bell()
+  except tk.TclError:pass
 
  def quest_target(self):
   return [(418,463),(1840,470),(418,463),(1270,1465),(2040,1280),(1270,1465),(1480,1030),(418,463),None][self.stage]
@@ -668,6 +702,7 @@ class Game:
   self.facing=(dx,dy)
   self.bullets.append([self.x+dx*19,self.y+dy*19,dx*710,dy*710,1.0,True])
   self.effects.append([self.x+dx*22,self.y+dy*22,.14,'flash'])
+  self.sound_cue()
   self.combat_warning=max(self.combat_warning,.16)
   self.shot_trails.append([self.x+dx*18,self.y+dy*18,self.x+dx*210,self.y+dy*210,.13])
   if self.in_town(self.x,self.y):self.report_crime(.40,'Gunshots in town')
@@ -1233,7 +1268,7 @@ def main():
   assert len(MISSIONS)==9 and len(BUILDINGS)>=25 and (WW,WH)==(19200,12800)
   assert all(t in INTERIOR_TYPES for t in ('Saloon','General Store','Hotel','Sheriff'))
   assert len(SHOP_GOODS)>=6
-  assert VERSION.startswith('1.8')
+  assert VERSION.startswith('1.9')
   assert os.path.exists(os.path.join(ASSETS,'world.png'))
   assert os.path.exists(os.path.join(ASSETS,'title.png'))
   print('Self-test OK: story, buildings, and artwork present.')
