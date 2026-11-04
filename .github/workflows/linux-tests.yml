@@ -22,3 +22,5 @@ jobs:
         run: xvfb-run -a python3 tests/living_towns_test.py
       - name: Gunfight regression tests
         run: xvfb-run -a python3 tests/combat_test.py
+      - name: Tile and terrain regression tests
+        run: xvfb-run -a python3 tests/terrain_test.py
