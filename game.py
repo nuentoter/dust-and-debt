@@ -14,7 +14,7 @@ VW,VH=960,600
 OLD_WW,OLD_WH=4800,3200
 WW,WH=19200,12800  # 16x original area, drawn incrementally
 FPS=33
-VERSION='1.4.1 — Great Frontier'
+VERSION='1.5 — Living Towns'
 # Interiors are lightweight procedural rooms: no extra graphics libraries or image files.
 INTERIOR_TYPES={
  'Sheriff':'office','Sheriff Annex':'office','Saloon':'saloon','Sagebrush Saloon':'saloon',
@@ -51,7 +51,9 @@ NPCS=[('Sheriff Bell',418,463,'sheriff'),('Mae the barkeep',682,501,'saloon'),('
  ('Frank the stablehand',3610,2065,'stable'),('Deputy Grace',3340,2050,'sheriff'),
  ('Lakekeeper Ada',1090,2600,'civilian'),('Prospector Finn',4320,2615,'civilian'),
  ('Mina the miner',4480,2590,'civilian'),('Rancher Amos',810,2220,'civilian'),
- ('Riverboat Eli',2490,2700,'civilian'),('Brother Thomas',3000,2860,'civilian')]
+ ('Riverboat Eli',2490,2700,'civilian'),('Brother Thomas',3000,2860,'civilian'),
+ ('Hattie the seamstress',3480,1810,'civilian'),('Will the drover',3680,2020,'civilian'),
+ ('Della the cook',3590,1850,'civilian'),('Deputy Rowan',3310,2030,'civilian')]
 MISSIONS=[
  ('The Sheriff\'s Offer','Visit Sheriff Bell outside the jail in Cinder Creek.'),
  ('Dust Hollow','Ride northeast to Dust Hollow and eliminate the five Red Mesa riders.'),
@@ -81,7 +83,7 @@ class Actor:
 
 class Game:
  def __init__(self,root):
-  self.root=root;root.title('DUST & DEBT | Great Frontier v1.4.1')
+  self.root=root;root.title('DUST & DEBT | Living Towns v1.5')
   root.resizable(False,False)
   self.canvas=tk.Canvas(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
@@ -116,6 +118,7 @@ class Game:
    self.actors.append(Actor(x,y,kind,n,100,100,42))
    if kind=='civilian':self.npc_home[n]=(x,y)
   self.spawn_roamers()
+  self.update_npc_schedules()
   self.safe_timer=50.
   self.last_save_ok=False;self.save_error='';self.last_save_time=''
 
@@ -162,6 +165,7 @@ class Game:
    'Copper Ridge':'The mine is still drawing hopeful fools up into the hills.',
   }
   news=rumors.get(region,'Keep an eye on the trails. Riders disappear out here.')
+  news=f'{news} I am {self.npc_activity(a)}.'
   law=('There is a price on your head. I would leave town quietly.' if self.law_status=='WANTED' else
        'The law remembers your misdeeds.' if self.honor<30 else
        'Folks trust you. That is worth something out here.' if self.honor>=75 else
@@ -275,6 +279,7 @@ class Game:
     self.spawn_mission(tag,positions,{'hollow':95,'blackspur':105,'crow':115}[tag],boss=(1480,1030) if tag=='crow' else None)
     eliminated=int(s.get('stage_kills',0))
     for a in [a for a in self.actors if a.kind=='mission_'+tag][:eliminated]:a.dead=True
+   self.update_npc_schedules()
    self.screen='playing';self.safe_timer=18.;self.notify('Loaded last save from disk. F5 saves manually.',4)
   except (OSError,ValueError,TypeError,KeyError) as ex:
    self.new_game();self.notify('Save could not be loaded: '+str(ex),5)
@@ -415,10 +420,10 @@ class Game:
   elif action=='tonic':self.tonics+=1
   elif action=='supplies':self.hp=min(100,self.hp+15)
   elif action=='meal':self.hp=min(100,self.hp+35)
-  elif action=='coffee':self.clock=(self.clock+2)%24
+  elif action=='coffee':self.clock=(self.clock+2)%24;self.update_npc_schedules()
   elif action=='heal':self.hp=100
   elif action=='horse':self.horse_hp=100
-  elif action=='sleep':self.clock=(self.clock+8)%24;self.hp=min(100,self.hp+25)
+  elif action=='sleep':self.clock=(self.clock+8)%24;self.hp=min(100,self.hp+25);self.update_npc_schedules()
   elif action=='bounty':self.wanted=0;self.law_timer=0;self.law_status='PEACE';self.witness_timer=0
   self.notify('Purchased '+label+f' for ${cost}.',3)
   self.save()
@@ -474,19 +479,58 @@ class Game:
      self.canvas.create_oval(sx-9,sy-6,sx+9,sy+5,fill='#697052',outline='#474f3a')
      self.canvas.create_line(sx-6,sy,sx+7,sy-3,fill='#9b976a',width=2)
 
+ def daily_period(self):
+  hour=self.clock%24
+  if 6<=hour<11:return 'morning'
+  if 11<=hour<17:return 'working'
+  if 17<=hour<21:return 'evening'
+  return 'night'
+
+ def npc_schedule(self,a):
+  # Mission givers remain at their original coordinates, unaffected by schedules.
+  home=self.npc_home.get(a.name,(a.x,a.y))
+  period=self.daily_period()
+  routines={
+   'Martha':{'morning':(750,550),'working':(746,655),'evening':(655,570)},
+   'Old Pete':{'morning':(557,625),'working':(705,663),'evening':(639,553)},
+   'Clay':{'morning':(882,665),'working':(951,662),'evening':(740,643)},
+   'Vera':{'morning':(1050,690),'working':(1050,610),'evening':(735,571)},
+   'Ruth':{'morning':(366,600),'working':(410,645),'evening':(614,605)},
+   'Otis':{'morning':(1095,530),'working':(1080,620),'evening':(745,640)},
+   'Hattie the seamstress':{'morning':(3480,1810),'working':(3425,1835),'evening':(3595,1855)},
+   'Will the drover':{'morning':(3680,2020),'working':(3740,2080),'evening':(3565,1860)},
+   'Della the cook':{'morning':(3590,1850),'working':(3510,1840),'evening':(3615,1850)},
+   'Deputy Rowan':{'morning':(3310,2030),'working':(3420,2050),'evening':(3350,2080)},
+   'Lakekeeper Ada':{'morning':(1090,2600),'working':(1190,2600),'evening':(1090,2535)},
+   'Prospector Finn':{'morning':(4320,2615),'working':(4370,2650),'evening':(4170,2715)},
+   'Mina the miner':{'morning':(4480,2590),'working':(4465,2675),'evening':(4230,2720)},
+   'Rancher Amos':{'morning':(810,2220),'working':(960,2260),'evening':(845,2300)},
+   'Riverboat Eli':{'morning':(2490,2700),'working':(2550,2660),'evening':(2420,2730)},
+   'Brother Thomas':{'morning':(3000,2860),'working':(3070,2865),'evening':(2970,2790)}
+  }
+  target=routines.get(a.name,{}).get(period,home) if period!='night' else home
+  return target if self.can_move(*target,9) else home
+
+ def npc_activity(self,a):
+  period=self.daily_period()
+  if self.law_status=='WANTED':return 'keeping clear of the trouble'
+  activities={'morning':'heading out for the day','working':'going about daily work',
+              'evening':'visiting neighbors','night':'returning home to rest'}
+  specific={'Martha':'selling produce','Old Pete':'watching the street',
+            'Clay':'running errands','Vera':'visiting the market',
+            'Ruth':'heading to the square','Otis':'collecting supplies',
+            'Hattie the seamstress':'mending clothes','Will the drover':'tending the cattle',
+            'Della the cook':'preparing supper','Deputy Rowan':'walking the beat',
+            'Lakekeeper Ada':'checking the lakeshore','Prospector Finn':'prospecting',
+            'Mina the miner':'sorting ore','Rancher Amos':'checking the ranch',
+            'Riverboat Eli':'watching the river','Brother Thomas':'tending the chapel'}
+  return specific.get(a.name,activities[period]) if period=='working' else activities[period]
+
  def update_npc_schedules(self):
-  # Named townsfolk commute between nearby safe outdoor points across the day.
-  hour=self.clock
   for a in self.actors:
    if a.dead or a.kind!='civilian':continue
-   home=self.npc_home.get(a.name,(a.x,a.y))
-   if 7<=hour<18:
-    shift= (48 if (sum(ord(c) for c in a.name)%2) else -48)
-    target=(home[0]+shift,home[1]+45)
-   elif 18<=hour<22:target=(home[0]-36,home[1]+22)
-   else:target=home
-   if self.can_move(*target,9):a.destination=target
-   else:a.destination=home
+   a.destination=self.npc_schedule(a)
+   a.activity=self.npc_activity(a)
 
  def draw_interior(self):
   c=self.canvas;kind=INTERIOR_TYPES.get(self.interior,'home')
@@ -617,7 +661,7 @@ class Game:
    if self.can_move(self.x+vx*speed*dt,self.y,16 if self.mounted else 10):self.x+=vx*speed*dt
    if self.can_move(self.x,self.y+vy*speed*dt,16 if self.mounted else 10):self.y+=vy*speed*dt
    self.facing=(vx,vy)
-  if self.frame%120==0:self.update_npc_schedules()
+  if self.frame%60==0:self.update_npc_schedules()
   if self.frame%40==0:
    region=self.region_name(self.x,self.y)
    if region!=self.last_region:
@@ -643,12 +687,10 @@ class Game:
     if (self.law_status=='WANTED' or (self.witness_timer>0 and dist<310)) and dist<280:dx,dy=a.x-self.x,a.y-self.y
     else:
      dest=getattr(a,'destination',None)
-     if dest and math.hypot(dest[0]-a.x,dest[1]-a.y)>20:
+     if dest and math.hypot(dest[0]-a.x,dest[1]-a.y)>8:
       dx,dy=dest[0]-a.x,dest[1]-a.y
      else:
-      if a.wander<0:
-       a.wander=random.uniform(1.5,4);a.dx=random.uniform(-1,1);a.dy=random.uniform(-1,1)
-      dx,dy=a.dx,a.dy
+      dx,dy=0.,0.
     mag=max(1,math.hypot(dx,dy));self.move_actor(a,dx/mag*a.speed*dt,dy/mag*a.speed*dt)
    elif a.kind=='animal':
     if dist<130:dx,dy=a.x-self.x,a.y-self.y
@@ -754,6 +796,7 @@ class Game:
    self.canvas.create_rectangle(sx-16,sy-34,sx-16+32*max(0,a.hp)/a.maxhp,sy-30,fill='#b84f40',outline='')
   if math.hypot(a.x-self.x,a.y-self.y)<125 and not villain:
    self.draw_text(sx,sy-43,a.name,11,'#f3db9e',True,anchor='center')
+   if a.kind=='civilian':self.draw_text(sx,sy-56,self.npc_activity(a),9,'#d3c49e',anchor='center')
 
  def draw_player(self):
   sx,sy=self.pos(self.x,self.y)
