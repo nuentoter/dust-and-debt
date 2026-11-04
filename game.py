@@ -1066,6 +1066,7 @@ class Game:
   if vx or vy:
    mag=math.hypot(vx,vy);vx/=mag;vy/=mag
    speed=(260 if 'shift_l' in self.keys or 'shift_r' in self.keys else 205) if self.mounted else (175 if 'shift_l' in self.keys or 'shift_r' in self.keys else 125)
+   if self.contract and self.bounty_state()=='carried' and not self.mounted:speed*=.75
    if self.can_move(self.x+vx*speed*dt,self.y,16 if self.mounted else 10):self.x+=vx*speed*dt
    if self.can_move(self.x,self.y+vy*speed*dt,16 if self.mounted else 10):self.y+=vy*speed*dt
    self.facing=(vx,vy)
@@ -1494,7 +1495,17 @@ class Game:
    q=math.hypot(a.x-self.x,a.y-self.y)
    if q<dist:nearest=a;dist=q
   if nearest and not self.dialog and not self.choice_dialog:self.draw_text(480,474,'[ E ]  TALK TO '+nearest.name.upper(),14,'#fff0c4',True,anchor='center')
-  if self.near_bounty_board():self.draw_text(480,427,'[ B ]  ACCEPT BOUNTY CONTRACT',12,'#f0d28a',True,anchor='center')
+  if self.near_bounty_board():
+   label='[ E ] TURN IN PRISONER' if self.bounty_state()=='carried' else '[ B ] BOUNTY BOARD'
+   self.draw_text(480,427,label,12,'#f0d28a',True,anchor='center')
+  if self.contract:
+   captive=self.bounty_actor()
+   if self.bounty_state()=='roped' and captive and math.hypot(self.x-captive.x,self.y-captive.y)<120:
+    self.draw_text(480,406,'[ G ] HOGTIE OUTLAW',12,'#ffe3ae',True,anchor='center')
+   elif self.bounty_state()=='hogtied' and captive and math.hypot(self.x-captive.x,self.y-captive.y)<110:
+    self.draw_text(480,406,'[ E ] PICK UP PRISONER',12,'#ffe3ae',True,anchor='center')
+   elif self.bounty_state()=='hunting' and captive and math.hypot(self.x-captive.x,self.y-captive.y)<280:
+    self.draw_text(480,406,'[ L ] LASSO TARGET (AIM WITH MOUSE)',11,'#ffe3ae',True,anchor='center')
   if self.side_job:
    job=get_job(self.side_job['id'])
    if job and int(self.side_job['step'])<len(job[4]):
@@ -1613,8 +1624,14 @@ class Game:
    tx=x+target[0]/WW*w;ty=y+target[1]/WH*h
    self.canvas.create_oval(tx-8,ty-8,tx+8,ty+8,outline='#fff2ac',width=3)
   if self.contract:
-   bx=x+self.contract['location'][0]/WW*w;by=y+self.contract['location'][1]/WH*h
-   self.canvas.create_oval(bx-6,by-6,bx+6,by+6,fill='#9d3d34',outline='#2d211e',width=2)
+   if self.bounty_state()=='carried':
+    bx=x+418/WW*w;by=y+463/WH*h
+    self.canvas.create_oval(bx-7,by-7,bx+7,by+7,outline='#ddc79b',width=3)
+   else:
+    target=self.bounty_actor()
+    bx=x+(target.x if target else self.contract['location'][0])/WW*w
+    by=y+(target.y if target else self.contract['location'][1])/WH*h
+    self.canvas.create_oval(bx-6,by-6,bx+6,by+6,fill='#9d3d34',outline='#2d211e',width=2)
   if self.waypoint:
    wx=x+self.waypoint[0]/WW*w;wy=y+self.waypoint[1]/WH*h
    self.canvas.create_line(wx-9,wy,wx+9,wy,fill='#157661',width=3)
@@ -1649,11 +1666,11 @@ class Game:
  def draw_help(self):
   self.panel(190,52,580,506)
   self.draw_text(216,110,'HOW TO SURVIVE THE FRONTIER',20,'#efc58a',True)
-  controls=[('WASD / ARROWS','Walk / steer horse'),('SHIFT','Sprint / gallop'),('MOUSE / LEFT CLICK','Aim and shoot'),('SPACE','Fire in facing direction'),('R','Reload revolver'),('Q','Toggle Dead Eye (slow-motion)'),('E / SHIFT+E','Talk / enter buildings / interact'),('H','Mount or dismount Whiskey'),('1','Drink a health tonic'),('M / J','Territory map / journal'),('B','Shop / accept bounty near sheriff'),('F','Forage herbs or collect ore'),('T','Rest at a town camp (once per town)'),('V','Toggle sound (off by default)'),('F5','Save game'),('F11','Toggle fullscreen'),('ESC','Pause'),('F1','Close this screen')]
+  controls=[('WASD / ARROWS','Move'),('SHIFT','Sprint / gallop'),('MOUSE CLICK','Aim and shoot'),('SPACE / R','Fire / reload'),('Q','Dead Eye'),('E / SHIFT+E','Interact / enter buildings'),('H','Mount / dismount Whiskey'),('B','Accept bounty near sheriff'),('L','Throw lasso toward mouse'),('G','Hogtie roped outlaw (on foot)'),('E BY TIED TARGET','Pick up captive'),('E BY SHERIFF','Deliver captive alive (on foot)'),('1','Health tonic'),('M / J','World map / journal'),('F / T','Gather resources / rest at camp'),('V','Toggle sound'),('F5','Save game'),('F11','Fullscreen'),('ESC / F1','Pause / help')]
   for i,(k,v) in enumerate(controls):
-   yy=143+i*24
-   self.draw_text(218,yy,k,12,'#f4d59e',True)
-   self.draw_text(440,yy,v,12,'#e3d2b8')
+   yy=143+i*20
+   self.draw_text(218,yy,k,11,'#f4d59e',True)
+   self.draw_text(445,yy,v,11,'#e3d2b8')
 
  def draw_title(self):
   self.canvas.create_image(0,0,image=self.titleimg,anchor='nw')
@@ -1721,7 +1738,7 @@ def main():
   assert len(MISSIONS)==9 and len(BUILDINGS)>=25 and (WW,WH)==(19200,12800)
   assert all(t in INTERIOR_TYPES for t in ('Saloon','General Store','Hotel','Sheriff'))
   assert len(SHOP_GOODS)>=6
-  assert VERSION.startswith('2.1')
+  assert VERSION.startswith('2.2')
   assert os.path.exists(os.path.join(ASSETS,'world.png'))
   assert os.path.exists(os.path.join(ASSETS,'title.png'))
   print('Self-test OK: story, buildings, and artwork present.')
