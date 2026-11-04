@@ -28,3 +28,5 @@ jobs:
         run: xvfb-run -a python3 tests/emergent_test.py
       - name: World Polish regression tests
         run: xvfb-run -a python3 tests/world_polish_test.py
+      - name: Complete Frontier release regression
+        run: xvfb-run -a python3 tests/release_test.py
