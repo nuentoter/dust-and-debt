@@ -5,6 +5,26 @@
 
 Features include a 4,800×3,200 scrolling handcrafted Western map, 27 buildings, multiple frontier settlements with interactive characters, horseback riding, 6-shot revolver gunplay, reloading, bandit combat, money and shops, a doctor and saloon, enemy pursuit, a wanted system, wildlife, a day/night cycle, an objective marker, a map and journal, health tonics, save/load, story ending and free roam.
 
+## v2.2 Dead or Alive — lasso and bounty capture (November 2026)
+
+All **five named bounty contracts** can now be collected **dead or alive**, with alive delivery paying **twice** the dead reward and granting an additional honor boost. Original dead bounty hunting still works. Your existing active bounty remains compatible with the new feature.
+
+### Capture and delivery
+
+1. Stand near Sheriff Bell (or a sheriff contact) and press **B** to accept the next wanted poster. The journal (**J**) displays the *dead* and *alive* payments and capture state.
+2. Ride to the wanted target and aim the mouse at them. Press **L** to **throw the lasso** (range around 235 world units). The throw needs a clear line of sight. It has a brief cooldown and does not consume bullets.
+3. A successful lasso holds the outlaw for **eight seconds**. Dismount (**H**), move within 76 units, and press **G** to **hogtie** them. If you wait too long, they break free and you must lasso them again.
+4. Press **E** next to the hogtied prisoner to **pick them up**. You can carry the restrained outlaw on foot or ride them back on Whiskey. Carrying on foot reduces walking speed.
+5. Return to the sheriff, dismount, and press **E** to hand over the captive and collect the larger **alive** reward. The map waypoint points back to Sheriff Bell once a prisoner is secured.
+
+Shooting the wanted target remains a valid **dead** completion, paying the original listed amount. You can no longer receive both rewards for the same contract. Lassoing does **not** automatically count as a capture: the prisoner must be hogtied and physically brought in.
+
+**Persistence:** New save data tracks whether an active bounty is free, roped, hogtied, or carried, including a tied captive's location and the remaining short rope timer. Earlier bounty saves without capture fields load as ordinary hunting contracts. Loading a save while a prisoner is carried lets you finish the delivery; no new game is necessary.
+
+**Scope:** The lasso and hogtie system currently applies to **wanted bounty targets**, not random civilians or every roaming bandit. The rope is a simple rendered visual, not an animated physics simulation.
+
+**Tests:** `xvfb-run -a python3 tests/bounty_capture_test.py` covers all five alive capture chains, payout, mounting, tied/carried save recovery, previous-version bounty saves, and rope escape. GitHub Actions runs this alongside the earlier story and combat regression suite.
+
 ## v2.1.2 — Dust Hollow mission spawn fix (November 2026)
 
 - Corrected the five Dust Hollow mission rider spawn locations. One original position was **inside the Cabin building's collision rectangle**, trapping the enemy behind a bullet-blocking wall and preventing the five-rider quest from completing.
