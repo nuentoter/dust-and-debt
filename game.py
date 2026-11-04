@@ -109,7 +109,7 @@ class Game:
   self.facing=(0.,-1.);self.shot_timer=0;self.reload_timer=0;self.invuln=0;self.hit_marker=0.;self.combat_warning=0.
   self.actors=[];self.bullets=[];self.effects=[];self.dialog=None;self.choice_dialog=None;self.dialog_from='';self.toast=[]
   self.camx=0;self.camy=0;self.map_open=False;self.journal_open=False;self.show_help=False
-  self.waypoint=None;self.sound_on=False;self.last_bell=0.;self.autosave_timer=90.
+  self.waypoint=None;self.sound_on=False;self.last_bell=0.;self.autosave_timer=90.;self.loaded_backup=False
   self.interior=None;self.indoor_x=480.;self.indoor_y=465.;self.shop_open=False
   self.npc_schedule_tick=0;self.npc_home={}
   for a in self.actors:
@@ -324,7 +324,7 @@ class Game:
  def continue_game(self):
   self.reset()
   try:
-   with open(SAVE) as f:s=json.load(f)
+   s=self.read_save_data()
    for k in ('x','y','hp','money','ammo','reserve','tonics','stage','kills','wanted','clock','mounted','horse_x','horse_y','ledger','death_count','honor','crimes','deadeye','bounties_done'):
     if k in s:setattr(self,k,s[k])
    self.deadeye=max(0.,min(100.,float(self.deadeye)))
@@ -344,9 +344,27 @@ class Game:
     eliminated=int(s.get('stage_kills',0))
     for a in [a for a in self.actors if a.kind=='mission_'+tag][:eliminated]:a.dead=True
    self.update_npc_schedules()
-   self.screen='playing';self.safe_timer=18.;self.notify('Loaded last save from disk. F5 saves manually.',4)
+   self.screen='playing';self.safe_timer=18.;self.notify('Recovered backup save. Press F5 to restore primary.' if self.loaded_backup else 'Loaded last save from disk. F5 saves manually.',5)
   except (OSError,ValueError,TypeError,KeyError) as ex:
-   self.new_game();self.notify('Save could not be loaded: '+str(ex),5)
+   # Never overwrite a damaged save by quietly starting a new game.
+   self.screen='title';self.notify('SAVE ERROR: '+str(ex),7)
+   print('Cannot load save:',ex,file=sys.stderr)
+ def read_save_data(self):
+  errors=[]
+  for path in (SAVE,SAVE+'.bak'):
+   try:
+    with open(path,encoding='utf-8') as file:data=json.load(file)
+    if not isinstance(data,dict):raise ValueError('save is not an object')
+    for key in ('x','y','stage'):
+     if key not in data:raise ValueError('save lacks '+key)
+    if not (0<=int(data['stage'])<len(MISSIONS)):raise ValueError('invalid story stage')
+    if not (23<=float(data['x'])<=WW-23 and 23<=float(data['y'])<=WH-23):
+     raise ValueError('coordinates outside territory')
+    self.loaded_backup=(path!=SAVE)
+    return data
+   except (OSError,ValueError,TypeError,KeyError) as ex:errors.append(str(ex))
+  raise ValueError('primary and backup unusable: '+'; '.join(errors))
+
  def save(self,manual=False):
   if self.screen not in ('playing','paused','ending'):return False
   d={k:getattr(self,k) for k in ('x','y','hp','money','ammo','reserve','tonics','stage','kills','wanted','clock','mounted','horse_x','horse_y','ledger','death_count','honor','crimes','deadeye')}
@@ -361,7 +379,16 @@ class Game:
    tmp=SAVE+'.tmp'
    with open(tmp,'w') as f:
     json.dump(d,f);f.flush();os.fsync(f.fileno())
+   # Rotate only valid existing saves, preserving a recoverable backup.
+   if os.path.exists(SAVE) and not self.loaded_backup:
+    try:
+     with open(SAVE,encoding='utf-8') as old:
+      old_data=json.load(old)
+     if isinstance(old_data,dict) and all(k in old_data for k in ('x','y','stage')):
+      shutil.copy2(SAVE,SAVE+'.bak')
+    except (OSError,ValueError,TypeError):pass
    os.replace(tmp,SAVE)
+   self.loaded_backup=False
    self.last_save_ok=True;self.save_error='';self.last_save_time=time.strftime('%H:%M:%S')
    if manual:self.notify('SAVED at '+self.last_save_time+' to '+SAVE,5)
    return True
