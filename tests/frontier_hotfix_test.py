@@ -39,7 +39,7 @@ def main():
             disk = json.load(handle)
         assert disk["x"] == 12345 and disk["y"] == 8765
         assert disk["money"] == 143
-        assert disk["save_version"].startswith("1.4.1")
+        assert disk["save_version"] == game.VERSION
         g.camx, g.camy = 12000, 8400
         g.draw_far_terrain()
         g.render()
