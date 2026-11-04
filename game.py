@@ -14,7 +14,7 @@ VW,VH=960,600
 OLD_WW,OLD_WH=4800,3200
 WW,WH=19200,12800  # 16x original area, drawn incrementally
 FPS=33
-VERSION='1.7 — Tile & Terrain'
+VERSION='1.8 — Emergent Frontier'
 # Interiors are lightweight procedural rooms: no extra graphics libraries or image files.
 INTERIOR_TYPES={
  'Sheriff':'office','Sheriff Annex':'office','Saloon':'saloon','Sagebrush Saloon':'saloon',
@@ -83,7 +83,7 @@ class Actor:
 
 class Game:
  def __init__(self,root):
-  self.root=root;root.title('DUST & DEBT | Tile & Terrain v1.7')
+  self.root=root;root.title('DUST & DEBT | Emergent Frontier v1.8')
   root.resizable(False,False)
   self.canvas=tk.Canvas(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
@@ -117,6 +117,7 @@ class Game:
   for n,x,y,kind in NPCS:
    self.actors.append(Actor(x,y,kind,n,100,100,42))
    if kind=='civilian':self.npc_home[n]=(x,y)
+  self.contract=None;self.bounties_done=0;self.encounter_cooldown=35.
   self.spawn_roamers()
   self.update_npc_schedules()
   self.safe_timer=50.
@@ -250,6 +251,7 @@ class Game:
   elif key=='e':
    if ('shift_l' in self.keys or 'shift_r' in self.keys) and self.near_door():self.enter_interior(self.near_door())
    else:self.interact()
+  elif key=='b' and self.near_bounty_board():self.begin_bounty()
   elif key=='h':self.toggle_horse()
   elif key=='r':self.reload()
   elif key=='1':self.tonic()
@@ -269,12 +271,14 @@ class Game:
   self.reset()
   try:
    with open(SAVE) as f:s=json.load(f)
-   for k in ('x','y','hp','money','ammo','reserve','tonics','stage','kills','wanted','clock','mounted','horse_x','horse_y','ledger','death_count','honor','crimes','deadeye'):
+   for k in ('x','y','hp','money','ammo','reserve','tonics','stage','kills','wanted','clock','mounted','horse_x','horse_y','ledger','death_count','honor','crimes','deadeye','bounties_done'):
     if k in s:setattr(self,k,s[k])
    self.deadeye=max(0.,min(100.,float(self.deadeye)))
    self.honor=max(0,min(100,int(self.honor)))
    self.law_status='WANTED' if self.wanted>=1.2 else ('INVESTIGATING' if self.wanted>0 else 'PEACE')
    self.mission_activated=set(s.get('mission_activated',[]))
+   self.contract=s.get('contract')
+   if self.contract and not self.contract.get('finished',False):self.spawn_contract_target()
    # Quest combat must regenerate after loading (kill progress is persisted).
    tag={1:'hollow',4:'blackspur',6:'crow'}.get(self.stage)
    if tag:
@@ -291,6 +295,7 @@ class Game:
   if self.screen not in ('playing','paused','ending'):return False
   d={k:getattr(self,k) for k in ('x','y','hp','money','ammo','reserve','tonics','stage','kills','wanted','clock','mounted','horse_x','horse_y','ledger','death_count','honor','crimes','deadeye')}
   d['mission_activated']=list(self.mission_activated)
+  d['contract']=self.contract;d['bounties_done']=self.bounties_done
   d['save_version']=VERSION
   tag={1:'hollow',4:'blackspur',6:'crow'}.get(self.stage)
   if tag:d['stage_kills']=sum(a.dead for a in self.actors if a.kind=='mission_'+tag)
@@ -317,7 +322,7 @@ class Game:
  def interact(self):
   nearest=None;best=64
   for a in self.actors:
-   if a.dead or a.kind.startswith('mission_') or a.kind in ('bandit','animal','deputy'):continue
+   if a.dead or a.kind.startswith('mission_') or a.kind in ('bandit','animal','deputy','bounty_target'):continue
    dist=math.hypot(a.x-self.x,a.y-self.y)
    if dist<best:nearest=a;best=dist
   # Original mission givers stand near doors: always give close conversations
@@ -331,6 +336,11 @@ class Game:
    else:self.notify('Nobody nearby to talk to. Walk up to a character and press E.',2)
    return
   k=nearest.kind
+  if k=='traveler':
+   self.actors.remove(nearest);self.money+=12
+   self.change_honor(1,'Helped a stranded traveler')
+   self.say('TRAVELER',['Thank you for stopping. I thought nobody would come.','Take these twelve dollars. It is all I can spare.'])
+   self.encounter_cooldown=65.;self.save();return
   if k=='sheriff':
    if self.stage==0:
     self.quest(1);self.say('SHERIFF BELL',['We have five Red Mesa riders camped northeast at Dust Hollow.','They hit the stagecoach and left the passengers in the dirt. I need someone who can shoot.','Bring me the news they are gone. Eighty dollars. No questions about your past.'])
@@ -668,6 +678,10 @@ class Game:
    if self.can_move(self.x,self.y+vy*speed*dt,16 if self.mounted else 10):self.y+=vy*speed*dt
    self.facing=(vx,vy)
   if self.frame%60==0:self.update_npc_schedules()
+  self.encounter_cooldown=max(0.,self.encounter_cooldown-dt)
+  if self.encounter_cooldown<=0:
+   if self.spawn_road_encounter():self.encounter_cooldown=random.uniform(75,115)
+   else:self.encounter_cooldown=15.
   if self.frame%40==0:
    region=self.region_name(self.x,self.y)
    if region!=self.last_region:
@@ -697,10 +711,10 @@ class Game:
  def update_ai(self,dt):
   for a in self.actors:
    if a.dead:continue
-   if a.kind in ('sheriff','store','doctor','stable','saloon','station'):continue
+   if a.kind in ('sheriff','store','doctor','stable','saloon','station','traveler'):continue
    a.shoot=max(0,a.shoot-dt);a.wander-=dt
    dist=math.hypot(a.x-self.x,a.y-self.y)
-   ishostile=a.kind in ('bandit','deputy') or a.kind.startswith('mission_')
+   ishostile=a.kind in ('bandit','deputy','bounty_target') or a.kind.startswith('mission_')
    if a.kind=='civilian':
     if (self.law_status=='WANTED' or (self.witness_timer>0 and dist<310)) and dist<280:dx,dy=a.x-self.x,a.y-self.y
     else:
@@ -763,12 +777,13 @@ class Game:
        self.effects.append([px,py,.30,'hit']);self.effects.append([px,py,.52,'spark']);self.hit_marker=.20;collided=True
        if a.hp<=0:
         a.dead=True
-        if a.kind in ('bandit','deputy') or a.kind.startswith('mission_'):
+        if a.kind in ('bandit','deputy','bounty_target') or a.kind.startswith('mission_'):
          if a.kind=='deputy':self.report_crime(2.5,'Lawman killed');self.change_honor(-18,'Killed a lawman')
+         elif a.kind=='bounty_target':self.finish_bounty(a)
          else:
           reward=8 if a.kind=='bandit' else 5
           self.money+=reward;self.kills+=1;self.deadeye=min(100.,self.deadeye+12);self.change_honor(1,'Outlaw defeated');self.notify('Outlaw down! +$'+str(reward),1.7)
-        elif a.kind in ('civilian','sheriff','store','doctor','stable','saloon','station'):
+        elif a.kind in ('civilian','sheriff','store','doctor','stable','saloon','station','traveler'):
          self.report_crime(5,'Murder');self.change_honor(-20,'Killed a civilian');self.wanted=5.;self.notify('MURDER! Wanted level maximum.')
        break
     else:
@@ -801,7 +816,7 @@ class Game:
    self.canvas.create_oval(sx-12,sy-6,sx+13,sy+6,fill=co,outline='#65523e')
    self.canvas.create_oval(sx+7,sy-9,sx+16,sy,fill=co,outline='#65523e')
    return
-  villain=a.kind in ('bandit','deputy') or a.kind.startswith('mission_')
+  villain=a.kind in ('bandit','deputy','bounty_target') or a.kind.startswith('mission_')
   clothes=('#3e4b59' if a.kind=='deputy' else '#694332') if villain else {'sheriff':'#384a4f','saloon':'#973f50','store':'#747143','doctor':'#e0d0a4','stable':'#55644a','station':'#526783'}.get(a.kind,'#73654f')
   # Lower shadow, boots, poncho, head and hat: tiny expressive pixel figure.
   self.canvas.create_oval(sx-13,sy+8,sx+15,sy+15,fill='#6d563f',outline='')
@@ -989,10 +1004,11 @@ class Game:
    self.draw_text(480,114+i*23,s,13,'#ffe7a8',True,anchor='center')
   nearest=None;dist=65
   for a in self.actors:
-   if a.dead or a.kind.startswith('mission_') or a.kind in ('bandit','deputy','animal'):continue
+   if a.dead or a.kind.startswith('mission_') or a.kind in ('bandit','deputy','animal','bounty_target'):continue
    q=math.hypot(a.x-self.x,a.y-self.y)
    if q<dist:nearest=a;dist=q
   if nearest and not self.dialog and not self.choice_dialog:self.draw_text(480,474,'[ E ]  TALK TO '+nearest.name.upper(),14,'#fff0c4',True,anchor='center')
+  if self.near_bounty_board():self.draw_text(480,427,'[ B ]  ACCEPT BOUNTY CONTRACT',12,'#f0d28a',True,anchor='center')
   door=self.near_door()
   if door:self.draw_text(480,451,'[ SHIFT+E ] ENTER '+door.upper(),14,'#ffebb7',True,anchor='center')
   if not self.mounted and math.hypot(self.x-self.horse_x,self.y-self.horse_y)<75:self.draw_text(480,448,'[ H ]  MOUNT WHISKEY',13,'#e3d29e',True,anchor='center')
@@ -1092,6 +1108,93 @@ class Game:
   self.draw_text(160,340,f'Outlaws defeated: {self.kills}       Money: ${self.money}',15,'#f1dfbd')
   self.draw_text(160,382,f'Honor: {self.honor}/100    Law: {self.law_status}    Crimes: {self.crimes}',15,'#f1dfbd')
   self.draw_text(160,424,f'Missions finished: {min(4,self.stage//2)} / 4       Story: {"COMPLETE" if self.stage==8 else "IN PROGRESS"}',15,'#f1dfbd')
+  self.draw_text(160,465,('ACTIVE BOUNTY: '+self.contract['name']+' — 
+
+ def draw_help(self):
+  self.panel(190,52,580,506)
+  self.draw_text(216,110,'HOW TO SURVIVE THE FRONTIER',20,'#efc58a',True)
+  controls=[('WASD / ARROWS','Walk / steer horse'),('SHIFT','Sprint / gallop'),('MOUSE / LEFT CLICK','Aim and shoot'),('SPACE','Fire in facing direction'),('R','Reload revolver'),('Q','Toggle Dead Eye (slow-motion)'),('E / SHIFT+E','Talk / enter buildings / interact'),('H','Mount or dismount Whiskey'),('1','Drink a health tonic'),('M / J','Territory map / journal'),('B','Open an indoor shop at its counter'),('F5','Save game'),('F11','Toggle fullscreen'),('ESC','Pause'),('F1','Close this screen')]
+  for i,(k,v) in enumerate(controls):
+   yy=143+i*24
+   self.draw_text(218,yy,k,12,'#f4d59e',True)
+   self.draw_text(440,yy,v,12,'#e3d2b8')
+
+ def draw_title(self):
+  self.canvas.create_image(0,0,image=self.titleimg,anchor='nw')
+  self.draw_text(480,84,'DUST & DEBT',58,'#f3dbaf',True,anchor='center')
+  self.draw_text(480,162,'AN ORIGINAL TOP-DOWN WESTERN ADVENTURE',14,'#f2b777',True,anchor='center')
+  self.draw_text(480,280,'ONE HORSE. SIX BULLETS. A TERRITORY FULL OF TROUBLE.',16,'#e5cdaf',True,anchor='center')
+  self.panel(308,371,344,151,'#261e19','#d2a369')
+  self.draw_text(480,393,'ENTER  /  CLICK  —  NEW GAME',16,'#f6d5a0',True,anchor='center')
+  if os.path.exists(SAVE):self.draw_text(480,473,'L  /  CLICK  —  CONTINUE',16,'#f0c28a',True,anchor='center')
+  else:self.draw_text(480,473,'NO SAVED GAME YET',13,'#8c806e',anchor='center')
+  self.draw_text(480,554,VERSION+'  •  Linux  •  Python + Tkinter',11,'#d6b38e',anchor='center')
+
+ def draw_pause(self):
+  self.canvas.create_rectangle(0,0,VW,VH,fill='#17130f',stipple='gray50',outline='')
+  self.panel(277,180,406,242)
+  self.draw_text(480,215,'PAUSED',38,'#efcf9d',True,anchor='center')
+  self.draw_text(480,282,'ESC  —  RESUME',17,'#f0d3a5',True,anchor='center')
+  self.draw_text(480,330,'F5  —  SAVE GAME',15,'#e5be86',anchor='center')
+  self.draw_text(480,366,'LAST SAVE: '+(self.last_save_time if self.last_save_ok else ('FAILED' if self.save_error else 'NOT YET')),12,'#e8d2ab',anchor='center')
+  self.draw_text(480,390,'Close window to quit (autosaves).',11,'#d4b995',anchor='center')
+
+ def draw_death(self):
+  self.canvas.create_image(0,0,image=self.titleimg,anchor='nw')
+  self.canvas.create_rectangle(0,0,VW,VH,fill='#27120f',stipple='gray50',outline='')
+  self.draw_text(480,192,'YOU DIED',64,'#e8a17c',True,anchor='center')
+  self.draw_text(480,299,'The territory never forgets a debt.',18,'#f1d0ac',anchor='center')
+  self.draw_text(480,368,'ENTER — WAKE UP AT THE DOCTOR (LOSE UP TO $25)',15,'#e1b889',True,anchor='center')
+  self.draw_text(480,414,'ESC — MAIN MENU',13,'#f4ddbe',anchor='center')
+
+ def draw_ending(self):
+  self.canvas.create_image(0,0,image=self.titleimg,anchor='nw')
+  self.draw_text(480,92,'THE END',46,'#f1d5ab',True,anchor='center')
+  self.draw_text(480,170,'DUST & DEBT',33,'#edbc82',True,anchor='center')
+  lines=['Crow fell, but the West kept moving.','Sheriff Bell paid the final $250. The ledger was safe.','Some men ride toward redemption.','Others just ride.']
+  for i,line in enumerate(lines):self.draw_text(480,270+i*40,line,17,'#eed8bc',anchor='center')
+  self.draw_text(480,500,'STORY COMPLETE  •  ENTER TO CONTINUE FREE ROAM',14,'#f3cd8e',True,anchor='center')
+
+ def render(self):
+  self.canvas.delete('all')
+  if self.screen=='title':self.draw_title();return
+  if self.screen=='death':self.draw_death();return
+  if self.screen=='ending':self.draw_ending();return
+  if self.interior:
+   self.draw_interior()
+   if self.shop_open:self.draw_shop()
+   if self.show_help:self.draw_help()
+   self.draw_dialog()
+   self.draw_choice_dialogue()
+   return
+  self.draw_world();self.draw_hud()
+  if self.screen=='paused':self.draw_pause()
+  if self.map_open:self.draw_map()
+  if self.journal_open:self.draw_journal()
+  if self.show_help:self.draw_help()
+  self.draw_dialog()
+  self.draw_choice_dialogue()
+
+ def quit(self):
+  if self.screen in ('playing','paused','ending'):self.save()
+  self.root.destroy()
+
+
+def main():
+ if '--self-test' in sys.argv:
+  assert len(MISSIONS)==9 and len(BUILDINGS)>=25 and (WW,WH)==(19200,12800)
+  assert all(t in INTERIOR_TYPES for t in ('Saloon','General Store','Hotel','Sheriff'))
+  assert len(SHOP_GOODS)>=6
+  assert VERSION.startswith('1.8')
+  assert os.path.exists(os.path.join(ASSETS,'world.png'))
+  assert os.path.exists(os.path.join(ASSETS,'title.png'))
+  print('Self-test OK: story, buildings, and artwork present.')
+  return
+ root=tk.Tk()
+ Game(root)
+ root.mainloop()
+if __name__=='__main__':main()
++str(self.contract['reward']) if self.contract else 'Bounties completed: '+str(self.bounties_done)+' — Press B near sheriff'),12,'#f0ce92',True)
   self.draw_text(480,516,'J TO CLOSE',12,'#e2bb7e',True,anchor='center')
 
  def draw_help(self):
