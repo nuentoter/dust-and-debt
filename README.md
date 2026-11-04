@@ -5,6 +5,19 @@
 
 Features include a 4,800×3,200 scrolling handcrafted Western map, 27 buildings, multiple frontier settlements with interactive characters, horseback riding, 6-shot revolver gunplay, reloading, bandit combat, money and shops, a doctor and saloon, enemy pursuit, a wanted system, wildlife, a day/night cycle, an objective marker, a map and journal, health tonics, save/load, story ending and free roam.
 
+## Living Towns v1.5 (November 2026)
+
+**Milestone 2: moving beyond stationary crowds.** Named civilian residents in Cinder Creek, Sagebrush Crossing, and the surrounding settlements now follow deterministic outdoor routines through four periods: morning (06:00–11:00), workday (11:00–17:00), evening (17:00–21:00) and night (21:00–06:00). Four new civilians inhabit Sagebrush Crossing, with individually named destinations and occupations.
+
+- Civilians walk toward their daytime and evening destinations, then return home at night. They wait at destinations rather than drifting endlessly.
+- Nearby civilian labels show what they're doing. Asking **Any news?** via **E**, then **1**, includes their current activity.
+- Coffee and hotel sleep immediately refresh NPC schedules after the clock changes.
+- Existing mission characters (Sheriff Bell, Nell, and service NPCs) remain fixed so original quest triggers are preserved.
+- Saves from earlier game versions remain compatible. Schedules are computed from the saved clock and do not require save migration.
+- Regression test: `xvfb-run -a python3 tests/living_towns_test.py`. This runs in GitHub Actions alongside the existing checks.
+
+**Scope:** These are lightweight outdoor waypoint routines, not full indoor pathfinding or independent NPC inventories. Those are later improvements.
+
 ## Great Frontier hotfix v1.4.1 (November 2026)
 
 This is a **playtest hotfix before Milestone 2**, responding to feedback that drifters attacked too quickly, saving was unclear, and the territory was too small.
