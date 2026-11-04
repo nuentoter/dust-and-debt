@@ -245,6 +245,87 @@ class Game:
    return True
   return False
 
+ def offer_frontier_job(self,guide):
+  town=nearby_settlement(guide.x,guide.y)
+  if not town:return
+  job=next((j for j in SIDE_JOBS if j[1]==town),None)
+  if not job:return
+  key,origin,title,description,targets,reward=job
+  if key in self.side_completed:
+   self.say(guide.name.upper(),['You kept your word, traveler. Our town remembers it.','The roads have been a little safer since you helped.'])
+   return
+  if self.side_job:
+   active=get_job(self.side_job.get('id'))
+   self.say(guide.name.upper(),['You have unfinished work: '+(active[2] if active else 'the frontier job')+'.','Finish your current errand before taking another.'])
+   return
+  self.side_job={'id':key,'step':0}
+  self.waypoint=list(targets[0])
+  self.say(guide.name.upper(),[title+'. '+description+'.',f'Payment is ${reward} when you finish. The first clue is marked on your map.'])
+  self.notify('NEW SIDE JOB: '+title+' — see J journal',5)
+  self.save()
+
+ def advance_side_job(self):
+  if not self.side_job:return False
+  job=get_job(self.side_job.get('id'))
+  if not job:return False
+  key,origin,title,description,targets,reward=job
+  step=int(self.side_job.get('step',0))
+  if step<0 or step>=len(targets):return False
+  tx,ty=targets[step]
+  if (self.x-tx)**2+(self.y-ty)**2>85**2:return False
+  step+=1
+  if step<len(targets):
+   self.side_job['step']=step
+   self.waypoint=list(targets[step])
+   self.say('JESSE',['Found the first piece of evidence for '+title+'.','The next lead is now marked on your map.'])
+  else:
+   self.money+=reward
+   self.change_honor(2,'Frontier job completed')
+   self.side_completed.append(key)
+   self.side_job=None;self.waypoint=None
+   self.say('JESSE',['That settles '+title+'.',f'The agreed payment of ${reward} is yours.'])
+   self.notify('SIDE JOB COMPLETE: +$'+str(reward),5)
+  self.save()
+  return True
+
+ def gather_resource(self):
+  if self.mounted or self.interior:return False
+  for identifier,x,y,label,kind in RESOURCE_NODES:
+   if identifier in self.gathered_nodes or (self.x-x)**2+(self.y-y)**2>90**2:continue
+   self.gathered_nodes.append(identifier)
+   if kind=='tonic':
+    self.tonics+=1;message='Gathered '+label+': +1 health tonic'
+   else:
+    self.money+=9;message='Collected '+label+': +$9'
+   self.notify(message,4);self.save()
+   return True
+  self.notify('No uncollected resource nearby. Look for a herb or ore marker.',2)
+  return False
+
+ def rest_at_frontier_camp(self):
+  if self.mounted or self.interior:return False
+  town=nearby_settlement(self.x,self.y,225)
+  if not town:return False
+  if town in self.camps_used:
+   self.notify('You have already used the free camp at this settlement.',3);return False
+  self.camps_used.append(town)
+  self.hp=min(self.maxhp,self.hp+30)
+  self.clock=(self.clock+6)%24;self.update_npc_schedules()
+  self.safe_timer=max(self.safe_timer,15.)
+  self.notify('Rested by the campfire: +30 HP, six hours passed.',5)
+  self.save()
+  return True
+
+ def discover_settlement(self):
+  town=nearby_settlement(self.x,self.y,385)
+  if not town or town in self.visited_settlements:return False
+  self.visited_settlements.append(town)
+  info=get_settlement(town)
+  self.money+=5
+  self.notify('DISCOVERED: '+info[1].upper()+' — +$5 in trail supplies',5)
+  self.save()
+  return True
+
  def quest(self,stage):
   self.stage=stage;self.notify('NEW OBJECTIVE: '+MISSIONS[stage][0].upper(),5)
   self.save()
@@ -315,6 +396,8 @@ class Game:
    if ('shift_l' in self.keys or 'shift_r' in self.keys) and self.near_door():self.enter_interior(self.near_door())
    else:self.interact()
   elif key=='b' and self.near_bounty_board():self.begin_bounty()
+  elif key=='f':self.gather_resource()
+  elif key=='t':self.rest_at_frontier_camp()
   elif key=='h':self.toggle_horse()
   elif key=='r':self.reload()
   elif key=='1':self.tonic()
@@ -447,6 +530,7 @@ class Game:
   self.dialog[2]+=1
   if self.dialog[2]>=len(self.dialog[1]):self.dialog=None
  def interact(self):
+  if self.advance_side_job():return
   nearest=None;best=64
   for a in self.actors:
    if a.dead or a.kind.startswith('mission_') or a.kind in ('bandit','animal','deputy','bounty_target'):continue
@@ -463,6 +547,7 @@ class Game:
    else:self.notify('Nobody nearby to talk to. Walk up to a character and press E.',2)
    return
   k=nearest.kind
+  if k=='guide':self.offer_frontier_job(nearest);return
   if k=='traveler':
    self.actors.remove(nearest);self.money+=12
    self.change_honor(1,'Helped a stranded traveler')
@@ -850,6 +935,7 @@ class Game:
    if self.spawn_road_encounter():self.encounter_cooldown=random.uniform(75,115)
    else:self.encounter_cooldown=15.
   if self.frame%40==0:
+   self.discover_settlement()
    region=self.region_name(self.x,self.y)
    if region!=self.last_region:
     self.last_region=region;self.notify('NOW ENTERING: '+region.upper(),3.4)
@@ -1206,6 +1292,8 @@ class Game:
   if not self.mounted and math.hypot(self.x-self.horse_x,self.y-self.horse_y)<75:self.draw_text(480,448,'[ H ]  MOUNT WHISKEY',13,'#e3d29e',True,anchor='center')
 
  def region_name(self,x,y):
+  new_town=nearby_settlement(x,y,440)
+  if new_town:return get_settlement(new_town)[1]
   if x>=OLD_WW or y>=OLD_WH:
    row=min(3,int(y//3200));col=min(3,int(x//4800))
    return (('Far Rim','Prairie Expanse','Broken Plateaus','The Long Divide'),('Distant Range','Drybone Basin','Outlaw Trail','Sunset Mesa'),('Sage Ocean','Wandering Plains','Salt Flats','The Iron Hills'),('Southwood','Big Sky Prairie','Red Canyons','Last Horizon'))[row][col]
