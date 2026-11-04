@@ -254,6 +254,7 @@ class Game:
   target=self.bounty_actor()
   if target:target.dead=True
   name=self.contract['name']
+  if alive and self.waypoint==[418,463]:self.waypoint=None
   self.money+=reward;self.bounties_done+=1;self.contract=None
   self.change_honor(5 if alive else 2,'Bounty delivered alive' if alive else 'Bounty brought to justice')
   self.notify(name+(' DELIVERED ALIVE' if alive else ' DEAD')+': +$'+str(reward),5)
@@ -307,6 +308,7 @@ class Game:
   if not a or math.hypot(a.x-self.x,a.y-self.y)>77:return False
   a.dead=True
   self.contract['status']='carried';self.contract.pop('captive_pos',None)
+  self.waypoint=[418,463]
   self.notify('Prisoner secured. Ride to the sheriff; dismount and press E.',5)
   self.save();return True
 
@@ -651,8 +653,10 @@ class Game:
   if self.dialog[2]>=len(self.dialog[1]):self.dialog=None
  def interact(self):
   # Hand captured bounties over before normal sheriff conversation.
-  if self.contract and self.bounty_state()=='carried' and self.near_bounty_board():
-   self.deliver_bounty();return
+  if self.contract and self.bounty_state()=='carried':
+   sheriffs=(a for a in self.actors if a.kind=='sheriff' and not a.dead)
+   if any(math.hypot(a.x-self.x,a.y-self.y)<105 for a in sheriffs):
+    self.deliver_bounty();return
   if self.pick_up_bounty():return
   if self.advance_side_job():return
   nearest=None;best=64
@@ -1460,8 +1464,8 @@ class Game:
   self.draw_text(642,20,f'{hours%12 or 12}:{mins:02d} {"AM" if hours<12 else "PM"}  |  {self.region_name(self.x,self.y).upper()}',11,'#e2c48f',True)
   stars='★'*min(5,math.ceil(self.wanted))
   self.draw_text(642,43,self.law_status+' '+(stars if stars else '—'),15,'#e7a16b' if stars else '#b9a78b',True)
-  self.draw_text(642,69,'H: HORSE   F5: SAVE   V: SOUND',10,'#e9d6b2')
-  self.draw_text(642,84,'WEATHER: '+self.weather_kind().upper(),9,'#ead9b1')
+  self.draw_text(642,69,'H: HORSE   L: LASSO   G: TIE',10,'#e9d6b2')
+  self.draw_text(642,84,'WEATHER: '+self.weather_kind().upper()+'   F5: SAVE',9,'#ead9b1')
   self.panel(13,505,550,83)
   self.draw_text(25,514,'CHAPTER '+ ('EPILOGUE' if self.stage==8 else str(1+self.stage//2))+'  ·  '+MISSIONS[self.stage][0].upper(),12,'#e6bc79',True)
   self.draw_text(25,539,MISSIONS[self.stage][1],12,'#f4e5ce',width=510)
@@ -1630,11 +1634,16 @@ class Game:
   self.draw_text(160,340,f'Outlaws defeated: {self.kills}       Money: ${self.money}',15,'#f1dfbd')
   self.draw_text(160,382,f'Honor: {self.honor}/100    Law: {self.law_status}    Crimes: {self.crimes}',15,'#f1dfbd')
   self.draw_text(160,424,f'Missions finished: {min(4,self.stage//2)} / 4       Story: {"COMPLETE" if self.stage==8 else "IN PROGRESS"}',15,'#f1dfbd')
-  self.draw_text(160,459,('ACTIVE BOUNTY: '+self.contract['name']+' — $'+str(self.contract['reward']) if self.contract else 'Bounties completed: '+str(self.bounties_done)+' — Press B near sheriff'),12,'#f0ce92',True)
+  if self.contract:
+   dead=int(self.contract['reward']);alive=int(self.contract.get('alive_reward',dead*2))
+   title='BOUNTY: '+self.contract['name']+'  DEAD $'+str(dead)+' / ALIVE $'+str(alive)
+   self.draw_text(160,457,title,11,'#f0ce92',True)
+   self.draw_text(160,472,'STATUS: '+self.bounty_state().upper()+' • L rope, G tie, E carry/turn in',10,'#edcf9d')
+  else:self.draw_text(160,459,'Bounties completed: '+str(self.bounties_done)+' — Press B near sheriff',12,'#f0ce92',True)
   if self.side_job:
    job=get_job(self.side_job['id'])
-   if job:self.draw_text(160,484,'SIDE JOB: '+job[2]+f' ({int(self.side_job["step"])+1}/{len(job[4])}) — E at teal marker',11,'#b2dbce',True)
-  else:self.draw_text(160,484,f'Side jobs: {len(self.side_completed)}/{len(SIDE_JOBS)}    Towns found: {len(self.visited_settlements)}/{len(SETTLEMENTS)}',11,'#b2dbce',True)
+   if job:self.draw_text(160,493,'SIDE JOB: '+job[2]+f' ({int(self.side_job["step"])+1}/{len(job[4])}) — E at teal marker',11,'#b2dbce',True)
+  else:self.draw_text(160,493,f'Side jobs: {len(self.side_completed)}/{len(SIDE_JOBS)}    Towns found: {len(self.visited_settlements)}/{len(SETTLEMENTS)}',11,'#b2dbce',True)
   self.draw_text(480,516,'J TO CLOSE',12,'#e2bb7e',True,anchor='center')
 
  def draw_help(self):
