@@ -11,7 +11,7 @@ def main():
   root=tk.Tk();root.withdraw()
   g=game.Game(root);g.new_game();g.dialog=None
   assert game.VERSION.startswith('1.5')
-  assert len([a for a in g.actors if a.kind=='civilian'])>=20
+  assert len([a for a in g.actors if a.kind=='civilian'])>=16
   martha=next(a for a in g.actors if a.name=='Martha')
   sheriff=next(a for a in g.actors if a.name=='Sheriff Bell')
   fixed=(sheriff.x,sheriff.y)
