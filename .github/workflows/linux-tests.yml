@@ -1,0 +1,20 @@
+name: Linux smoke tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Tk and virtual display
+        run: sudo apt-get update && sudo apt-get install -y python3-tk xvfb
+      - name: Verify game data
+        run: python3 game.py --self-test
+      - name: Smoke test v1.3 foundation
+        run: xvfb-run -a python3 tests/smoke_test.py
+      - name: Dialogue regression tests
+        run: xvfb-run -a python3 tests/dialogue_test.py
+      - name: Great Frontier regression tests
+        run: xvfb-run -a python3 tests/frontier_hotfix_test.py
