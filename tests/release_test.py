@@ -14,7 +14,7 @@ def main():
   game.SAVE=os.path.join(temp,'save.json')
   root=tk.Tk();root.withdraw()
   g=game.Game(root);g.new_game();g.dialog=None
-  assert game.VERSION.startswith('2.0')
+  assert hasattr(g,'read_save_data') and hasattr(g,'autosave_timer')
   assert g.save(manual=True)
   g.x,g.y=1235.,742.
   g.money=235
