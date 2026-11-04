@@ -9,7 +9,7 @@ def main():
   game.SAVE=os.path.join(tmp,"save.json")
   root=tk.Tk();root.withdraw()
   g=game.Game(root);g.new_game();g.dialog=None
-  assert game.VERSION.startswith('1.9')
+  assert hasattr(g,'set_waypoint_from_map') and hasattr(g,'weather_kind')
   assert g.waypoint is None and g.sound_on is False
   assert not g.set_waypoint_from_map(20,20)
   assert g.set_waypoint_from_map(808,504)
