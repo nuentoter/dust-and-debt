@@ -5,6 +5,28 @@
 
 Features include a 4,800×3,200 scrolling handcrafted Western map, 27 buildings, multiple frontier settlements with interactive characters, horseback riding, 6-shot revolver gunplay, reloading, bandit combat, money and shops, a doctor and saloon, enemy pursuit, a wanted system, wildlife, a day/night cycle, an objective marker, a map and journal, health tonics, save/load, story ending and free roam.
 
+## Three-milestone update — v1.6 to v1.8 (November 2026)
+
+### v1.6 Better Gunfights
+- Enemy gunfighters approach from a distance, back off if too close, and strafe at firing range instead of always charging.
+- Shots are blocked by solid building and terrain cover; enemies need a clear sightline before firing.
+- Hit markers, a short combat-warning border and Dead Eye damage improvement make gunfights more legible.
+- Reduced enemy firing rate/damage and increased hit invulnerability for fairer combat.
+
+### v1.7 Tile & Terrain Pass
+- Procedural outer wilderness now draws separate ground markings and foreground cover props: rocks, cacti, grass and sun-baked cracks.
+- Deterministic rock/cactus cover is solid for players, roaming NPCs, and bullets.
+- Maintains passable frontier road corridors and bounded, camera-local terrain drawing for older GPUs.
+- Original 4,800 × 3,200 area and handcrafted map artwork stay intact; this is a procedural terrain pass, not replacement of all artwork with a full tilemap engine.
+
+### v1.8 Emergent Frontier
+- **Bounty board:** Stand near Sheriff Bell or Deputy Grace outdoors and press **B** to accept a repeatable named bounty. The next target appears at a fixed location, and you receive its reward when defeated. Open **J** to see the contract. Five named jobs rotate; contract and completion count persist in saves.
+- **Roadside help:** While exploring wilderness away from safe settlements, occasionally meet a stranded traveler. Walk close and press **E** to help; earn $12 and +1 honor.
+- Random encounters do not replace story missions. Existing mission NPC coordinates, original stages, and save/load functionality are preserved.
+- Added `tests/combat_test.py`, `tests/terrain_test.py`, and `tests/emergent_test.py`, all included in the Linux GitHub Actions smoke-test workflow.
+
+**Known scope:** Bounty targets are lethal-only encounters for now (no capture mechanic). The expanded outer frontier remains mostly procedurally generated and will benefit from additional authored settlements and landmarks. Actual Archcraft playtesting remains optional and unverified for these three updates.
+
 ## Living Towns v1.5 (November 2026)
 
 **Milestone 2: moving beyond stationary crowds.** Named civilian residents in Cinder Creek, Sagebrush Crossing, and the surrounding settlements now follow deterministic outdoor routines through four periods: morning (06:00–11:00), workday (11:00–17:00), evening (17:00–21:00) and night (21:00–06:00). Four new civilians inhabit Sagebrush Crossing, with individually named destinations and occupations.
