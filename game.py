@@ -16,7 +16,7 @@ VW,VH=960,600
 OLD_WW,OLD_WH=4800,3200
 WW,WH=19200,12800  # 16x original area, drawn incrementally
 FPS=33
-VERSION='2.1.2 — Mission Spawn Fix'
+VERSION='2.2 — Dead or Alive'
 # Interiors are lightweight procedural rooms: no extra graphics libraries or image files.
 INTERIOR_TYPES={
  'Sheriff':'office','Sheriff Annex':'office','Saloon':'saloon','Sagebrush Saloon':'saloon',
@@ -92,7 +92,7 @@ class Actor:
 
 class Game:
  def __init__(self,root):
-  self.root=root;root.title('DUST & DEBT | Mission Spawn Fix v2.1.2')
+  self.root=root;root.title('DUST & DEBT | Dead or Alive v2.2')
   root.resizable(False,False)
   self.canvas=tk.Canvas(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
@@ -128,6 +128,7 @@ class Game:
    self.actors.append(Actor(x,y,kind,n,100,100,42))
    if kind=='civilian':self.npc_home[n]=(x,y)
   self.contract=None;self.bounties_done=0;self.encounter_cooldown=35.
+  self.lasso_cooldown=0.;self.lasso_visual=None
   self.side_job=None;self.side_completed=[];self.gathered_nodes=[];self.camps_used=[]
   self.visited_settlements=[];self.settlement_news_timer=0.
   self.spawn_roamers()
@@ -207,17 +208,30 @@ class Game:
   if self.mounted or self.interior:return False
   return any(a.kind=='sheriff' and not a.dead and math.hypot(a.x-self.x,a.y-self.y)<105 for a in self.actors)
 
+ def bounty_state(self):
+  return self.contract.get('status','hunting') if self.contract else None
+
+ def bounty_actor(self):
+  if not self.contract:return None
+  return next((a for a in self.actors if a.kind=='bounty_target' and
+               a.name==self.contract['name'] and not a.dead),None)
+
  def spawn_contract_target(self):
   if not self.contract or self.contract.get('finished'):return
-  if any(not a.dead and a.kind=='bounty_target' for a in self.actors):return
-  x,y=self.contract['location']
-  self.actors.append(Actor(x,y,'bounty_target',self.contract['name'],145,145,86))
+  status=self.bounty_state()
+  if status=='carried':return
+  if self.bounty_actor():return
+  x,y=(self.contract.get('captive_pos') or self.contract['location'])
+  x,y=self.safe_enemy_spawn(x,y)
+  a=Actor(x,y,'bounty_target',self.contract['name'],145,145,86)
+  self.actors.append(a)
+  if status in ('roped','hogtied'):self.contract['captive_pos']=[x,y]
 
  def begin_bounty(self):
   if not self.near_bounty_board():return
   if self.contract:
-   x,y=self.contract['location']
-   self.notify('Active bounty: '+self.contract['name']+f' at {int(x)}, {int(y)}.',5);return
+   self.notify('Active bounty: '+self.contract['name']+' ('+self.bounty_state()+'). See J.',5)
+   return
   jobs=[
    ('Vulture Jack',(1820,600),60),
    ('Rattlesnake Cole',(4210,1120),90),
@@ -225,19 +239,96 @@ class Game:
    ('Red Sand Boone',(10400,8000),140),
    ('The Iron Fox',(16200,9500),180)]
   name,location,reward=jobs[self.bounties_done%len(jobs)]
-  self.contract={'name':name,'location':list(location),'reward':reward,'finished':False}
+  self.contract={'name':name,'location':list(location),'reward':reward,
+                 'alive_reward':reward*2,'status':'hunting','finished':False}
   self.spawn_contract_target()
-  self.notify('WANTED: '+name+' — $'+str(reward)+' | See J journal.',6)
+  self.notify('WANTED DEAD $'+str(reward)+' / ALIVE $'+str(reward*2)+' — '+name,6)
   self.save()
 
- def finish_bounty(self,a):
-  if not self.contract or a.name!=self.contract['name']:return
-  reward=int(self.contract['reward'])
+ def finish_bounty(self,a=None,alive=False):
+  if not self.contract:return False
+  if a is not None and a.name!=self.contract['name']:return False
+  if alive and self.bounty_state()!='carried':return False
+  reward=(int(self.contract.get('alive_reward',self.contract['reward']*2)) if alive
+          else int(self.contract['reward']))
+  target=self.bounty_actor()
+  if target:target.dead=True
+  name=self.contract['name']
   self.money+=reward;self.bounties_done+=1;self.contract=None
-  self.change_honor(2,'Bounty brought to justice')
-  self.notify('BOUNTY COMPLETE: +$'+str(reward),5)
-  self.sound_cue()
+  self.change_honor(5 if alive else 2,'Bounty delivered alive' if alive else 'Bounty brought to justice')
+  self.notify(name+(' DELIVERED ALIVE' if alive else ' DEAD')+': +$'+str(reward),5)
+  self.sound_cue();self.save()
+  return True
+
+ def throw_lasso(self):
+  if self.screen!='playing' or self.dialog or self.interior or self.map_open or self.journal_open or self.lasso_cooldown>0:return False
+  if not self.contract or self.bounty_state()!='hunting':
+   self.notify('The lasso is for an active, free bounty target.',2);return False
+  target=self.bounty_actor()
+  self.lasso_cooldown=1.2
+  mx,my=self.mouse;ax=mx+self.camx-self.x;ay=my+self.camy-self.y
+  length=math.hypot(ax,ay)
+  if length<8:ax,ay=self.facing;length=math.hypot(ax,ay)
+  ux,uy=ax/max(length,.01),ay/max(length,.01)
+  fx,fy=self.x+ux*15,self.y+uy*15
+  tx,ty=self.x+ux*235,self.y+uy*235
+  if target:
+   projection=(target.x-fx)*ux+(target.y-fy)*uy
+   sideways=abs((target.x-fx)*uy-(target.y-fy)*ux)
+   in_range=0<=projection<=220 and sideways<=26
+   clear=self.line_of_fire(fx,fy,target.x,target.y) if in_range else False
+   if in_range and clear:
+    tx,ty=target.x,target.y
+    self.contract['status']='roped';self.contract['rope_timer']=8.0
+    self.contract['captive_pos']=[target.x,target.y]
+    self.notify('LASSO HIT! Dismount, approach, then press G to hogtie.',4)
+    self.lasso_visual=[fx,fy,tx,ty,.48]
+    return True
+  self.lasso_visual=[fx,fy,tx,ty,.3]
+  self.notify('Lasso missed. Aim closer to the target and retry.',2)
+  return False
+
+ def hogtie_bounty(self):
+  if not self.contract or self.bounty_state()!='roped':return False
+  if self.mounted:
+   self.notify('Dismount Whiskey (H) before hogtying.',2);return False
+  a=self.bounty_actor()
+  if not a or math.hypot(a.x-self.x,a.y-self.y)>76:
+   self.notify('Move closer to the roped outlaw to hogtie.',2);return False
+  self.contract['status']='hogtied';self.contract.pop('rope_timer',None)
+  self.contract['captive_pos']=[a.x,a.y]
+  self.notify('HOGTIED! Press E nearby to pick up the prisoner.',4)
   self.save()
+  return True
+
+ def pick_up_bounty(self):
+  if not self.contract or self.bounty_state()!='hogtied' or self.mounted:return False
+  a=self.bounty_actor()
+  if not a or math.hypot(a.x-self.x,a.y-self.y)>77:return False
+  a.dead=True
+  self.contract['status']='carried';self.contract.pop('captive_pos',None)
+  self.notify('Prisoner secured. Ride to the sheriff; dismount and press E.',5)
+  self.save();return True
+
+ def deliver_bounty(self):
+  if not self.contract or self.bounty_state()!='carried':return False
+  if self.mounted:
+   self.notify('Dismount (H) to hand your prisoner to the sheriff.',2);return False
+  if not self.near_bounty_board():return False
+  return self.finish_bounty(alive=True)
+
+ def update_bounty_capture(self,dt):
+  self.lasso_cooldown=max(0.,self.lasso_cooldown-dt)
+  if self.lasso_visual:
+   self.lasso_visual[4]-=dt
+   if self.lasso_visual[4]<=0:self.lasso_visual=None
+  if not self.contract or self.bounty_state()!='roped':return
+  timer=max(0.,float(self.contract.get('rope_timer',8.))-dt)
+  self.contract['rope_timer']=timer
+  if timer<=0:
+   self.contract['status']='hunting';self.contract.pop('rope_timer',None)
+   self.contract.pop('captive_pos',None)
+   self.notify('The outlaw broke free of the lasso!',3)
 
  def spawn_road_encounter(self):
   if any(not a.dead and a.kind=='traveler' for a in self.actors):return False
