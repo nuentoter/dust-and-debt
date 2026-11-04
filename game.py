@@ -136,7 +136,7 @@ class Game:
   self.last_save_ok=False;self.save_error='';self.last_save_time=''
 
  def in_safe_settlement(self,x,y):
-  return self.in_town(x,y) or (3120<x<3890 and 1500<y<2230)
+  return self.in_town(x,y) or (3120<x<3890 and 1500<y<2230) or nearby_settlement(x,y,445) is not None
 
  def spawn_roamers(self):
   camps=[(1700,500),(2010,990),(1650,1370),(2100,1480),(2970,1080),(4150,1070),(4300,2000),(3650,2840),(2890,2940),(1820,2290),(6500,4200),(8200,7100),(10800,2550),(13100,9700),(15900,4700),(17900,10900),(6900,10300),(10200,11200)]
