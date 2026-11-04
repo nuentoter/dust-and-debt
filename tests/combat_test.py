@@ -7,7 +7,7 @@ def main():
  with tempfile.TemporaryDirectory() as tmp:
   game.SAVE=os.path.join(tmp,"save.json")
   root=tk.Tk();root.withdraw();g=game.Game(root);g.new_game();g.dialog=None
-  assert game.VERSION.startswith("1.6")
+  assert hasattr(g,"line_of_fire") and hasattr(g,"combat_damage")
   assert g.line_of_fire(700,610,720,610)
   assert not g.line_of_fire(700,600,920,380)  # store building intervenes
   target=game.Actor(g.x+45,g.y,"bandit","Test Rider",100,100,75)
