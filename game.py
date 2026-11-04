@@ -209,7 +209,30 @@ class Game:
   name,location,reward=jobs[self.bounties_done%len(jobs)]
   self.contract={'name':name,'location':list(location),'reward':reward,'finished':False}
   self.spawn_contract_target()
-  self.notify('WANTED: '+name+' — 
+  self.notify('WANTED: '+name+' — $'+str(reward)+' | See J journal.',6)
+  self.save()
+
+ def finish_bounty(self,a):
+  if not self.contract or a.name!=self.contract['name']:return
+  reward=int(self.contract['reward'])
+  self.money+=reward;self.bounties_done+=1;self.contract=None
+  self.change_honor(2,'Bounty brought to justice')
+  self.notify('BOUNTY COMPLETE: +$'+str(reward),5)
+  self.save()
+
+ def spawn_road_encounter(self):
+  if any(not a.dead and a.kind=='traveler' for a in self.actors):return False
+  if self.in_safe_settlement(self.x,self.y) or self.safe_timer>0:return False
+  for _ in range(10):
+   angle=random.random()*math.tau;distance=random.randint(270,380)
+   x=self.x+math.cos(angle)*distance;y=self.y+math.sin(angle)*distance
+   if not self.can_move(x,y,20) or self.in_safe_settlement(x,y):continue
+   self.actors.append(Actor(x,y,'traveler','Stranded Traveler',100,100,0))
+   self.notify('Someone needs help along the road. Look for a traveler.',4)
+   return True
+  return False
+
+ def quest(self,stage):
   self.stage=stage;self.notify('NEW OBJECTIVE: '+MISSIONS[stage][0].upper(),5)
   self.save()
   if stage==1:self.spawn_mission('hollow',[(1780,420),(1840,390),(1888,440),(1840,537),(1778,528)],95)
