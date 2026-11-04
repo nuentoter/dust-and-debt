@@ -36,3 +36,5 @@ jobs:
         run: xvfb-run -a python3 tests/input_fix_test.py
       - name: Mission spawn and stuck-rider regression
         run: xvfb-run -a python3 tests/mission_spawn_test.py
+      - name: Dead or alive bounty capture regression
+        run: xvfb-run -a python3 tests/bounty_capture_test.py
