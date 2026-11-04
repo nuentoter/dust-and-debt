@@ -5,6 +5,18 @@
 
 Features include a 4,800×3,200 scrolling handcrafted Western map, 27 buildings, multiple frontier settlements with interactive characters, horseback riding, 6-shot revolver gunplay, reloading, bandit combat, money and shops, a doctor and saloon, enemy pursuit, a wanted system, wildlife, a day/night cycle, an objective marker, a map and journal, health tonics, save/load, story ending and free roam.
 
+## v2.0 Complete Frontier — source release (November 2026)
+
+**The seven-milestone development roadmap is implemented.** This version introduces reliability and performance work over v1.9:
+
+- Autosaves use a real-time 90-second game-time interval instead of a frame counter, including when indoors. F5 manual saves and quit-saves remain available.
+- A recoverable `save.json.bak` is maintained when possible. Continue tries the backup if the primary save fails validation, and will not silently overwrite both broken saves with a fresh game.
+- Distant actors go dormant beyond roughly 1,200 world units; actor drawing is culled to the current camera view.
+- Includes new regression tests for save recovery, damaged saves, mission progression, autosave scheduling, and outer-world rendering.
+- Existing saves, original towns and story coordinates, and the large procedurally generated territory are preserved.
+
+Read the full [v2.0 release notes](RELEASE_NOTES_v2.0.md) for controls, source-based installation and known limitations. Automated Linux testing does not guarantee end-to-end playthrough completeness or performance on your particular Archcraft laptop.
+
 ## v1.9 World Polish (November 2026)
 
 The map and interiors now have more detail, with low-cost procedural weather and an optional audio cue.
