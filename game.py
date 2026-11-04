@@ -16,7 +16,7 @@ VW,VH=960,600
 OLD_WW,OLD_WH=4800,3200
 WW,WH=19200,12800  # 16x original area, drawn incrementally
 FPS=33
-VERSION='2.1 — Frontier Reborn'
+VERSION='2.1.1 — Input Fixes'
 # Interiors are lightweight procedural rooms: no extra graphics libraries or image files.
 INTERIOR_TYPES={
  'Sheriff':'office','Sheriff Annex':'office','Saloon':'saloon','Sagebrush Saloon':'saloon',
@@ -92,7 +92,7 @@ class Actor:
 
 class Game:
  def __init__(self,root):
-  self.root=root;root.title('DUST & DEBT | Frontier Reborn v2.1')
+  self.root=root;root.title('DUST & DEBT | Input Fixes v2.1.1')
   root.resizable(False,False)
   self.canvas=tk.Canvas(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
@@ -399,7 +399,12 @@ class Game:
   elif key=='j':self.journal_open=not self.journal_open;self.map_open=False;self.deadeye_active=False
   elif key=='c' and self.waypoint is not None:self.waypoint=None;self.notify('Waypoint cleared.',2)
   elif key=='e':
-   if ('shift_l' in self.keys or 'shift_r' in self.keys) and self.near_door():self.enter_interior(self.near_door())
+   # Read the X11 Shift bit as well as key tracking for reliable combinations.
+   shift=bool(getattr(e,'state',0)&0x0001) or 'shift_l' in self.keys or 'shift_r' in self.keys
+   if shift:
+    door=self.near_door()
+    if door:self.enter_interior(door)
+    else:self.notify('Stand at a building entrance, then press Shift+E.',2)
    else:self.interact()
   elif key=='b' and self.near_bounty_board():self.begin_bounty()
   elif key=='f':self.gather_resource()
@@ -542,11 +547,7 @@ class Game:
    if a.dead or a.kind.startswith('mission_') or a.kind in ('bandit','animal','deputy','bounty_target'):continue
    dist=math.hypot(a.x-self.x,a.y-self.y)
    if dist<best:nearest=a;best=dist
-  # Original mission givers stand near doors: always give close conversations
-  # priority so entering an office cannot block story progression.
-  door=self.near_door()
-  if door and (nearest is None or best>46):
-   self.enter_interior(door);return
+  # Plain E never enters a building; Shift+E owns that action.
   if nearest is None:
    if self.stage==4 and math.hypot(self.x-2040,self.y-1280)<95 and self.enemies_remaining('blackspur')==0:
     self.ledger=True;self.quest(5);self.say('JESSE',['Under a loose floorboard: the stolen manifest.','The pages name Crow as the man who bought the railroad robbery. Nell needs to see this.'])
@@ -869,6 +870,7 @@ class Game:
   if self.mounted:
    self.mounted=False;self.horse_x=self.x+28;self.horse_y=self.y+10;self.notify('Dismounted Whiskey.')
   elif math.hypot(self.x-self.horse_x,self.y-self.horse_y)<75:
+   self.deadeye_active=False
    self.mounted=True;self.notify('Mounted Whiskey. Hold Shift to gallop.')
   else:self.notify('Get closer to Whiskey to mount (H).')
  def tonic(self):
@@ -1299,7 +1301,11 @@ class Game:
    py=(seed*59+self.frame*(13 if kind=='rain' else 1))%VH
    if kind=='rain':c.create_line(px,py,px-5,py+13,fill='#9db1b2',width=1)
    else:c.create_oval(px-2,py-1,px+3,py+2,fill='#c4aa7c',outline='')
-  if kind=='dust':c.create_rectangle(0,0,VW,VH,fill='#aa814e',stipple='gray75',outline='')
+  if kind=='dust':
+   # Distinct gusts rather than a full-screen yellow Dead Eye-like wash.
+   for i in range(12):
+    px=(i*109+self.frame*3)%VW;py=(i*71+self.frame)%VH
+    c.create_line(px-30,py,px+30,py-5,fill='#bba47c',width=2)
 
  def draw_hud(self):
   self.panel(13,13,307,86)
