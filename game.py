@@ -1289,6 +1289,13 @@ class Game:
    self.draw_text(25,566,f'TARGET: {distance} m    DIRECTION: {self.cardinal(angle)}',10,'#bbac89',True)
   else:self.draw_text(25,566,'The frontier is yours now.',10,'#bbac89')
   self.draw_minimap(758,396,187,190)
+  if self.side_job:
+   job=get_job(self.side_job['id'])
+   if job:
+    step=min(int(self.side_job['step']),len(job[4])-1)
+    tx,ty=job[4][step]
+    distance=int(math.hypot(tx-self.x,ty-self.y))
+    self.draw_text(575,534,'SIDE JOB: '+job[2][:20]+f' ({distance}m)',10,'#f0d39b',True)
   if self.waypoint:
    dx=self.waypoint[0]-self.x;dy=self.waypoint[1]-self.y
    self.draw_text(572,558,f'PIN {int(math.hypot(dx,dy))} m / {self.cardinal(math.atan2(dy,dx))}',11,'#f6d68d',True)
@@ -1301,6 +1308,15 @@ class Game:
    if q<dist:nearest=a;dist=q
   if nearest and not self.dialog and not self.choice_dialog:self.draw_text(480,474,'[ E ]  TALK TO '+nearest.name.upper(),14,'#fff0c4',True,anchor='center')
   if self.near_bounty_board():self.draw_text(480,427,'[ B ]  ACCEPT BOUNTY CONTRACT',12,'#f0d28a',True,anchor='center')
+  if self.side_job:
+   job=get_job(self.side_job['id'])
+   if job and int(self.side_job['step'])<len(job[4]):
+    tx,ty=job[4][int(self.side_job['step'])]
+    if math.hypot(self.x-tx,self.y-ty)<85:self.draw_text(480,400,'[ E ]  COLLECT QUEST CLUE',13,'#f9e2a5',True,anchor='center')
+  if nearby_settlement(self.x,self.y,220):self.draw_text(480,380,'[ T ] REST AT CAMP',12,'#f0d39b',True,anchor='center')
+  for _id,nx,ny,label,kind in RESOURCE_NODES:
+   if _id not in self.gathered_nodes and math.hypot(nx-self.x,ny-self.y)<90:
+    self.draw_text(480,411,'[ F ]  GATHER '+label.upper(),12,'#e1efb3',True,anchor='center');break
   door=self.near_door()
   if door:self.draw_text(480,451,'[ SHIFT+E ] ENTER '+door.upper(),14,'#ffebb7',True,anchor='center')
   if not self.mounted and math.hypot(self.x-self.horse_x,self.y-self.horse_y)<75:self.draw_text(480,448,'[ H ]  MOUNT WHISKEY',13,'#e3d29e',True,anchor='center')
@@ -1330,6 +1346,9 @@ class Game:
   sx=(w-20)/WW;sy=(h-37)/WH
   for n,bx,by,bw,bh in BUILDINGS:
    self.canvas.create_rectangle(x+10+bx*sx,y+27+by*sy,x+10+(bx+bw)*sx,y+27+(by+bh)*sy,fill='#a28a62',outline='')
+  for key,name,cx,cy,*_ in SETTLEMENTS:
+   mx=x+10+cx*sx;my=y+27+cy*sy
+   self.canvas.create_oval(mx-3,my-3,mx+3,my+3,fill='#b7c894',outline='#44563a')
   for a in self.actors:
    if not a.dead and (a.kind=='bandit' or a.kind.startswith('mission_')):
     ax=x+10+a.x*sx;ay=y+27+a.y*sy
