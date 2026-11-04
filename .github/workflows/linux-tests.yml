@@ -32,3 +32,5 @@ jobs:
         run: xvfb-run -a python3 tests/release_test.py
       - name: Frontier Reborn content regression
         run: xvfb-run -a python3 tests/frontier_reborn_test.py
+      - name: Input regression: sheriff, door, horse and overlays
+        run: xvfb-run -a python3 tests/input_fix_test.py
