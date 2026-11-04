@@ -306,7 +306,7 @@ class Game:
   if not self.contract or self.bounty_state()!='hogtied' or self.mounted:return False
   a=self.bounty_actor()
   if not a or math.hypot(a.x-self.x,a.y-self.y)>77:return False
-  a.dead=True
+  self.actors.remove(a)
   self.contract['status']='carried';self.contract.pop('captive_pos',None)
   self.waypoint=[418,463]
   self.notify('Prisoner secured. Ride to the sheriff; dismount and press E.',5)
@@ -657,6 +657,10 @@ class Game:
    sheriffs=(a for a in self.actors if a.kind=='sheriff' and not a.dead)
    if any(math.hypot(a.x-self.x,a.y-self.y)<105 for a in sheriffs):
     self.deliver_bounty();return
+  if self.contract and self.bounty_state()=='hogtied' and self.mounted:
+   captive=self.bounty_actor()
+   if captive and math.hypot(captive.x-self.x,captive.y-self.y)<80:
+    self.notify('Dismount (H) before picking up the prisoner.',2);return
   if self.pick_up_bounty():return
   if self.advance_side_job():return
   nearest=None;best=64
