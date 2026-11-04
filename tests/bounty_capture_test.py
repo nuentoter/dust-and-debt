@@ -59,16 +59,21 @@ def capture_and_deliver(g):
  tap(r,'e')
  assert r.bounty_state()=='carried'
  assert r.bounty_actor() is None
+ assert not any(a.kind=='bounty_target' for a in r.actors), 'No captive ground corpse after pickup'
  assert r.waypoint==[418,463]
  assert r.save(manual=True)
  saved=game.Game(g.root);saved.continue_game();saved.dialog=None
  assert saved.bounty_state()=='carried' and saved.bounty_actor() is None
  before=saved.money;honor=saved.honor
+ # Carrying a prisoner must survive actually mounting and dismounting Whiskey.
+ saved.horse_x,saved.horse_y=saved.x+23,saved.y+10
+ tap(saved,'h')
+ assert saved.mounted and saved.bounty_state()=='carried'
  saved.x,saved.y=sheriff.x,sheriff.y
- saved.mounted=True
  tap(saved,'e')
  assert saved.contract and saved.bounty_state()=='carried'
- saved.mounted=False
+ tap(saved,'h')
+ assert not saved.mounted
  tap(saved,'e')
  assert saved.contract is None and saved.money==before+reward
  assert saved.honor==min(100,honor+5)
