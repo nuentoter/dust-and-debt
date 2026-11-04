@@ -513,6 +513,8 @@ class Game:
   elif key=='b' and self.near_bounty_board():self.begin_bounty()
   elif key=='f':self.gather_resource()
   elif key=='t':self.rest_at_frontier_camp()
+  elif key=='l':self.throw_lasso()
+  elif key=='g':self.hogtie_bounty()
   elif key=='h':self.toggle_horse()
   elif key=='r':self.reload()
   elif key=='1':self.tonic()
@@ -548,7 +550,10 @@ class Game:
    self.camps_used=list(s.get('camps_used',[]))
    self.visited_settlements=list(s.get('visited_settlements',[]))
    self.contract=s.get('contract')
-   if self.contract and not self.contract.get('finished',False):self.spawn_contract_target()
+   if self.contract and not self.contract.get('finished',False):
+    self.contract.setdefault('status','hunting')
+    self.contract.setdefault('alive_reward',int(self.contract['reward'])*2)
+    self.spawn_contract_target()
    # Quest combat must regenerate after loading (kill progress is persisted).
    tag={1:'hollow',4:'blackspur',6:'crow'}.get(self.stage)
    if tag:
@@ -645,6 +650,10 @@ class Game:
   self.dialog[2]+=1
   if self.dialog[2]>=len(self.dialog[1]):self.dialog=None
  def interact(self):
+  # Hand captured bounties over before normal sheriff conversation.
+  if self.contract and self.bounty_state()=='carried' and self.near_bounty_board():
+   self.deliver_bounty();return
+  if self.pick_up_bounty():return
   if self.advance_side_job():return
   nearest=None;best=64
   for a in self.actors:
@@ -1035,6 +1044,7 @@ class Game:
    for toast in self.toast:toast[1]-=dt
    self.toast=[t for t in self.toast if t[1]>0]
    return
+  self.update_bounty_capture(dt)
   self.shot_timer=max(0,self.shot_timer-dt);self.invuln=max(0,self.invuln-dt)
   self.hit_marker=max(0,self.hit_marker-dt);self.combat_warning=max(0,self.combat_warning-dt)
   if self.reload_timer>0:
@@ -1072,7 +1082,11 @@ class Game:
   self.update_bullets(world_dt)
   if self.stage==1 and self.enemies_remaining('hollow')==0:self.quest(2);self.say('JESSE',['Dust Hollow is quiet. Five more graves for the desert.','Bell promised eighty dollars. Time to collect.'])
   if self.stage==6 and self.enemies_remaining('crow')==0:self.quest(7);self.say('JESSE',['Crow is down. His reign ends here, on a patch of dirt nobody will remember.','Bell deserves to hear it from me.'])
-  if self.hp<=0:self.screen='death';self.mounted=False
+  if self.hp<=0:
+   self.screen='death';self.mounted=False
+   if self.contract and self.bounty_state()=='carried':
+    self.contract['status']='hunting';self.spawn_contract_target()
+    self.notify('Your captive escaped after you fell.',4)
   self.autosave_timer-=dt
   if self.autosave_timer<=0:
    self.autosave_timer=90.
@@ -1093,6 +1107,7 @@ class Game:
  def update_ai(self,dt):
   for a in self.actors:
    if a.dead:continue
+   if a.kind=='bounty_target' and self.bounty_state() in ('roped','hogtied','carried'):continue
    if a.kind in ('sheriff','store','doctor','stable','saloon','station','traveler'):continue
    dist=math.hypot(a.x-self.x,a.y-self.y)
    # Dormant distant actors avoid unnecessary pathfinding and collision checks.
@@ -1217,6 +1232,12 @@ class Game:
   if villain and a.hp<a.maxhp:
    self.canvas.create_rectangle(sx-16,sy-34,sx+16,sy-30,fill='#3d201c',outline='')
    self.canvas.create_rectangle(sx-16,sy-34,sx-16+32*max(0,a.hp)/a.maxhp,sy-30,fill='#b84f40',outline='')
+  if a.kind=='bounty_target' and self.bounty_state() in ('roped','hogtied'):
+   self.canvas.create_oval(sx-14,sy-13,sx+14,sy+14,outline='#e5cb94',width=3)
+   self.canvas.create_line(sx-12,sy+5,sx+12,sy+5,fill='#e5cb94',width=3)
+   if self.bounty_state()=='hogtied':
+    self.canvas.create_line(sx-11,sy+12,sx+12,sy-6,fill='#e5cb94',width=4)
+   self.draw_text(sx,sy-47,'HOGTIED' if self.bounty_state()=='hogtied' else 'ROPED — G',10,'#f7deb0',True,anchor='center')
   if math.hypot(a.x-self.x,a.y-self.y)<125 and not villain:
    self.draw_text(sx,sy-43,a.name,11,'#f3db9e',True,anchor='center')
    if a.kind=='civilian':self.draw_text(sx,sy-56,self.npc_activity(a),9,'#d3c49e',anchor='center')
@@ -1237,6 +1258,10 @@ class Game:
   dx,dy=self.facing
   self.canvas.create_line(sx+dx*6,sy+dy*6+offset,sx+dx*25,sy+dy*25+offset,fill='#3a3530',width=7)
   self.canvas.create_line(sx+dx*9,sy+dy*9+offset,sx+dx*25,sy+dy*25+offset,fill='#beb4a2',width=3)
+  if self.contract and self.bounty_state()=='carried':
+   cx,cy=sx+18,sy+(5 if self.mounted else 12)
+   self.canvas.create_oval(cx-9,cy-9,cx+10,cy+9,fill='#6b4e3d',outline='#e6c88e',width=3)
+   self.canvas.create_line(cx-9,cy-3,cx+8,cy+6,fill='#e6c88e',width=3)
   if self.invuln>0:self.canvas.create_oval(sx-23,sy-30,sx+23,sy+20,outline='#eead90',width=2)
  def draw_horse(self,sx,sy):
   self.canvas.create_oval(sx-19,sy-18,sx+22,sy+24,fill='#5b3d2d',outline='#31291f',width=2)
@@ -1383,6 +1408,11 @@ class Game:
     self.canvas.create_line(mx+ox*.45,my+oy*.45,mx+ox,my+oy,fill='#fff0bb',width=3)
   if self.combat_warning>0:
    self.canvas.create_rectangle(3,3,VW-3,VH-3,outline='#a44e3c',width=2)
+  if self.lasso_visual:
+   fx,fy,tx,ty,_time=self.lasso_visual
+   sx,sy=self.pos(fx,fy);ex,ey=self.pos(tx,ty)
+   self.canvas.create_line(sx,sy,ex,ey,fill='#e7d2a3',width=3,dash=(9,4))
+   self.canvas.create_oval(ex-11,ey-10,ex+11,ey+10,outline='#e7d2a3',width=3)
   if self.deadeye_active:
    self.canvas.create_rectangle(0,0,VW,VH,fill='#ad7f39',stipple='gray75',outline='')
    self.canvas.create_oval(self.mouse[0]-18,self.mouse[1]-18,self.mouse[0]+18,self.mouse[1]+18,outline='#f7e5a8',width=3)
