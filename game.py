@@ -1406,6 +1406,21 @@ class Game:
    self.canvas.create_rectangle(rx,ry,rx+bw/WW*w,ry+bh/WH*h,fill='#685b43',outline='#362d25')
   for name,tx,ty in [('CINDER CREEK',660,240),('DUST HOLLOW',1840,580),('BLACKSPUR',2020,1120),('RANCH',1490,850),('STATION',1210,1310),('SAGEBRUSH',3330,1560),('SILVERWATER',1530,2850),('COPPER RIDGE',4020,2350),('THE MESA',3880,750),('SOUTH RANCH',660,1900),('GHOST MISSION',2900,2550)]:
    self.draw_text(x+tx/WW*w,y+ty/WH*h,name,9,'#241a14',True)
+  for key,name,cx,cy,*_ in SETTLEMENTS:
+   sx=x+cx/WW*w;sy=y+cy/WH*h
+   self.canvas.create_rectangle(sx-5,sy-5,sx+5,sy+5,fill='#64815b',outline='#25452b',width=2)
+   self.draw_text(sx+9,sy-8,name.upper(),9,'#322a1f',True)
+  for identifier,wx,wy,label,kind in RESOURCE_NODES:
+   if identifier not in self.gathered_nodes:
+    rx=x+wx/WW*w;ry=y+wy/WH*h
+    self.canvas.create_oval(rx-2,ry-2,rx+2,ry+2,fill='#4e8f4c',outline='')
+  if self.side_job:
+   job=get_job(self.side_job['id'])
+   if job:
+    step=int(self.side_job['step'])
+    if 0<=step<len(job[4]):
+     jx,jy=job[4][step];sx=x+jx/WW*w;sy=y+jy/WH*h
+     self.canvas.create_oval(sx-6,sy-6,sx+6,sy+6,outline='#287873',width=3)
   target=self.quest_target()
   if target:
    tx=x+target[0]/WW*w;ty=y+target[1]/WH*h
@@ -1419,7 +1434,7 @@ class Game:
    self.canvas.create_line(wx,wy-9,wx,wy+9,fill='#157661',width=3)
   px=x+self.x/WW*w;py=y+self.y/WH*h
   self.canvas.create_oval(px-7,py-7,px+7,py+7,fill='#d94530',outline='#fff8d7',width=2)
-  self.draw_text(480,520,'CLICK: PIN  •  C: CLEAR  •  GOLD: QUEST  •  MAROON: BOUNTY',11,'#e2c397',anchor='center')
+  self.draw_text(480,520,'CLICK: PIN • GREEN: TOWNS • TEAL: SIDE JOB • GOLD: STORY',11,'#e2c397',anchor='center')
 
  def draw_journal(self):
   self.panel(132,59,700,485)
@@ -1432,13 +1447,17 @@ class Game:
   self.draw_text(160,340,f'Outlaws defeated: {self.kills}       Money: ${self.money}',15,'#f1dfbd')
   self.draw_text(160,382,f'Honor: {self.honor}/100    Law: {self.law_status}    Crimes: {self.crimes}',15,'#f1dfbd')
   self.draw_text(160,424,f'Missions finished: {min(4,self.stage//2)} / 4       Story: {"COMPLETE" if self.stage==8 else "IN PROGRESS"}',15,'#f1dfbd')
-  self.draw_text(160,465,('ACTIVE BOUNTY: '+self.contract['name']+' — $'+str(self.contract['reward']) if self.contract else 'Bounties completed: '+str(self.bounties_done)+' — Press B near sheriff'),12,'#f0ce92',True)
+  self.draw_text(160,459,('ACTIVE BOUNTY: '+self.contract['name']+' — $'+str(self.contract['reward']) if self.contract else 'Bounties completed: '+str(self.bounties_done)+' — Press B near sheriff'),12,'#f0ce92',True)
+  if self.side_job:
+   job=get_job(self.side_job['id'])
+   if job:self.draw_text(160,484,'SIDE JOB: '+job[2]+f' ({int(self.side_job["step"])+1}/{len(job[4])}) — E at teal marker',11,'#b2dbce',True)
+  else:self.draw_text(160,484,f'Side jobs: {len(self.side_completed)}/{len(SIDE_JOBS)}    Towns found: {len(self.visited_settlements)}/{len(SETTLEMENTS)}',11,'#b2dbce',True)
   self.draw_text(480,516,'J TO CLOSE',12,'#e2bb7e',True,anchor='center')
 
  def draw_help(self):
   self.panel(190,52,580,506)
   self.draw_text(216,110,'HOW TO SURVIVE THE FRONTIER',20,'#efc58a',True)
-  controls=[('WASD / ARROWS','Walk / steer horse'),('SHIFT','Sprint / gallop'),('MOUSE / LEFT CLICK','Aim and shoot'),('SPACE','Fire in facing direction'),('R','Reload revolver'),('Q','Toggle Dead Eye (slow-motion)'),('E / SHIFT+E','Talk / enter buildings / interact'),('H','Mount or dismount Whiskey'),('1','Drink a health tonic'),('M / J','Territory map / journal'),('B','Shop / accept bounty near sheriff'),('V','Toggle sound (off by default)'),('F5','Save game'),('F11','Toggle fullscreen'),('ESC','Pause'),('F1','Close this screen')]
+  controls=[('WASD / ARROWS','Walk / steer horse'),('SHIFT','Sprint / gallop'),('MOUSE / LEFT CLICK','Aim and shoot'),('SPACE','Fire in facing direction'),('R','Reload revolver'),('Q','Toggle Dead Eye (slow-motion)'),('E / SHIFT+E','Talk / enter buildings / interact'),('H','Mount or dismount Whiskey'),('1','Drink a health tonic'),('M / J','Territory map / journal'),('B','Shop / accept bounty near sheriff'),('F','Forage herbs or collect ore'),('T','Rest at a town camp (once per town)'),('V','Toggle sound (off by default)'),('F5','Save game'),('F11','Toggle fullscreen'),('ESC','Pause'),('F1','Close this screen')]
   for i,(k,v) in enumerate(controls):
    yy=143+i*24
    self.draw_text(218,yy,k,12,'#f4d59e',True)
