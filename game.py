@@ -11,9 +11,10 @@ ROOT=os.path.dirname(os.path.abspath(__file__))
 ASSETS=os.path.join(ROOT,'assets')
 SAVE=os.path.join(os.path.expanduser('~'),'.local','share','dust-and-debt','save.json')
 VW,VH=960,600
-WW,WH=4800,3200
+OLD_WW,OLD_WH=4800,3200
+WW,WH=19200,12800  # 16x original area, drawn incrementally
 FPS=33
-VERSION='1.4 — Frontier Conversations'
+VERSION='1.4.1 — Great Frontier'
 # Interiors are lightweight procedural rooms: no extra graphics libraries or image files.
 INTERIOR_TYPES={
  'Sheriff':'office','Sheriff Annex':'office','Saloon':'saloon','Sagebrush Saloon':'saloon',
@@ -80,13 +81,14 @@ class Actor:
 
 class Game:
  def __init__(self,root):
-  self.root=root;root.title('DUST & DEBT | Frontier Conversations v1.4')
+  self.root=root;root.title('DUST & DEBT | Great Frontier v1.4.1')
   root.resizable(False,False)
   self.canvas=tk.Canvas(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
   self.world=tk.PhotoImage(file=os.path.join(ASSETS,'world.png'))
   self.titleimg=tk.PhotoImage(file=os.path.join(ASSETS,'title.png'))
   self.mapimg=tk.PhotoImage(file=os.path.join(ASSETS,'map.png'))
+  self.mapthumb=self.mapimg.subsample(4,4)
   self.keys=set();self.mouse=(VW//2,VH//2);self.mouse_down=False
   self.screen='title';self.fullscreen=False
   self.font='DejaVu Sans';self.last=time.monotonic();self.frame=0
@@ -114,12 +116,19 @@ class Game:
    self.actors.append(Actor(x,y,kind,n,100,100,42))
    if kind=='civilian':self.npc_home[n]=(x,y)
   self.spawn_roamers()
+  self.safe_timer=50.
+  self.last_save_ok=False;self.save_error='';self.last_save_time=''
+
+ def in_safe_settlement(self,x,y):
+  return self.in_town(x,y) or (3120<x<3890 and 1500<y<2230)
 
  def spawn_roamers(self):
-  for i in range(23):
-   x,y=random.choice([(1260,320),(1550,310),(1850,680),(2180,930),(1610,1350),(300,1120),(850,1160),(2150,1460),(3060,1100),(4150,1130),(4300,2000),(3690,2840),(2880,2950),(1750,2190),(750,2960)])
-   self.actors.append(Actor(x+random.randint(-65,65),y+random.randint(-70,70),'bandit','Drifter',70,70,75))
-  for i in range(38):
+  camps=[(1700,500),(2010,990),(1650,1370),(2100,1480),(2970,1080),(4150,1070),(4300,2000),(3650,2840),(2890,2940),(1820,2290),(6500,4200),(8200,7100),(10800,2550),(13100,9700),(15900,4700),(17900,10900),(6900,10300),(10200,11200)]
+  for i in range(42):
+   x,y=random.choice(camps);x+=random.randint(-145,145);y+=random.randint(-135,135)
+   if self.in_safe_settlement(x,y) or math.hypot(x-698,y-610)<950:continue
+   if self.can_move(x,y):self.actors.append(Actor(x,y,'bandit','Drifter',70,70,75))
+  for i in range(72):
    x=random.randint(120,WW-150);y=random.randint(100,WH-120)
    if self.in_town(x,y):continue
    self.actors.append(Actor(x,y,'animal',random.choice(['Coyote','Jackrabbit']),24,24,85))
@@ -188,6 +197,8 @@ class Game:
    self.deadeye_active=not self.deadeye_active and self.deadeye>0
    self.notify('DEAD EYE '+('ENGAGED' if self.deadeye_active else 'DISENGAGED'),1.0)
    return
+  if key=='f5' and self.screen in ('playing','paused'):
+   self.save(manual=True);return
   if key=='f11':
    self.fullscreen=not self.fullscreen;self.root.attributes('-fullscreen',self.fullscreen);return
   if self.screen=='title':
@@ -220,7 +231,7 @@ class Game:
     elif self.indoor_y<360:self.use_counter()
     else:self.notify('Walk up to the counter or the exit, then press E.')
    elif key=='escape':self.leave_interior()
-   elif key=='f5':self.save();self.notify('Game saved.')
+   elif key=='f5':self.save(manual=True)
    elif key=='f1':self.show_help=not self.show_help
    return
   if key=='escape':self.screen='playing' if self.screen=='paused' else 'paused';self.deadeye_active=False;return
@@ -235,7 +246,7 @@ class Game:
   elif key=='r':self.reload()
   elif key=='1':self.tonic()
   elif key=='space':self.fire()
-  elif key=='f5':self.save();self.notify('Game saved.')
+  elif key=='f5':self.save(manual=True)
 
  def key_up(self,e):self.keys.discard(e.keysym.lower())
  def click(self,e):
@@ -264,9 +275,9 @@ class Game:
     self.spawn_mission(tag,positions,{'hollow':95,'blackspur':105,'crow':115}[tag],boss=(1480,1030) if tag=='crow' else None)
     eliminated=int(s.get('stage_kills',0))
     for a in [a for a in self.actors if a.kind=='mission_'+tag][:eliminated]:a.dead=True
-   self.screen='playing';self.notify('Welcome back to the frontier.')
+   self.screen='playing';self.safe_timer=18.;self.notify('Loaded last save from disk. F5 saves manually.',4)
   except (OSError,ValueError,TypeError,KeyError) as ex:
-   self.new_game();self.notify('Save unavailable. New game started.')
+   self.new_game();self.notify('Save could not be loaded: '+str(ex),5)
  def save(self):
   if self.screen not in ('playing','paused','ending'):return
   d={k:getattr(self,k) for k in ('x','y','hp','money','ammo','reserve','tonics','stage','kills','wanted','clock','mounted','horse_x','horse_y','ledger','death_count','honor','crimes','deadeye')}
@@ -567,6 +578,7 @@ class Game:
 
  def update(self,dt):
   self.frame+=1;self.clock=(self.clock+dt*.032)%24
+  self.safe_timer=max(0.,self.safe_timer-dt)
   self.deadeye_regen_delay=max(0,self.deadeye_regen_delay-dt)
   if self.deadeye_active:
    self.deadeye=max(0.,self.deadeye-dt*25)
@@ -637,7 +649,8 @@ class Game:
      if a.wander<0:a.wander=random.uniform(1,3);a.dx=random.uniform(-1,1);a.dy=random.uniform(-1,1)
      dx,dy=a.dx,a.dy
     mag=max(1,math.hypot(dx,dy));self.move_actor(a,dx/mag*a.speed*dt,dy/mag*a.speed*dt)
-   elif ishostile and dist<(620 if a.kind=='deputy' else 480):
+   elif ishostile and dist<(620 if a.kind=='deputy' else 335):
+    if a.kind=='bandit' and (self.safe_timer>0 or self.in_safe_settlement(self.x,self.y)):continue
     if a.kind=='deputy' and self.law_status!='WANTED':a.dead=True;continue
     dx=self.x-a.x;dy=self.y-a.y;mag=max(.001,dist)
     if dist>155:self.move_actor(a,dx/mag*a.speed*dt,dy/mag*a.speed*dt)
@@ -808,7 +821,7 @@ class Game:
   self.draw_text(642,20,f'{hours%12 or 12}:{mins:02d} {"AM" if hours<12 else "PM"}  |  {self.region_name(self.x,self.y).upper()}',11,'#e2c48f',True)
   stars='★'*min(5,math.ceil(self.wanted))
   self.draw_text(642,43,self.law_status+' '+(stars if stars else '—'),15,'#e7a16b' if stars else '#b9a78b',True)
-  self.draw_text(642,69,'H: HORSE    E: TALK    F1: HELP',10,'#e9d6b2')
+  self.draw_text(642,69,'H: HORSE   F5: SAVE   F1: HELP',10,'#e9d6b2')
   self.panel(13,505,550,83)
   self.draw_text(25,514,'CHAPTER '+ ('EPILOGUE' if self.stage==8 else str(1+self.stage//2))+'  ·  '+MISSIONS[self.stage][0].upper(),12,'#e6bc79',True)
   self.draw_text(25,539,MISSIONS[self.stage][1],12,'#f4e5ce',width=510)
@@ -826,12 +839,15 @@ class Game:
    if a.dead or a.kind.startswith('mission_') or a.kind in ('bandit','deputy','animal'):continue
    q=math.hypot(a.x-self.x,a.y-self.y)
    if q<dist:nearest=a;dist=q
-  if nearest and not self.dialog:self.draw_text(480,474,'[ E ]  TALK TO '+nearest.name.upper(),14,'#fff0c4',True,anchor='center')
+  if nearest and not self.dialog and not self.choice_dialog:self.draw_text(480,474,'[ E ]  TALK TO '+nearest.name.upper(),14,'#fff0c4',True,anchor='center')
   door=self.near_door()
   if door:self.draw_text(480,451,'[ SHIFT+E ] ENTER '+door.upper(),14,'#ffebb7',True,anchor='center')
   if not self.mounted and math.hypot(self.x-self.horse_x,self.y-self.horse_y)<75:self.draw_text(480,448,'[ H ]  MOUNT WHISKEY',13,'#e3d29e',True,anchor='center')
 
  def region_name(self,x,y):
+  if x>=OLD_WW or y>=OLD_WH:
+   row=min(3,int(y//3200));col=min(3,int(x//4800))
+   return (('Far Rim','Prairie Expanse','Broken Plateaus','The Long Divide'),('Distant Range','Drybone Basin','Outlaw Trail','Sunset Mesa'),('Sage Ocean','Wandering Plains','Salt Flats','The Iron Hills'),('Southwood','Big Sky Prairie','Red Canyons','Last Horizon'))[row][col]
   if 2800<x<3900 and 1460<y<2220:return 'Sagebrush Crossing'
   if x>3890 and y>2210:return 'Copper Ridge'
   if 1300<x<2400 and y>2160:return 'Silverwater Lake'
@@ -886,7 +902,12 @@ class Game:
   self.draw_text(145,66,'TERRITORY MAP',24,'#ebca95',True)
   x,y,w,h=150,110,658,394
   # marker
-  self.canvas.create_image(x,y,image=self.mapimg,anchor='nw')
+  self.canvas.create_rectangle(x,y,x+w,y+h,fill='#ac946e',outline='')
+  for row in range(4):
+   for col in range(4):
+    x1=x+col*w/4;y1=y+row*h/4
+    self.canvas.create_rectangle(x1,y1,x1+w/4,y1+h/4,fill=('#bba079' if (row+col)%2 else '#a58e68'),outline='#907a60')
+  self.canvas.create_image(x,y,image=self.mapthumb,anchor='nw')
   self.canvas.create_rectangle(x,y,x+w,y+h,outline='#ca9b61',width=3)
   for n,bx,by,bw,bh in BUILDINGS:
    rx=x+(bx/WW)*w;ry=y+(by/WH)*h
@@ -899,7 +920,7 @@ class Game:
    self.canvas.create_oval(tx-8,ty-8,tx+8,ty+8,outline='#fff2ac',width=3)
   px=x+self.x/WW*w;py=y+self.y/WH*h
   self.canvas.create_oval(px-7,py-7,px+7,py+7,fill='#d94530',outline='#fff8d7',width=2)
-  self.draw_text(480,520,'M TO CLOSE  •  RED = YOU  •  GOLD RING = OBJECTIVE  •  4,800 × 3,200' ,11,'#e2c397',anchor='center')
+  self.draw_text(480,520,'M TO CLOSE  •  RED = YOU  •  GOLD RING = OBJECTIVE  •  19,200 × 12,800' ,11,'#e2c397',anchor='center')
 
  def draw_journal(self):
   self.panel(132,59,700,485)
@@ -932,7 +953,7 @@ class Game:
   self.draw_text(480,393,'ENTER  /  CLICK  —  NEW GAME',16,'#f6d5a0',True,anchor='center')
   if os.path.exists(SAVE):self.draw_text(480,473,'L  /  CLICK  —  CONTINUE',16,'#f0c28a',True,anchor='center')
   else:self.draw_text(480,473,'NO SAVED GAME YET',13,'#8c806e',anchor='center')
-  self.draw_text(480,554,'Outlaw Systems v1.3  •  Linux  •  Python + Tkinter  •  Original artwork',11,'#d6b38e',anchor='center')
+  self.draw_text(480,554,VERSION+'  •  Linux  •  Python + Tkinter',11,'#d6b38e',anchor='center')
 
  def draw_pause(self):
   self.canvas.create_rectangle(0,0,VW,VH,fill='#17130f',stipple='gray50',outline='')
@@ -985,7 +1006,7 @@ class Game:
 
 def main():
  if '--self-test' in sys.argv:
-  assert len(MISSIONS)==9 and len(BUILDINGS)>=25 and (WW,WH)==(4800,3200)
+  assert len(MISSIONS)==9 and len(BUILDINGS)>=25 and (WW,WH)==(19200,12800)
   assert all(t in INTERIOR_TYPES for t in ('Saloon','General Store','Hotel','Sheriff'))
   assert len(SHOP_GOODS)>=6
   assert VERSION.startswith('1.4')
