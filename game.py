@@ -177,6 +177,12 @@ class Game:
   else:greeting='Afternoon, traveler. What brings you this way?'
   region=self.region_name(a.x,a.y)
   rumors={
+   'Drybone Junction':'The mail riders lost their bags in the northern ravines.',
+   'Ironwell':'The closed shaft still holds rare ore below the old road.',
+   'Painted Mesa':'Scouts have been leaving painted trail marks to the east.',
+   'Saltwater Crossing':'The ferry brought trouble, and a medicine crate went missing.',
+   'Ember Gulch':'A smuggler left two ledgers, but neither names the same man.',
+   'Sundown Station':'The telegraph is silent, even on the clearest nights.',
    'Cinder Creek':'They say the sheriff has been looking for help with the Red Mesa riders.',
    'Sagebrush Crossing':'Traders are wary of the roads after sundown.',
    'Copper Ridge':'The mine is still drawing hopeful fools up into the hills.',
@@ -1207,10 +1213,47 @@ class Game:
     c.create_rectangle(0,sy-18,VW,sy+18,fill='#b9a276',outline='')
     c.create_line(0,sy,VW,sy,fill='#d3b789',dash=(12,16),width=2)
 
+ def draw_expansion_markers(self):
+  # Camera-local sprites for gatherable items, campfires, and side-job clues.
+  c=self.canvas
+  for key,name,cx,cy,*_ in SETTLEMENTS:
+   if abs(cx-self.x)>1100 or abs(cy-self.y)>900:continue
+   sx,sy=self.pos(cx-120,cy+30)
+   if -20<sx<VW+20 and -20<sy<VH+20:
+    c.create_oval(sx-18,sy+6,sx+18,sy+15,fill='#544237',outline='')
+    c.create_polygon(sx-12,sy+5,sx,sy-22,sx+12,sy+5,fill='#f5ac51',outline='#9e4b26')
+    c.create_polygon(sx-5,sy+5,sx+2,sy-12,sx+7,sy+5,fill='#e8d17a',outline='')
+    c.create_line(sx-15,sy+12,sx+14,sy+8,fill='#5d402b',width=4)
+  for identifier,wx,wy,label,kind in RESOURCE_NODES:
+   if identifier in self.gathered_nodes:continue
+   sx,sy=self.pos(wx,wy)
+   if not (-32<sx<VW+32 and -32<sy<VH+32):continue
+   color='#5b8b51' if kind=='tonic' else '#bd9b65'
+   c.create_oval(sx-10,sy-8,sx+10,sy+7,fill=color,outline='#3f4935',width=2)
+   if kind=='tonic':
+    c.create_line(sx,sy-16,sx,sy+8,fill='#426948',width=3)
+    c.create_line(sx-9,sy-7,sx+9,sy-7,fill='#81b875',width=2)
+   else:
+    c.create_polygon(sx-12,sy+4,sx,sy-17,sx+14,sy+5,fill='#a8a09b',outline='#58493c',width=2)
+   if math.hypot(wx-self.x,wy-self.y)<145:
+    self.draw_text(sx,sy-30,label.upper(),10,'#f9e2a3',True,anchor='center')
+  if self.side_job:
+   job=get_job(self.side_job.get('id'))
+   if job:
+    step=int(self.side_job.get('step',0))
+    if 0<=step<len(job[4]):
+     wx,wy=job[4][step];sx,sy=self.pos(wx,wy)
+     if -40<sx<VW+40 and -40<sy<VH+40:
+      c.create_rectangle(sx-15,sy-9,sx+15,sy+9,fill='#8f7653',outline='#30271e',width=3)
+      c.create_line(sx-13,sy-8,sx+13,sy+8,fill='#c1a475',width=2)
+      c.create_oval(sx-7,sy-23,sx+7,sy-9,fill='#4caaa2',outline='#244e4a',width=2)
+      self.draw_text(sx,sy-41,'SIDE JOB CLUE',10,'#a8e3d8',True,anchor='center')
+
  def draw_world(self):
   self.draw_far_terrain()
   self.canvas.create_image(-self.camx,-self.camy,image=self.world,anchor='nw')
   draw_frontier_towns(self.canvas,self.camx,self.camy,VW,VH)
+  self.draw_expansion_markers()
   self.draw_scattered_props()
   visible=(a for a in self.actors if self.camx-45<=a.x<=self.camx+VW+45 and self.camy-50<=a.y<=self.camy+VH+50)
   for a in sorted(visible,key=lambda a:a.y):self.draw_actor(a)
