@@ -31,8 +31,9 @@ def main():
   assert g.interior=='Sheriff'
   g.leave_interior()
   # No NPC nearby: bare E must not enter the building on its own.
-  g.x,g.y=418,450
+  g.x,g.y=418,397
   g.dialog=None
+  assert g.near_door()=='Sheriff'
   tap(g,'e')
   assert g.interior is None
   # Shift+E remains the only entry command.
