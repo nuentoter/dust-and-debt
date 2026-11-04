@@ -24,3 +24,5 @@ jobs:
         run: xvfb-run -a python3 tests/combat_test.py
       - name: Tile and terrain regression tests
         run: xvfb-run -a python3 tests/terrain_test.py
+      - name: Emergent Frontier regression tests
+        run: xvfb-run -a python3 tests/emergent_test.py
