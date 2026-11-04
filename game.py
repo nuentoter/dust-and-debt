@@ -130,7 +130,7 @@ class Game:
    if self.can_move(x,y):self.actors.append(Actor(x,y,'bandit','Drifter',70,70,75))
   for i in range(72):
    x=random.randint(120,WW-150);y=random.randint(100,WH-120)
-   if self.in_town(x,y):continue
+   if self.in_safe_settlement(x,y):continue
    self.actors.append(Actor(x,y,'animal',random.choice(['Coyote','Jackrabbit']),24,24,85))
 
  def in_town(self,x,y):return 245<x<1150 and 230<y<960
@@ -952,6 +952,12 @@ class Game:
     x1=x+col*w/4;y1=y+row*h/4
     self.canvas.create_rectangle(x1,y1,x1+w/4,y1+h/4,fill=('#bba079' if (row+col)%2 else '#a58e68'),outline='#907a60')
   self.canvas.create_image(x,y,image=self.mapthumb,anchor='nw')
+  for row in range(4):
+   for col in range(4):
+    if row==0 and col==0:continue
+    cx=x+(col+.5)*w/4;cy=y+(row+.5)*h/4
+    label=self.region_name((col+.5)*4800,(row+.5)*3200)
+    self.draw_text(cx,cy,label.upper(),8,'#55422d',True,anchor='center')
   self.canvas.create_rectangle(x,y,x+w,y+h,outline='#ca9b61',width=3)
   for n,bx,by,bw,bh in BUILDINGS:
    rx=x+(bx/WW)*w;ry=y+(by/WH)*h
@@ -1005,7 +1011,8 @@ class Game:
   self.draw_text(480,215,'PAUSED',38,'#efcf9d',True,anchor='center')
   self.draw_text(480,282,'ESC  —  RESUME',17,'#f0d3a5',True,anchor='center')
   self.draw_text(480,330,'F5  —  SAVE GAME',15,'#e5be86',anchor='center')
-  self.draw_text(480,383,'Close window to quit (autosaves).',12,'#d4b995',anchor='center')
+  self.draw_text(480,366,'LAST SAVE: '+(self.last_save_time if self.last_save_ok else ('FAILED' if self.save_error else 'NOT YET')),12,'#e8d2ab',anchor='center')
+  self.draw_text(480,390,'Close window to quit (autosaves).',11,'#d4b995',anchor='center')
 
  def draw_death(self):
   self.canvas.create_image(0,0,image=self.titleimg,anchor='nw')
