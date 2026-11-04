@@ -14,7 +14,7 @@ VW,VH=960,600
 OLD_WW,OLD_WH=4800,3200
 WW,WH=19200,12800  # 16x original area, drawn incrementally
 FPS=33
-VERSION='1.6 — Better Gunfights'
+VERSION='1.7 — Tile & Terrain'
 # Interiors are lightweight procedural rooms: no extra graphics libraries or image files.
 INTERIOR_TYPES={
  'Sheriff':'office','Sheriff Annex':'office','Saloon':'saloon','Sagebrush Saloon':'saloon',
@@ -83,7 +83,7 @@ class Actor:
 
 class Game:
  def __init__(self,root):
-  self.root=root;root.title('DUST & DEBT | Better Gunfights v1.6')
+  self.root=root;root.title('DUST & DEBT | Tile & Terrain v1.7')
   root.resizable(False,False)
   self.canvas=tk.Canvas(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
@@ -141,6 +141,10 @@ class Game:
   if x<23 or y<23 or x>WW-23 or y>WH-23:return True
   for n,bx,by,bw,bh in BUILDINGS:
    if bx-r<x<bx+bw+r and by-r<y<by+bh+r:return True
+  obstacle=self.terrain_obstacle(x,y)
+  if obstacle:
+   ox,oy,rad=obstacle
+   if (x-ox)**2+(y-oy)**2<(rad+r)**2:return True
   return False
  def can_move(self,x,y,r=11):return not self.solid(x,y,r)
  def move_actor(self,a,dx,dy):
@@ -848,6 +852,25 @@ class Game:
   value=(value^(value>>13))*1274126177&0xffffffff
   return value^(value>>16)
 
+ def is_frontier_road(self,x,y):
+  if x<OLD_WW and y<OLD_WH:return False
+  return any(abs(x-gx)<38 for gx in range(6000,WW,4200)) or any(abs(y-gy)<39 for gy in range(4300,WH,3600))
+
+ def terrain_obstacle(self,x,y):
+  # Consistent cover objects on procedural terrain; roads remain passable.
+  if x<OLD_WW and y<OLD_WH:return None
+  tile=112;tx=int(x//tile);ty=int(y//tile)
+  for cy in range(ty-1,ty+2):
+   for cx in range(tx-1,tx+2):
+    if cx<0 or cy<0:continue
+    h=self.terrain_patch(cx,cy)
+    if h%11 not in (0,1):continue
+    ox=cx*tile+30+(h//11)%48;oy=cy*tile+30+(h//73)%45
+    if self.is_frontier_road(ox,oy):continue
+    radius=14 if h%11==0 else 10
+    if abs(x-ox)<radius+25 and abs(y-oy)<radius+25:return (ox,oy,radius)
+  return None
+
  def draw_far_terrain(self):
   # Only screen-visible terrain cells are rendered, so RAM stays nearly constant.
   c=self.canvas;c.create_rectangle(0,0,VW,VH,fill='#9d895e',outline='')
@@ -864,9 +887,26 @@ class Game:
     palette=('#ae956b','#b4a275','#8b8c60','#bd996c','#a38c68')
     px=cx-self.camx;py=cy-self.camy
     c.create_rectangle(px,py,px+tile+1,py+tile+1,fill=palette[biome],outline='')
-    if h%7==0:c.create_oval(px+28,py+16,px+65,py+33,fill='#7e7758',outline='')
-    if h%5==0:c.create_polygon(px+66,py+78,px+74,py+51,px+88,py+79,fill='#6d714d',outline='')
-    if h%3==0:c.create_line(px+18,py+58,px+28,py+53,fill='#d2b67e',width=2)
+    # Ground layer: ridges, dry grass and sun-baked cracks.
+    if h%4==0:
+     c.create_line(px+9,py+35,px+40,py+28,px+64,py+39,fill='#8d7657',width=3,smooth=True)
+    if h%5==0:
+     for gx in (20,27,35):
+      c.create_line(px+gx,py+86,px+gx-4,py+75-(h%5),fill='#6b704b',width=2)
+    if h%6==0:
+     c.create_oval(px+74,py+21,px+93,py+29,fill='#bda479',outline='#8e7554')
+    # Prop layer: cover objects match terrain collision.
+    if h%11 in (0,1):
+     ox=cx+30+(h//11)%48;oy=cy+30+(h//73)%45
+     if not self.is_frontier_road(ox,oy):
+      rx=ox-self.camx;ry=oy-self.camy
+      if h%11==0:
+       c.create_polygon(rx-17,ry+12,rx-12,ry-7,rx+1,ry-17,rx+16,ry+8,fill='#746e60',outline='#4d4d45',width=2)
+       c.create_polygon(rx-10,ry-4,rx+2,ry-12,rx+8,ry+1,fill='#a39a7c',outline='')
+      else:
+       c.create_line(rx,ry+10,rx,ry-20,fill='#496549',width=7)
+       c.create_line(rx,ry-8,rx-11,ry-8,rx-11,ry-17,fill='#496549',width=5)
+       c.create_line(rx,ry-2,rx+12,ry-2,rx+12,ry-12,fill='#496549',width=5)
   # Intersecting tracks provide landmarks and long-distance navigation.
   for gx in range(6000,WW,4200):
    sx=gx-self.camx
@@ -1129,7 +1169,7 @@ def main():
   assert len(MISSIONS)==9 and len(BUILDINGS)>=25 and (WW,WH)==(19200,12800)
   assert all(t in INTERIOR_TYPES for t in ('Saloon','General Store','Hotel','Sheriff'))
   assert len(SHOP_GOODS)>=6
-  assert VERSION.startswith('1.6')
+  assert VERSION.startswith('1.7')
   assert os.path.exists(os.path.join(ASSETS,'world.png'))
   assert os.path.exists(os.path.join(ASSETS,'title.png'))
   print('Self-test OK: story, buildings, and artwork present.')
