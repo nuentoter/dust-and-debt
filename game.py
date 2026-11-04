@@ -14,7 +14,7 @@ VW,VH=960,600
 OLD_WW,OLD_WH=4800,3200
 WW,WH=19200,12800  # 16x original area, drawn incrementally
 FPS=33
-VERSION='1.5 — Living Towns'
+VERSION='1.6 — Better Gunfights'
 # Interiors are lightweight procedural rooms: no extra graphics libraries or image files.
 INTERIOR_TYPES={
  'Sheriff':'office','Sheriff Annex':'office','Saloon':'saloon','Sagebrush Saloon':'saloon',
@@ -83,7 +83,7 @@ class Actor:
 
 class Game:
  def __init__(self,root):
-  self.root=root;root.title('DUST & DEBT | Living Towns v1.5')
+  self.root=root;root.title('DUST & DEBT | Better Gunfights v1.6')
   root.resizable(False,False)
   self.canvas=tk.Canvas(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
@@ -106,7 +106,7 @@ class Game:
   self.stage=0;self.kills=0;self.wanted=0.;self.law_timer=0.;self.clock=8.0;self.mounted=False
   self.honor=50;self.crimes=0;self.law_status='PEACE';self.deadeye=100.;self.deadeye_active=False;self.deadeye_regen_delay=0.;self.witness_timer=0.;self.law_spawn_timer=0.;self.shot_trails=[]
   self.horse_x,self.horse_y=764.,646.;self.horse_hp=100
-  self.facing=(0.,-1.);self.shot_timer=0;self.reload_timer=0;self.invuln=0
+  self.facing=(0.,-1.);self.shot_timer=0;self.reload_timer=0;self.invuln=0;self.hit_marker=0.;self.combat_warning=0.
   self.actors=[];self.bullets=[];self.effects=[];self.dialog=None;self.choice_dialog=None;self.dialog_from='';self.toast=[]
   self.camx=0;self.camy=0;self.map_open=False;self.journal_open=False;self.show_help=False
   self.interior=None;self.indoor_x=480.;self.indoor_y=465.;self.shop_open=False
@@ -607,6 +607,7 @@ class Game:
   self.facing=(dx,dy)
   self.bullets.append([self.x+dx*19,self.y+dy*19,dx*710,dy*710,1.0,True])
   self.effects.append([self.x+dx*22,self.y+dy*22,.14,'flash'])
+  self.combat_warning=max(self.combat_warning,.16)
   self.shot_trails.append([self.x+dx*18,self.y+dy*18,self.x+dx*210,self.y+dy*210,.13])
   if self.in_town(self.x,self.y):self.report_crime(.40,'Gunshots in town')
   if self.ammo==0:self.notify('Cylinder empty — R to reload.',1.5)
@@ -643,6 +644,7 @@ class Game:
    self.toast=[t for t in self.toast if t[1]>0]
    return
   self.shot_timer=max(0,self.shot_timer-dt);self.invuln=max(0,self.invuln-dt)
+  self.hit_marker=max(0,self.hit_marker-dt);self.combat_warning=max(0,self.combat_warning-dt)
   if self.reload_timer>0:
    self.reload_timer-=dt
    if self.reload_timer<=0:
@@ -676,6 +678,18 @@ class Game:
   if self.hp<=0:self.screen='death';self.mounted=False
   if self.frame%300==0:self.save()
 
+ def line_of_fire(self,x1,y1,x2,y2):
+  # A few collision samples prevent shooting through buildings and future cover.
+  distance=math.hypot(x2-x1,y2-y1)
+  for i in range(1,max(2,int(distance/20))):
+   u=i/max(2,int(distance/20))
+   if self.solid(x1+(x2-x1)*u,y1+(y2-y1)*u,2):return False
+  return True
+
+ def combat_damage(self,a):
+  # Dead Eye shots are more accurate and slightly more damaging.
+  return 64 if self.deadeye_active and (a.kind=='bandit' or a.kind.startswith('mission_')) else 52
+
  def update_ai(self,dt):
   for a in self.actors:
    if a.dead:continue
@@ -702,12 +716,18 @@ class Game:
     if a.kind=='bandit' and (self.safe_timer>0 or self.in_safe_settlement(self.x,self.y)):continue
     if a.kind=='deputy' and self.law_status!='WANTED':a.dead=True;continue
     dx=self.x-a.x;dy=self.y-a.y;mag=max(.001,dist)
-    if dist>155:self.move_actor(a,dx/mag*a.speed*dt,dy/mag*a.speed*dt)
-    if dist<340 and a.shoot<=0:
-     a.shoot=random.uniform(1.3,2.5) if a.name!='Crow' else .65
-     scatter=random.uniform(-.14,.14)
+    # Approach, then strafe while maintaining a shooting distance.
+    if dist>205:self.move_actor(a,dx/mag*a.speed*dt,dy/mag*a.speed*dt)
+    elif dist<120:self.move_actor(a,-dx/mag*a.speed*dt*.6,-dy/mag*a.speed*dt*.6)
+    else:
+     direction=1 if (sum(map(ord,a.name))+int(a.x//45))%2 else -1
+     self.move_actor(a,-dy/mag*a.speed*dt*.40*direction,dx/mag*a.speed*dt*.40*direction)
+    if dist<340 and a.shoot<=0 and self.line_of_fire(a.x,a.y,self.x,self.y):
+     a.shoot=random.uniform(1.7,2.9) if a.name!='Crow' else .9
+     scatter=random.uniform(-.19,.19)
      angle=math.atan2(dy,dx)+scatter
-     self.bullets.append([a.x,a.y,math.cos(angle)*340,math.sin(angle)*340,1.3,False])
+     self.combat_warning=.7
+     self.bullets.append([a.x,a.y,math.cos(angle)*330,math.sin(angle)*330,1.3,False])
   if self.law_status=='WANTED':
    deputies=sum(not a.dead and a.kind=='deputy' for a in self.actors)
    self.law_spawn_timer=max(0.,self.law_spawn_timer-dt)
@@ -735,8 +755,8 @@ class Game:
         a.hp-=32
        elif a.kind=='civilian':
         self.report_crime(2,'Assault on a citizen');self.change_honor(-8,'Assault');a.hp-=55
-       else:a.hp-=52
-       self.effects.append([px,py,.30,'hit']);self.effects.append([px,py,.52,'spark']);collided=True
+       else:a.hp-=self.combat_damage(a)
+       self.effects.append([px,py,.30,'hit']);self.effects.append([px,py,.52,'spark']);self.hit_marker=.20;collided=True
        if a.hp<=0:
         a.dead=True
         if a.kind in ('bandit','deputy') or a.kind.startswith('mission_'):
@@ -751,7 +771,7 @@ class Game:
      if math.hypot(self.x-px,self.y-py)<(17 if self.mounted else 11):
       collided=True
       if self.invuln<=0:
-       self.hp-=random.randrange(9,18);self.invuln=.35;self.effects.append([px,py,.35,'hit']);self.effects.append([px,py,.5,'spark'])
+       self.hp-=random.randrange(7,15);self.invuln=.50;self.effects.append([px,py,.35,'hit']);self.effects.append([px,py,.5,'spark'])
       break
     if collided:break
    if not collided and b[4]>0:kept.append(b)
@@ -878,6 +898,12 @@ class Game:
    sx,sy=self.pos(x,y);radius=int(4+t*25)
    col={'dust':'#d2b388','hit':'#b7523b','flash':'#ffe4ac','spark':'#ffe7b0'}.get(kind,'white')
    self.canvas.create_oval(sx-radius,sy-radius,sx+radius,sy+radius,outline=col,width=3)
+  if self.hit_marker>0:
+   mx,my=self.mouse
+   for ox,oy in ((-10,-10),(10,10),(-10,10),(10,-10)):
+    self.canvas.create_line(mx+ox*.45,my+oy*.45,mx+ox,my+oy,fill='#fff0bb',width=3)
+  if self.combat_warning>0:
+   self.canvas.create_rectangle(3,3,VW-3,VH-3,outline='#a44e3c',width=2)
   if self.deadeye_active:
    self.canvas.create_rectangle(0,0,VW,VH,fill='#ad7f39',stipple='gray75',outline='')
    self.canvas.create_oval(self.mouse[0]-18,self.mouse[1]-18,self.mouse[0]+18,self.mouse[1]+18,outline='#f7e5a8',width=3)
@@ -1103,7 +1129,7 @@ def main():
   assert len(MISSIONS)==9 and len(BUILDINGS)>=25 and (WW,WH)==(19200,12800)
   assert all(t in INTERIOR_TYPES for t in ('Saloon','General Store','Hotel','Sheriff'))
   assert len(SHOP_GOODS)>=6
-  assert VERSION.startswith('1.5')
+  assert VERSION.startswith('1.6')
   assert os.path.exists(os.path.join(ASSETS,'world.png'))
   assert os.path.exists(os.path.join(ASSETS,'title.png'))
   print('Self-test OK: story, buildings, and artwork present.')
