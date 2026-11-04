@@ -278,19 +278,26 @@ class Game:
    self.screen='playing';self.safe_timer=18.;self.notify('Loaded last save from disk. F5 saves manually.',4)
   except (OSError,ValueError,TypeError,KeyError) as ex:
    self.new_game();self.notify('Save could not be loaded: '+str(ex),5)
- def save(self):
-  if self.screen not in ('playing','paused','ending'):return
+ def save(self,manual=False):
+  if self.screen not in ('playing','paused','ending'):return False
   d={k:getattr(self,k) for k in ('x','y','hp','money','ammo','reserve','tonics','stage','kills','wanted','clock','mounted','horse_x','horse_y','ledger','death_count','honor','crimes','deadeye')}
   d['mission_activated']=list(self.mission_activated)
+  d['save_version']=VERSION
   tag={1:'hollow',4:'blackspur',6:'crow'}.get(self.stage)
-  if tag:
-   d['stage_kills']=sum(a.dead for a in self.actors if a.kind=='mission_'+tag)
+  if tag:d['stage_kills']=sum(a.dead for a in self.actors if a.kind=='mission_'+tag)
   try:
    os.makedirs(os.path.dirname(SAVE),exist_ok=True)
    tmp=SAVE+'.tmp'
-   with open(tmp,'w') as f:json.dump(d,f)
+   with open(tmp,'w') as f:
+    json.dump(d,f);f.flush();os.fsync(f.fileno())
    os.replace(tmp,SAVE)
-  except OSError:pass
+   self.last_save_ok=True;self.save_error='';self.last_save_time=time.strftime('%H:%M:%S')
+   if manual:self.notify('SAVED at '+self.last_save_time+' to '+SAVE,5)
+   return True
+  except (OSError,TypeError,ValueError) as ex:
+   self.last_save_ok=False;self.save_error=str(ex)
+   self.notify('SAVE FAILED: '+str(ex),6)
+   return False
 
  def quest_target(self):
   return [(418,463),(1840,470),(418,463),(1270,1465),(2040,1280),(1270,1465),(1480,1030),(418,463),None][self.stage]
@@ -773,7 +780,44 @@ class Game:
   self.canvas.create_rectangle(sx-12,sy-1,sx+13,sy+9,fill='#372b29',outline='#b59260')
   self.canvas.create_line(sx-4,sy+18,sx-18,sy+35,fill='#342823',width=3)
 
+ def terrain_patch(self,tx,ty):
+  value=(tx*73856093 ^ ty*19349663 ^ 0xA53B7C19)&0xffffffff
+  value=(value^(value>>13))*1274126177&0xffffffff
+  return value^(value>>16)
+
+ def draw_far_terrain(self):
+  # Only screen-visible terrain cells are rendered, so RAM stays nearly constant.
+  c=self.canvas;c.create_rectangle(0,0,VW,VH,fill='#9d895e',outline='')
+  tile=112
+  ix0=max(0,int(self.camx//tile)-1);iy0=max(0,int(self.camy//tile)-1)
+  ix1=min(int(WW//tile)+1,int((self.camx+VW)//tile)+2)
+  iy1=min(int(WH//tile)+1,int((self.camy+VH)//tile)+2)
+  for yy in range(iy0,iy1):
+   for xx in range(ix0,ix1):
+    cx=xx*tile;cy=yy*tile
+    if cx+tile<=OLD_WW and cy+tile<=OLD_WH:continue
+    h=self.terrain_patch(xx,yy)
+    biome=(xx//18+yy//13)%5
+    palette=('#ae956b','#b4a275','#8b8c60','#bd996c','#a38c68')
+    px=cx-self.camx;py=cy-self.camy
+    c.create_rectangle(px,py,px+tile+1,py+tile+1,fill=palette[biome],outline='')
+    if h%7==0:c.create_oval(px+28,py+16,px+65,py+33,fill='#7e7758',outline='')
+    if h%5==0:c.create_polygon(px+66,py+78,px+74,py+51,px+88,py+79,fill='#6d714d',outline='')
+    if h%3==0:c.create_line(px+18,py+58,px+28,py+53,fill='#d2b67e',width=2)
+  # Intersecting tracks provide landmarks and long-distance navigation.
+  for gx in range(6000,WW,4200):
+   sx=gx-self.camx
+   if -70<sx<VW+70:
+    c.create_rectangle(sx-17,0,sx+17,VH,fill='#b9a276',outline='')
+    c.create_line(sx,0,sx,VH,fill='#d3b789',dash=(12,16),width=2)
+  for gy in range(4300,WH,3600):
+   sy=gy-self.camy
+   if -70<sy<VH+70:
+    c.create_rectangle(0,sy-18,VW,sy+18,fill='#b9a276',outline='')
+    c.create_line(0,sy,VW,sy,fill='#d3b789',dash=(12,16),width=2)
+
  def draw_world(self):
+  self.draw_far_terrain()
   self.canvas.create_image(-self.camx,-self.camy,image=self.world,anchor='nw')
   self.draw_scattered_props()
   for a in sorted(self.actors,key=lambda a:a.y):self.draw_actor(a)
