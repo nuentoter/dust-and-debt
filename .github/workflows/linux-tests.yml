@@ -38,3 +38,5 @@ jobs:
         run: xvfb-run -a python3 tests/mission_spawn_test.py
       - name: Dead or alive bounty capture regression
         run: xvfb-run -a python3 tests/bounty_capture_test.py
+      - name: Frontier Justice field arrests
+        run: xvfb-run -a python3 tests/field_arrest_test.py
