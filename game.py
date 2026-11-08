@@ -698,13 +698,15 @@ class Game:
   self.dialog[2]+=1
   if self.dialog[2]>=len(self.dialog[1]):self.dialog=None
  def interact(self):
-  # Hand captured bounties over before normal sheriff conversation.
+  # Deliver any prisoner before normal sheriff conversation.
+  if self.field_status()=='carried' and self.near_bounty_board():
+   self.deliver_field_prisoner();return
   if self.contract and self.bounty_state()=='carried':
    sheriffs=(a for a in self.actors if a.kind=='sheriff' and not a.dead)
    if any(math.hypot(a.x-self.x,a.y-self.y)<105 for a in sheriffs):
     self.deliver_bounty();return
-  if self.contract and self.bounty_state()=='hogtied' and self.mounted:
-   captive=self.bounty_actor()
+  if self.mounted and (self.bounty_state()=='hogtied' or self.field_status()=='hogtied'):
+   captive=self.field_actor() if self.field_status()=='hogtied' else self.bounty_actor()
    if captive and math.hypot(captive.x-self.x,captive.y-self.y)<80:
     self.notify('Dismount (H) before picking up the prisoner.',2);return
   if self.pick_up_bounty():return
@@ -1116,7 +1118,7 @@ class Game:
   if vx or vy:
    mag=math.hypot(vx,vy);vx/=mag;vy/=mag
    speed=(260 if 'shift_l' in self.keys or 'shift_r' in self.keys else 205) if self.mounted else (175 if 'shift_l' in self.keys or 'shift_r' in self.keys else 125)
-   if self.contract and self.bounty_state()=='carried' and not self.mounted:speed*=.75
+   if (self.bounty_state()=='carried' or self.field_status()=='carried') and not self.mounted:speed*=.75
    if self.can_move(self.x+vx*speed*dt,self.y,16 if self.mounted else 10):self.x+=vx*speed*dt
    if self.can_move(self.x,self.y+vy*speed*dt,16 if self.mounted else 10):self.y+=vy*speed*dt
    self.facing=(vx,vy)
@@ -1142,6 +1144,11 @@ class Game:
    if self.contract and self.bounty_state()=='carried':
     self.contract['status']='hunting';self.spawn_contract_target()
     self.notify('Your captive escaped after you fell.',4)
+   if self.field_prisoner:
+    captive=self.field_actor()
+    if captive:captive.kind='bandit'
+    self.field_prisoner=None
+    self.notify('Your captured drifter escaped after you fell.',4)
   self.autosave_timer-=dt
   if self.autosave_timer<=0:
    self.autosave_timer=90.
@@ -1162,6 +1169,7 @@ class Game:
  def update_ai(self,dt):
   for a in self.actors:
    if a.dead:continue
+   if a.kind=='field_prisoner':continue
    if a.kind=='bounty_target' and self.bounty_state() in ('roped','hogtied','carried'):continue
    if a.kind in ('sheriff','store','doctor','stable','saloon','station','traveler'):continue
    dist=math.hypot(a.x-self.x,a.y-self.y)
@@ -1220,7 +1228,7 @@ class Game:
     if self.solid(px,py,2):collided=True;self.effects.append([px,py,.20,'dust']);break
     if b[5]:
      for a in self.actors:
-      if a.dead or a.kind=='animal' and a.name=='Jackrabbit' and random.random()<.12:continue
+      if a.dead or a.kind=='field_prisoner' or a.kind=='animal' and a.name=='Jackrabbit' and random.random()<.12:continue
       if math.hypot(a.x-px,a.y-py)<(17 if a.name=='Crow' else 13):
        if a.kind in ('sheriff','store','doctor','stable','saloon','station'):
         self.report_crime(2,'Assault on a citizen');self.change_honor(-8,'Assault')
@@ -1287,12 +1295,13 @@ class Game:
   if villain and a.hp<a.maxhp:
    self.canvas.create_rectangle(sx-16,sy-34,sx+16,sy-30,fill='#3d201c',outline='')
    self.canvas.create_rectangle(sx-16,sy-34,sx-16+32*max(0,a.hp)/a.maxhp,sy-30,fill='#b84f40',outline='')
-  if a.kind=='bounty_target' and self.bounty_state() in ('roped','hogtied'):
+  if (a.kind=='bounty_target' and self.bounty_state() in ('roped','hogtied')) or (a.kind=='field_prisoner' and self.field_status() in ('roped','hogtied')):
    self.canvas.create_oval(sx-14,sy-13,sx+14,sy+14,outline='#e5cb94',width=3)
    self.canvas.create_line(sx-12,sy+5,sx+12,sy+5,fill='#e5cb94',width=3)
-   if self.bounty_state()=='hogtied':
+   bound=self.field_status() if a.kind=='field_prisoner' else self.bounty_state()
+   if bound=='hogtied':
     self.canvas.create_line(sx-11,sy+12,sx+12,sy-6,fill='#e5cb94',width=4)
-   self.draw_text(sx,sy-47,'HOGTIED' if self.bounty_state()=='hogtied' else 'ROPED — G',10,'#f7deb0',True,anchor='center')
+   self.draw_text(sx,sy-47,'HOGTIED' if bound=='hogtied' else 'ROPED — G',10,'#f7deb0',True,anchor='center')
   if math.hypot(a.x-self.x,a.y-self.y)<125 and not villain:
    self.draw_text(sx,sy-43,a.name,11,'#f3db9e',True,anchor='center')
    if a.kind=='civilian':self.draw_text(sx,sy-56,self.npc_activity(a),9,'#d3c49e',anchor='center')
@@ -1313,7 +1322,7 @@ class Game:
   dx,dy=self.facing
   self.canvas.create_line(sx+dx*6,sy+dy*6+offset,sx+dx*25,sy+dy*25+offset,fill='#3a3530',width=7)
   self.canvas.create_line(sx+dx*9,sy+dy*9+offset,sx+dx*25,sy+dy*25+offset,fill='#beb4a2',width=3)
-  if self.contract and self.bounty_state()=='carried':
+  if self.bounty_state()=='carried' or self.field_status()=='carried':
    cx,cy=sx+18,sy+(5 if self.mounted else 12)
    self.canvas.create_oval(cx-9,cy-9,cx+10,cy+9,fill='#6b4e3d',outline='#e6c88e',width=3)
    self.canvas.create_line(cx-9,cy-3,cx+8,cy+6,fill='#e6c88e',width=3)
