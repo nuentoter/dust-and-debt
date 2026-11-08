@@ -16,7 +16,7 @@ VW,VH=960,600
 OLD_WW,OLD_WH=4800,3200
 WW,WH=19200,12800  # 16x original area, drawn incrementally
 FPS=33
-VERSION='2.2 — Dead or Alive'
+VERSION='2.3 — Frontier Justice'
 # Interiors are lightweight procedural rooms: no extra graphics libraries or image files.
 INTERIOR_TYPES={
  'Sheriff':'office','Sheriff Annex':'office','Saloon':'saloon','Sagebrush Saloon':'saloon',
@@ -92,7 +92,7 @@ class Actor:
 
 class Game:
  def __init__(self,root):
-  self.root=root;root.title('DUST & DEBT | Dead or Alive v2.2')
+  self.root=root;root.title('DUST & DEBT | Frontier Justice v2.3')
   root.resizable(False,False)
   self.canvas=tk.Canvas(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
@@ -129,6 +129,7 @@ class Game:
    if kind=='civilian':self.npc_home[n]=(x,y)
   self.contract=None;self.bounties_done=0;self.encounter_cooldown=35.
   self.lasso_cooldown=0.;self.lasso_visual=None
+  self.field_prisoner=None;self.field_arrests=0
   self.side_job=None;self.side_completed=[];self.gathered_nodes=[];self.camps_used=[]
   self.visited_settlements=[];self.settlement_news_timer=0.
   self.spawn_roamers()
@@ -207,6 +208,20 @@ class Game:
  def near_bounty_board(self):
   if self.mounted or self.interior:return False
   return any(a.kind=='sheriff' and not a.dead and math.hypot(a.x-self.x,a.y-self.y)<105 for a in self.actors)
+
+ def field_actor(self):
+  return next((a for a in self.actors if a.kind=='field_prisoner' and not a.dead),None)
+
+ def field_status(self):
+  return self.field_prisoner.get('status') if self.field_prisoner else None
+
+ def deliver_field_prisoner(self):
+  if self.field_status()!='carried' or self.mounted or not self.near_bounty_board():return False
+  self.field_prisoner=None;self.field_arrests+=1
+  self.money+=24;self.change_honor(2,'Bandit arrested alive')
+  self.notify('DRIFTER DELIVERED ALIVE: +$24',5)
+  self.sound_cue();self.save()
+  return True
 
  def bounty_state(self):
   return self.contract.get('status','hunting') if self.contract else None
@@ -551,6 +566,13 @@ class Game:
    self.gathered_nodes=list(s.get('gathered_nodes',[]))
    self.camps_used=list(s.get('camps_used',[]))
    self.visited_settlements=list(s.get('visited_settlements',[]))
+   self.field_arrests=int(s.get('field_arrests',0))
+   self.field_prisoner=s.get('field_prisoner')
+   if self.field_prisoner and self.field_prisoner.get('status') in ('roped','hogtied'):
+    px,py=self.field_prisoner['position']
+    px,py=self.safe_enemy_spawn(px,py)
+    self.field_prisoner['position']=[px,py]
+    self.actors.append(Actor(px,py,'field_prisoner','Captured Drifter',70,70,0))
    self.contract=s.get('contract')
    if self.contract and not self.contract.get('finished',False):
     self.contract.setdefault('status','hunting')
@@ -591,6 +613,7 @@ class Game:
   d={k:getattr(self,k) for k in ('x','y','hp','money','ammo','reserve','tonics','stage','kills','wanted','clock','mounted','horse_x','horse_y','ledger','death_count','honor','crimes','deadeye')}
   d['mission_activated']=list(self.mission_activated)
   d['contract']=self.contract;d['bounties_done']=self.bounties_done
+  d['field_prisoner']=self.field_prisoner;d['field_arrests']=self.field_arrests
   d['waypoint']=self.waypoint;d['sound_on']=self.sound_on
   d['side_job']=self.side_job;d['side_completed']=self.side_completed
   d['gathered_nodes']=self.gathered_nodes;d['camps_used']=self.camps_used
