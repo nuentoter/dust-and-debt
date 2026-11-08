@@ -1555,15 +1555,16 @@ class Game:
    if q<dist:nearest=a;dist=q
   if nearest and not self.dialog and not self.choice_dialog:self.draw_text(480,474,'[ E ]  TALK TO '+nearest.name.upper(),14,'#fff0c4',True,anchor='center')
   if self.near_bounty_board():
-   label='[ E ] TURN IN PRISONER' if self.bounty_state()=='carried' else '[ B ] BOUNTY BOARD'
+   label='[ E ] TURN IN PRISONER' if (self.bounty_state()=='carried' or self.field_status()=='carried') else '[ B ] BOUNTY BOARD'
    self.draw_text(480,427,label,12,'#f0d28a',True,anchor='center')
-  if self.contract:
-   captive=self.bounty_actor()
-   if self.bounty_state()=='roped' and captive and math.hypot(self.x-captive.x,self.y-captive.y)<120:
+  if self.contract or self.field_prisoner:
+   captive=self.field_actor() if self.field_prisoner else self.bounty_actor()
+   state=self.field_status() if self.field_prisoner else self.bounty_state()
+   if state=='roped' and captive and math.hypot(self.x-captive.x,self.y-captive.y)<120:
     self.draw_text(480,406,'[ G ] HOGTIE OUTLAW',12,'#ffe3ae',True,anchor='center')
-   elif self.bounty_state()=='hogtied' and captive and math.hypot(self.x-captive.x,self.y-captive.y)<110:
+   elif state=='hogtied' and captive and math.hypot(self.x-captive.x,self.y-captive.y)<110:
     self.draw_text(480,406,'[ E ] PICK UP PRISONER',12,'#ffe3ae',True,anchor='center')
-   elif self.bounty_state()=='hunting' and captive and math.hypot(self.x-captive.x,self.y-captive.y)<280:
+   elif state=='hunting' and captive and math.hypot(self.x-captive.x,self.y-captive.y)<280:
     self.draw_text(480,406,'[ L ] LASSO TARGET (AIM WITH MOUSE)',11,'#ffe3ae',True,anchor='center')
   if self.side_job:
    job=get_job(self.side_job['id'])
@@ -1682,14 +1683,15 @@ class Game:
   if target:
    tx=x+target[0]/WW*w;ty=y+target[1]/WH*h
    self.canvas.create_oval(tx-8,ty-8,tx+8,ty+8,outline='#fff2ac',width=3)
-  if self.contract:
-   if self.bounty_state()=='carried':
+  if self.contract or self.field_prisoner:
+   if self.bounty_state()=='carried' or self.field_status()=='carried':
     bx=x+418/WW*w;by=y+463/WH*h
     self.canvas.create_oval(bx-7,by-7,bx+7,by+7,outline='#ddc79b',width=3)
    else:
-    target=self.bounty_actor()
-    bx=x+(target.x if target else self.contract['location'][0])/WW*w
-    by=y+(target.y if target else self.contract['location'][1])/WH*h
+    target=self.field_actor() if self.field_prisoner else self.bounty_actor()
+    fallback=(self.field_prisoner['position'] if self.field_prisoner else self.contract['location'])
+    bx=x+(target.x if target else fallback[0])/WW*w
+    by=y+(target.y if target else fallback[1])/WH*h
     self.canvas.create_oval(bx-6,by-6,bx+6,by+6,fill='#9d3d34',outline='#2d211e',width=2)
   if self.waypoint:
    wx=x+self.waypoint[0]/WW*w;wy=y+self.waypoint[1]/WH*h
@@ -1716,16 +1718,17 @@ class Game:
    self.draw_text(160,457,title,11,'#f0ce92',True)
    self.draw_text(160,472,'STATUS: '+self.bounty_state().upper()+' • L rope, G tie, E carry/turn in',10,'#edcf9d')
   else:self.draw_text(160,459,'Bounties completed: '+str(self.bounties_done)+' — Press B near sheriff',12,'#f0ce92',True)
+  self.draw_text(160,482,'DRIFTERS ARRESTED: '+str(self.field_arrests)+((' • PRISONER: '+self.field_status().upper()) if self.field_prisoner else ' • $24 alive each'),10,'#b2dbce',True)
   if self.side_job:
    job=get_job(self.side_job['id'])
-   if job:self.draw_text(160,493,'SIDE JOB: '+job[2]+f' ({int(self.side_job["step"])+1}/{len(job[4])}) — E at teal marker',11,'#b2dbce',True)
-  else:self.draw_text(160,493,f'Side jobs: {len(self.side_completed)}/{len(SIDE_JOBS)}    Towns found: {len(self.visited_settlements)}/{len(SETTLEMENTS)}',11,'#b2dbce',True)
+   if job:self.draw_text(160,499,'SIDE JOB: '+job[2]+f' ({int(self.side_job["step"])+1}/{len(job[4])})',10,'#b2dbce',True)
+  else:self.draw_text(160,499,f'Side jobs: {len(self.side_completed)}/{len(SIDE_JOBS)}    Towns found: {len(self.visited_settlements)}/{len(SETTLEMENTS)}',10,'#b2dbce',True)
   self.draw_text(480,516,'J TO CLOSE',12,'#e2bb7e',True,anchor='center')
 
  def draw_help(self):
   self.panel(190,52,580,506)
   self.draw_text(216,110,'HOW TO SURVIVE THE FRONTIER',20,'#efc58a',True)
-  controls=[('WASD / ARROWS','Move'),('SHIFT','Sprint / gallop'),('MOUSE CLICK','Aim and shoot'),('SPACE / R','Fire / reload'),('Q','Dead Eye'),('E / SHIFT+E','Interact / enter buildings'),('H','Mount / dismount Whiskey'),('B','Accept bounty near sheriff'),('L','Throw lasso toward mouse'),('G','Hogtie roped outlaw (on foot)'),('E BY TIED TARGET','Pick up captive'),('E BY SHERIFF','Deliver captive alive (on foot)'),('1','Health tonic'),('M / J','World map / journal'),('F / T','Gather resources / rest at camp'),('V','Toggle sound'),('F5','Save game'),('F11','Fullscreen'),('ESC / F1','Pause / help')]
+  controls=[('WASD / ARROWS','Move'),('SHIFT','Sprint / gallop'),('MOUSE CLICK','Aim and shoot'),('SPACE / R','Fire / reload'),('Q','Dead Eye'),('E / SHIFT+E','Interact / enter buildings'),('H','Mount / dismount Whiskey'),('B','Accept bounty near sheriff'),('L','Lasso wanted targets or bandits'),('G','Hogtie roped outlaw (on foot)'),('E BY TIED TARGET','Pick up captive'),('E BY SHERIFF','Deliver prisoner alive (on foot)'),('1','Health tonic'),('M / J','World map / journal'),('F / T','Gather resources / rest at camp'),('V','Toggle sound'),('F5','Save game'),('F11','Fullscreen'),('ESC / F1','Pause / help')]
   for i,(k,v) in enumerate(controls):
    yy=143+i*20
    self.draw_text(218,yy,k,11,'#f4d59e',True)
