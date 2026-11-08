@@ -278,9 +278,8 @@ class Game:
 
  def throw_lasso(self):
   if self.screen!='playing' or self.dialog or self.interior or self.map_open or self.journal_open or self.lasso_cooldown>0:return False
-  if not self.contract or self.bounty_state()!='hunting':
-   self.notify('The lasso is for an active, free bounty target.',2);return False
-  target=self.bounty_actor()
+  if self.field_prisoner or self.bounty_state() in ('roped','hogtied','carried'):
+   self.notify('Secure or deliver your current prisoner first.',3);return False
   self.lasso_cooldown=1.2
   mx,my=self.mouse;ax=mx+self.camx-self.x;ay=my+self.camy-self.y
   length=math.hypot(ax,ay)
@@ -288,43 +287,59 @@ class Game:
   ux,uy=ax/max(length,.01),ay/max(length,.01)
   fx,fy=self.x+ux*15,self.y+uy*15
   tx,ty=self.x+ux*235,self.y+uy*235
-  if target:
-   projection=(target.x-fx)*ux+(target.y-fy)*uy
-   sideways=abs((target.x-fx)*uy-(target.y-fy)*ux)
-   in_range=0<=projection<=220 and sideways<=26
-   clear=self.line_of_fire(fx,fy,target.x,target.y) if in_range else False
-   if in_range and clear:
-    tx,ty=target.x,target.y
+  candidates=[a for a in self.actors if not a.dead and (a.kind=='bandit' or
+              (a.kind=='bounty_target' and self.bounty_state()=='hunting'))]
+  hits=[]
+  for a in candidates:
+   projection=(a.x-fx)*ux+(a.y-fy)*uy
+   sideways=abs((a.x-fx)*uy-(a.y-fy)*ux)
+   if 0<=projection<=220 and sideways<=26 and self.line_of_fire(fx,fy,a.x,a.y):
+    hits.append((projection,a))
+  if hits:
+   target=min(hits,key=lambda hit:hit[0])[1]
+   self.lasso_visual=[fx,fy,target.x,target.y,.48]
+   if target.kind=='bounty_target':
     self.contract['status']='roped';self.contract['rope_timer']=8.0
     self.contract['captive_pos']=[target.x,target.y]
-    self.notify('LASSO HIT! Dismount, approach, then press G to hogtie.',4)
-    self.lasso_visual=[fx,fy,tx,ty,.48]
-    return True
+   else:
+    target.kind='field_prisoner';target.shoot=0.
+    self.field_prisoner={'status':'roped','position':[target.x,target.y],'rope_timer':8.0}
+   self.notify('LASSO HIT! Dismount and press G nearby to hogtie.',4)
+   return True
   self.lasso_visual=[fx,fy,tx,ty,.3]
-  self.notify('Lasso missed. Aim closer to the target and retry.',2)
+  self.notify('Lasso missed. Aim at an outlaw within range.',2)
   return False
 
  def hogtie_bounty(self):
-  if not self.contract or self.bounty_state()!='roped':return False
+  field=self.field_status()=='roped'
+  if not field and self.bounty_state()!='roped':return False
   if self.mounted:
    self.notify('Dismount Whiskey (H) before hogtying.',2);return False
-  a=self.bounty_actor()
+  a=self.field_actor() if field else self.bounty_actor()
   if not a or math.hypot(a.x-self.x,a.y-self.y)>76:
    self.notify('Move closer to the roped outlaw to hogtie.',2);return False
-  self.contract['status']='hogtied';self.contract.pop('rope_timer',None)
-  self.contract['captive_pos']=[a.x,a.y]
+  if field:
+   self.field_prisoner['status']='hogtied';self.field_prisoner.pop('rope_timer',None)
+   self.field_prisoner['position']=[a.x,a.y]
+  else:
+   self.contract['status']='hogtied';self.contract.pop('rope_timer',None)
+   self.contract['captive_pos']=[a.x,a.y]
   self.notify('HOGTIED! Press E nearby to pick up the prisoner.',4)
-  self.save()
-  return True
+  self.save();return True
 
  def pick_up_bounty(self):
-  if not self.contract or self.bounty_state()!='hogtied' or self.mounted:return False
-  a=self.bounty_actor()
+  if self.mounted:return False
+  field=self.field_status()=='hogtied'
+  if not field and self.bounty_state()!='hogtied':return False
+  a=self.field_actor() if field else self.bounty_actor()
   if not a or math.hypot(a.x-self.x,a.y-self.y)>77:return False
   self.actors.remove(a)
-  self.contract['status']='carried';self.contract.pop('captive_pos',None)
+  if field:
+   self.field_prisoner['status']='carried'
+  else:
+   self.contract['status']='carried';self.contract.pop('captive_pos',None)
   self.waypoint=[418,463]
-  self.notify('Prisoner secured. Ride to the sheriff; dismount and press E.',5)
+  self.notify('Prisoner secured. Ride to Sheriff Bell; dismount and press E.',5)
   self.save();return True
 
  def deliver_bounty(self):
@@ -339,13 +354,21 @@ class Game:
   if self.lasso_visual:
    self.lasso_visual[4]-=dt
    if self.lasso_visual[4]<=0:self.lasso_visual=None
-  if not self.contract or self.bounty_state()!='roped':return
-  timer=max(0.,float(self.contract.get('rope_timer',8.))-dt)
-  self.contract['rope_timer']=timer
-  if timer<=0:
-   self.contract['status']='hunting';self.contract.pop('rope_timer',None)
-   self.contract.pop('captive_pos',None)
-   self.notify('The outlaw broke free of the lasso!',3)
+  if self.contract and self.bounty_state()=='roped':
+   timer=max(0.,float(self.contract.get('rope_timer',8.))-dt)
+   self.contract['rope_timer']=timer
+   if timer<=0:
+    self.contract['status']='hunting';self.contract.pop('rope_timer',None)
+    self.contract.pop('captive_pos',None)
+    self.notify('The wanted outlaw broke free!',3)
+  if self.field_status()=='roped':
+   timer=max(0.,float(self.field_prisoner.get('rope_timer',8.))-dt)
+   self.field_prisoner['rope_timer']=timer
+   if timer<=0:
+    a=self.field_actor()
+    if a:a.kind='bandit';a.shoot=1.5
+    self.field_prisoner=None
+    self.notify('The drifter slipped the rope!',3)
 
  def spawn_road_encounter(self):
   if any(not a.dead and a.kind=='traveler' for a in self.actors):return False
