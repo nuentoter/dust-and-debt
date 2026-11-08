@@ -296,7 +296,8 @@ class Game:
    if 0<=projection<=220 and sideways<=26 and self.line_of_fire(fx,fy,a.x,a.y):
     hits.append((projection,a))
   if hits:
-   target=min(hits,key=lambda hit:hit[0])[1]
+   # If both are in the aim corridor, prefer the named wanted target.
+   target=min(hits,key=lambda hit:(0 if hit[1].kind=='bounty_target' else 1,hit[0]))[1]
    self.lasso_visual=[fx,fy,target.x,target.y,.48]
    if target.kind=='bounty_target':
     self.contract['status']='roped';self.contract['rope_timer']=8.0
