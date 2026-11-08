@@ -5,6 +5,19 @@
 
 Features include a 4,800×3,200 scrolling handcrafted Western map, 27 buildings, multiple frontier settlements with interactive characters, horseback riding, 6-shot revolver gunplay, reloading, bandit combat, money and shops, a doctor and saloon, enemy pursuit, a wanted system, wildlife, a day/night cycle, an objective marker, a map and journal, health tonics, save/load, story ending and free roam.
 
+## v2.3 Frontier Justice — field arrests (November 2026)
+
+The lasso now also works on **ordinary roaming bandits**, rather than only active named bounty targets. This is a repeatable, non-lethal arrest activity that fits alongside the existing dead-or-alive wanted posters.
+
+- **Aim with the mouse and press L** to lasso a roaming bandit within about 235 world units, with a clear path.
+- Dismount (**H**), approach, and press **G** within eight seconds to hogtie the bandit; **E** picks the prisoner up.
+- Carry the prisoner on foot (slower) or ride them on Whiskey. Return to Sheriff Bell, dismount and press **E** to deliver the prisoner alive for **$24 and +2 honor**. The journal tracks completed field arrests.
+- Hogtied and carried drifters persist across saves and reloads. An untied captive escapes when the rope timer expires; falling in combat releases your captive.
+- You can only handle one field prisoner at a time. A named bounty already roped, tied or carried also blocks new lasso captures until that prisoner is delivered.
+- Named bounty contracts retain their original dead/alive payouts and are still separate from field arrests. Story mission enemies are not included in the generic arrest system.
+
+The existing Linux regression suite now includes `tests/field_arrest_test.py`, which covers lassoing, restraint, save/reload, horse transport, delivery and reward, escape timer, and compatibility with named bounty contracts.
+
 ## v2.2 Dead or Alive — lasso and bounty capture (November 2026)
 
 All **five named bounty contracts** can now be collected **dead or alive**, with alive delivery paying **twice** the dead reward and granting an additional honor boost. Original dead bounty hunting still works. Your existing active bounty remains compatible with the new feature.
