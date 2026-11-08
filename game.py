@@ -700,8 +700,12 @@ class Game:
   if self.dialog[2]>=len(self.dialog[1]):self.dialog=None
  def interact(self):
   # Deliver any prisoner before normal sheriff conversation.
-  if self.field_status()=='carried' and self.near_bounty_board():
-   self.deliver_field_prisoner();return
+  if self.field_status()=='carried':
+   sheriffs=(a for a in self.actors if a.kind=='sheriff' and not a.dead)
+   if any(math.hypot(a.x-self.x,a.y-self.y)<105 for a in sheriffs):
+    if self.mounted:self.notify('Dismount (H) before delivering the drifter.',3)
+    else:self.deliver_field_prisoner()
+    return
   if self.contract and self.bounty_state()=='carried':
    sheriffs=(a for a in self.actors if a.kind=='sheriff' and not a.dead)
    if any(math.hypot(a.x-self.x,a.y-self.y)<105 for a in sheriffs):
