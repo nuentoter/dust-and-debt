@@ -6,6 +6,8 @@ import tkinter as tk
 from tkinter import messagebox
 import os, math, random, json, time, textwrap, sys, shutil
 from dataclasses import dataclass
+from working_frontier import work_offer, shop_prices, daily_stock
+from audio_system import AudioDirector
 from frontier_expansion import (SETTLEMENTS,SIDE_JOBS,extra_buildings,extra_npcs,resource_nodes,
                                 nearby_settlement,get_settlement,get_job,draw_frontier_towns)
 
@@ -16,7 +18,7 @@ VW,VH=960,600
 OLD_WW,OLD_WH=4800,3200
 WW,WH=19200,12800  # 16x original area, drawn incrementally
 FPS=33
-VERSION='2.4 — Living Law'
+VERSION='2.5 — Working Frontier'
 # Interiors are lightweight procedural rooms: no extra graphics libraries or image files.
 INTERIOR_TYPES={
  'Sheriff':'office','Sheriff Annex':'office','Saloon':'saloon','Sagebrush Saloon':'saloon',
@@ -92,7 +94,7 @@ class Actor:
 
 class Game:
  def __init__(self,root):
-  self.root=root;root.title('DUST & DEBT | Living Law v2.4')
+  self.root=root;root.title('DUST & DEBT | Working Frontier v2.5')
   root.resizable(False,False)
   self.canvas=tk.Canvas(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
@@ -100,6 +102,7 @@ class Game:
   self.titleimg=tk.PhotoImage(file=os.path.join(ASSETS,'title.png'))
   self.mapimg=tk.PhotoImage(file=os.path.join(ASSETS,'map.png'))
   self.mapthumb=self.mapimg.subsample(4,4)
+  self.audio=AudioDirector(bell=root.bell)
   self.keys=set();self.mouse=(VW//2,VH//2);self.mouse_down=False
   self.screen='title';self.fullscreen=False
   self.font='DejaVu Sans';self.last=time.monotonic();self.frame=0
@@ -119,6 +122,7 @@ class Game:
   self.actors=[];self.bullets=[];self.effects=[];self.dialog=None;self.choice_dialog=None;self.dialog_from='';self.toast=[]
   self.camx=0;self.camy=0;self.map_open=False;self.journal_open=False;self.show_help=False
   self.waypoint=None;self.sound_on=False;self.last_bell=0.;self.autosave_timer=90.;self.loaded_backup=False
+  self.economy_day=0;self.shop_stock={};self.work_active=None;self.work_records={};self.work_finished=0;self.work_income=0;self.work_expenses=0;self.store_id=None
   self.interior=None;self.indoor_x=480.;self.indoor_y=465.;self.shop_open=False;self.show_jail=False
   self.npc_schedule_tick=0;self.npc_home={}
   for a in self.actors:
@@ -644,6 +648,15 @@ class Game:
    self.mission_activated=set(s.get('mission_activated',[]))
    self.waypoint=s.get('waypoint')
    self.sound_on=bool(s.get('sound_on',False))
+   self.audio.configure(s.get('audio',{}))
+   self.audio.enabled=self.sound_on
+   self.economy_day=int(s.get('economy_day',0))
+   self.shop_stock=dict(s.get('shop_stock',{}))
+   self.work_active=s.get('work_active')
+   self.work_records=dict(s.get('work_records',{}))
+   self.work_finished=int(s.get('work_finished',0))
+   self.work_income=int(s.get('work_income',0))
+   self.work_expenses=int(s.get('work_expenses',0))
    self.side_job=s.get('side_job')
    self.side_completed=list(s.get('side_completed',[]))
    self.gathered_nodes=list(s.get('gathered_nodes',[]))
@@ -700,7 +713,10 @@ class Game:
   d['contract']=self.contract;d['bounties_done']=self.bounties_done
   d['field_prisoner']=self.field_prisoner;d['field_arrests']=self.field_arrests
   d['jail_roster']=self.jail_roster;d['law_reputation']=self.law_reputation
-  d['waypoint']=self.waypoint;d['sound_on']=self.sound_on
+  d['waypoint']=self.waypoint;d['sound_on']=self.sound_on;d['audio']=self.audio.settings()
+  d['economy_day']=self.economy_day;d['shop_stock']=self.shop_stock
+  d['work_active']=self.work_active;d['work_records']=self.work_records
+  d['work_finished']=self.work_finished;d['work_income']=self.work_income;d['work_expenses']=self.work_expenses
   d['side_job']=self.side_job;d['side_completed']=self.side_completed
   d['gathered_nodes']=self.gathered_nodes;d['camps_used']=self.camps_used
   d['visited_settlements']=self.visited_settlements
