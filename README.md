@@ -1,3 +1,9 @@
+## v2.8-map — Rivers, Ridges & Stone (development build, November 2026)
+
+The large New Austellia outer terrain now uses overlapping, smooth biome-colored land swaths instead of the old square 112-unit terrain tiles. Twelve mapped ridge/escarpment systems, connected dry washes, and reproducible clustered rocky cover have been added. Major rocks affect collision; existing towns, railway/wagon roads, mapped water, bridges and the original 4,800 × 3,200 handcrafted frontier are protected. Geography stays camera-local using Python/Tkinter with no new runtime dependencies. The rivers already traced on the original illustrated atlas remain authoritative; the new minor washes are visual and do not add unbridged water barriers.
+
+Technical design: [NATURAL_TERRAIN_MILESTONE.md](NATURAL_TERRAIN_MILESTONE.md). Terrain regression: `xvfb-run -a python3 tests/natural_terrain_test.py`. **This is a first implementation pass, not yet verified as a completed milestone.** Riverbank vegetation, road detailing, and visual tuning remain. Validate performance locally on older Archcraft hardware.
+
 ## v2.8 development preview — Combat & Character Progression (November 2026)
 
 The first v2.8 gameplay slice is implemented. Press **2** to switch between the starting **Colt Peacemaker** (six rounds, faster firing/reload, 52 damage) and the five-shot **Marshal's Iron** (slower firing/reload, 68 damage). Marshal's Iron unlocks after **two field arrests**, **four completed paid jobs**, or **ten outlaw defeats**; all three are existing gameplay accomplishments. A weapon swap keeps only the rounds that fit the selected cylinder. This is not yet the full v2.8 milestone: new enemy archetypes, cover/morale AI, and balancing remain outstanding.
