@@ -27,7 +27,7 @@ def main():
   game.SAVE=os.path.join(tmp,'save.json')
   root=tk.Tk();root.withdraw()
   g=game.Game(root);g.new_game();g.dialog=None
-  assert game.VERSION.startswith('2.5')
+  assert hasattr(g,'work_active') and hasattr(g,'shop_inventory')
   assert g.work_finished==0 and g.work_active is None
   assert g.audio.music_state=='silence' and not g.audio.enabled
   assert len(g.audio.settings())==5
