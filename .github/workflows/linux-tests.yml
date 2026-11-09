@@ -46,3 +46,5 @@ jobs:
         run: xvfb-run -a python3 tests/working_frontier_test.py
       - name: Great Territory 10x map and long-distance regression
         run: xvfb-run -a python3 tests/great_territory_test.py
+      - name: Roads and Consequences regional encounters and real audio regression
+        run: xvfb-run -a python3 tests/roads_audio_test.py
