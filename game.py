@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from working_frontier import work_offer, shop_prices, daily_stock
 from audio_system import AudioDirector
 from natural_terrain import draw_ground,draw_landforms,landform_solid,hash32,noise
-from combat_progression import WEAPONS, DIFFICULTIES, available_weapons, normal_weapon, normal_difficulty, incoming_damage, aim_vector
+from combat_progression import WEAPONS, DIFFICULTIES, available_weapons, normal_weapon, normal_difficulty, incoming_damage, aim_vector, earned_perks, perk_reload_multiplier, perk_incoming_multiplier, perk_deadeye_regen
 from enemy_tactics import ARCHETYPES, archetype, morale, should_surrender, movement, cover_goal
 from natural_terrain import ROCKS
 from horse_riding import step_motion, TROT_SPEED, GALLOP_SPEED
@@ -1591,6 +1591,9 @@ class Game:
   if self.tonics<=0:self.notify('No tonics left.');return
   if self.hp>=100:self.notify('Already at full health.');return
   self.tonics-=1;self.hp=min(100,self.hp+55);self.notify('Used a tonic: +55 health.');self.save()
+ def combat_perks(self):
+  return earned_perks(self.field_arrests,self.work_finished,self.kills)
+
  def switch_weapon(self):
   options=available_weapons(self.field_arrests,self.work_finished,self.kills)
   if len(options)<2:
@@ -1603,7 +1606,7 @@ class Game:
  def reload(self):
   if self.reload_timer>0 or self.ammo>=WEAPONS[self.weapon]['capacity']:return
   if self.reserve<=0:self.notify('Out of ammunition. Visit the general store.');return
-  self.reload_timer=WEAPONS[self.weapon]['reload'];self.notify('Reloading...',1.2);self.audio.cue('reload')
+  self.reload_timer=WEAPONS[self.weapon]['reload']*perk_reload_multiplier(self.combat_perks());self.notify('Reloading...',1.2);self.audio.cue('reload')
  def fire(self):
   if self.screen!='playing' or self.dialog or self.shot_timer>0 or self.reload_timer>0 or self.map_open or self.journal_open:return
   if self.ammo<=0:self.reload();return
@@ -1650,7 +1653,7 @@ class Game:
    self.deadeye=max(0.,self.deadeye-dt*25)
    self.deadeye_regen_delay=1.8
    if self.deadeye<=0:self.deadeye_active=False;self.notify('Dead Eye exhausted.',1.5)
-  elif self.deadeye_regen_delay<=0:self.deadeye=min(100.,self.deadeye+dt*11)
+  elif self.deadeye_regen_delay<=0:self.deadeye=min(100.,self.deadeye+dt*perk_deadeye_regen(self.combat_perks()))
   world_dt=dt*(.25 if self.deadeye_active else 1.)
   if self.interior:
    self.update_indoor(dt)
@@ -1877,7 +1880,7 @@ class Game:
      if math.hypot(self.x-px,self.y-py)<(17 if self.mounted else 11):
       collided=True
       if self.invuln<=0:
-       self.hp-=incoming_damage(self.difficulty,random.randrange(7,15));self.invuln=.50;self.effects.append([px,py,.35,'hit']);self.effects.append([px,py,.5,'spark'])
+       self.hp-=incoming_damage(self.difficulty,random.randrange(7,15)*perk_incoming_multiplier(self.combat_perks()));self.invuln=.50;self.effects.append([px,py,.35,'hit']);self.effects.append([px,py,.5,'spark'])
       break
     if collided:break
    if not collided and b[4]>0:kept.append(b)
