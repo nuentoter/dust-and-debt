@@ -521,14 +521,18 @@ class Game:
     self.notify('The drifter slipped the rope!',3)
 
  def spawn_road_encounter(self):
-  if any(not a.dead and a.kind=='traveler' for a in self.actors):return False
+  if any(not a.dead and a.kind in ('traveler','road_wagon','road_cache') for a in self.actors):return False
   if self.in_safe_settlement(self.x,self.y) or self.safe_timer>0:return False
   for _ in range(10):
    angle=random.random()*math.tau;distance=random.randint(270,380)
    x=self.x+math.cos(angle)*distance;y=self.y+math.sin(angle)*distance
    if not self.can_move(x,y,20) or self.in_safe_settlement(x,y):continue
-   self.actors.append(Actor(x,y,'traveler','Stranded Traveler',100,100,0))
-   self.notify('Someone needs help along the road. Look for a traveler.',4)
+   incident=random.choice(('traveler','road_wagon','road_cache'))
+   names={'traveler':'Stranded Traveler','road_wagon':'Broken Wagon','road_cache':'Forgotten Supply Crate'}
+   self.actors.append(Actor(x,y,incident,names[incident],100,100,0))
+   self.notify({'traveler':'Someone needs help along the road.',
+                'road_wagon':'A broken wagon lies up ahead.',
+                'road_cache':'Someone abandoned supplies along the trail.'}[incident],4)
    return True
   return False
 
@@ -842,6 +846,8 @@ class Game:
    else:self.interact()
   elif key=='b' and self.near_bounty_board():self.begin_bounty()
   elif key=='p' and not self.map_open and not self.journal_open:self.offer_work()
+  elif key=='n' and not self.map_open and not self.journal_open:self.offer_road_contract()
+  elif key=='u' and not self.map_open and not self.journal_open:self.regional_rumor()
   elif key=='i':self.work_ledger_open=not self.work_ledger_open;self.map_open=False;self.journal_open=False
   elif key=='f':self.gather_resource()
   elif key=='t':self.rest_at_frontier_camp()
@@ -956,6 +962,9 @@ class Game:
   d['gathered_nodes']=self.gathered_nodes;d['camps_used']=self.camps_used
   d['visited_settlements']=self.visited_settlements
   d['landmarks_found']=self.landmarks_found
+  if self.road_contract and self.road_contract.get('type')=='escort':
+   passenger=self.road_escort()
+   if passenger:self.road_contract['escort_pos']=[passenger.x,passenger.y]
   d['road_contract']=self.road_contract;d['road_contracts_done']=self.road_contracts_done
   d['road_income']=self.road_income;d['road_offer_day']=self.road_offer_day
   d['regional_standing']=self.regional_standing
@@ -1029,6 +1038,7 @@ class Game:
    if captive and math.hypot(captive.x-self.x,captive.y-self.y)<80:
     self.notify('Dismount (H) before picking up the prisoner.',2);return
   if self.pick_up_bounty():return
+  if self.progress_road_contract():return
   if self.complete_work_step():return
   if self.advance_side_job():return
   nearest=None;best=64
@@ -1044,6 +1054,15 @@ class Game:
    return
   k=nearest.kind
   if k=='guide':self.offer_frontier_job(nearest);return
+  if k in ('road_wagon','road_cache'):
+   self.actors.remove(nearest)
+   if k=='road_wagon':
+    self.money+=14;self.change_honor(1,'Repaired a stranded wagon')
+    self.say('WAGON DRIVER',['These axles were close to giving way. Thank you for stopping.','Take fourteen dollars for your trouble.'])
+   else:
+    self.reserve+=12;self.money+=6
+    self.say('JESSE',['A supply crate left beside the trail. Twelve cartridges and six dollars.','Maybe someone will come looking for it.'])
+   self.encounter_cooldown=75.;self.audio.cue('purchase');self.save();return
   if k=='traveler':
    self.actors.remove(nearest);self.money+=12
    self.change_honor(1,'Helped a stranded traveler')
@@ -1497,6 +1516,7 @@ class Game:
   if self.mounted:self.horse_hp=max(0.,self.horse_hp-dt*.025)
   if self.frame%60==0:self.update_npc_schedules()
   self.encounter_cooldown=max(0.,self.encounter_cooldown-dt)
+  if self.road_contract:self.update_road_escort(world_dt)
   if self.encounter_cooldown<=0:
    if self.spawn_road_encounter():self.encounter_cooldown=random.uniform(75,115)
    else:self.encounter_cooldown=15.
@@ -1678,6 +1698,14 @@ class Game:
   if a.dead:
    self.canvas.create_oval(sx-12,sy-3,sx+13,sy+6,fill='#6e4b3c',outline='')
    self.canvas.create_line(sx-9,sy-4,sx+9,sy+5,fill='#44352e',width=5)
+   return
+  if a.kind in ('road_wagon','road_cache'):
+   co='#986c49' if a.kind=='road_wagon' else '#a99a6f'
+   self.canvas.create_rectangle(sx-23,sy-11,sx+23,sy+11,fill=co,outline='#584330',width=3)
+   if a.kind=='road_wagon':
+    for ox in (-17,17):self.canvas.create_oval(sx+ox-8,sy+5,sx+ox+8,sy+21,outline='#44392e',width=4)
+   else:self.canvas.create_line(sx-20,sy-12,sx+21,sy+11,fill='#53432a',width=3)
+   if math.hypot(a.x-self.x,a.y-self.y)<125:self.draw_text(sx,sy-36,'E: '+a.name.upper(),10,'#eeddab',True,anchor='center')
    return
   if a.kind=='animal':
    co='#aa8963' if a.name=='Coyote' else '#c4ae87'
@@ -1984,6 +2012,9 @@ class Game:
     self.draw_text(575,534,'SIDE JOB: '+job[2][:20]+f' ({distance}m)',10,'#f0d39b',True)
   if self.work_active:
    self.draw_text(572,514,'WORK: '+self.work_active['title'][:22],10,'#b8dce2',True)
+  if self.road_contract:
+   job=self.road_contract
+   self.draw_text(571,495,'ROAD: '+job['title'][:19]+' ('+job['status']+')',10,'#c1d9a0',True)
   if self.waypoint:
    dx=self.waypoint[0]-self.x;dy=self.waypoint[1]-self.y
    self.draw_text(572,558,f'PIN {int(math.hypot(dx,dy))} m / {self.cardinal(math.atan2(dy,dx))}',11,'#f6d68d',True)
@@ -2002,6 +2033,14 @@ class Game:
   if self.work_active and self.work_active['status']=='outbound' and not self.mounted:
    wx,wy=self.work_active['destination']
    if math.hypot(wx-self.x,wy-self.y)<95:self.draw_text(480,402,'[ E ] COMPLETE WORK TASK',12,'#c2e7ea',True,anchor='center')
+  station=nearby_station(self.x,self.y,220)
+  if station:
+   label='[ N ] CLAIM ROAD PAY' if self.road_contract and self.road_contract['status']=='return' and self.road_contract['origin']==station[0] else '[ N ] ROAD JOB'
+   self.draw_text(480,361,label+'   [ U ] RUMOR',11,'#b8e4bb',True,anchor='center')
+  if self.road_contract and not self.mounted:
+   job=self.road_contract
+   if job['status']=='outbound' and math.hypot(self.x-job['target_pos'][0],self.y-job['target_pos'][1])<155:
+    self.draw_text(480,405,'[ E ] DELIVER / INSPECT',12,'#d4eab3',True,anchor='center')
   if self.near_bounty_board():
    label='[ E ] TURN IN PRISONER' if (self.bounty_state()=='carried' or self.field_status()=='carried') else '[ B ] BOUNTY BOARD'
    self.draw_text(480,427,label,12,'#f0d28a',True,anchor='center')
