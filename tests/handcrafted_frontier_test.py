@@ -78,6 +78,7 @@ def main():
    assert chapter['id'] in g.chapter_completed
    assert g.chapter_earnings>=chapter['reward']
   assert len(g.chapter_completed)==2
+  g.dialog=None;g.choice_dialog=None
   g.map_open=True;g.map_destination_index=0;g.render()
   e=type('Key',(),{'keysym':'Tab','state':0})()
   g.key_down(e);g.key_up(e)
