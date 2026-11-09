@@ -8,6 +8,8 @@ import os, math, random, json, time, textwrap, sys, shutil
 from dataclasses import dataclass
 from working_frontier import work_offer, shop_prices, daily_stock
 from audio_system import AudioDirector
+from road_events import (EVENT_TYPES,EVENT_TITLES,offer_for_day,nearby_station,
+                        dispatch_rumor,safe_event_position)
 from frontier_world import (WORLD_WIDTH,WORLD_HEIGHT,SECTOR_W,SECTOR_H,SECTOR_NAMES,
  BIOME_PALETTES,BIOME_GRID,LANDMARKS,ROAD_X,ROAD_Y,START_SPUR,MAP_RECT,
  region_at,biome_at,near_landmark,landmark_by_key,road_at,map_view,
@@ -23,7 +25,7 @@ VW,VH=960,600
 OLD_WW,OLD_WH=4800,3200
 WW,WH=WORLD_WIDTH,WORLD_HEIGHT  # Exactly 10x v2.5 world area; camera-local terrain
 FPS=33
-VERSION='2.6-map — The Great Territory'
+VERSION='2.6 — Roads & Consequences'
 # Interiors are lightweight procedural rooms: no extra graphics libraries or image files.
 INTERIOR_TYPES={
  'Sheriff':'office','Sheriff Annex':'office','Saloon':'saloon','Sagebrush Saloon':'saloon',
@@ -99,7 +101,7 @@ class Actor:
 
 class Game:
  def __init__(self,root):
-  self.root=root;root.title('DUST & DEBT | Great Territory (Map Foundation)')
+  self.root=root;root.title('DUST & DEBT | Roads & Consequences v2.6')
   root.resizable(False,False)
   self.canvas=tk.Canvas(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
@@ -143,6 +145,8 @@ class Game:
   self.jail_roster=[];self.law_reputation=0;self.patrol_alert_timer=0.
   self.side_job=None;self.side_completed=[];self.gathered_nodes=[];self.camps_used=[]
   self.visited_settlements=[];self.settlement_news_timer=0.
+  self.road_contract=None;self.road_contracts_done=0;self.road_income=0
+  self.road_offer_day={};self.regional_standing={};self.road_event_cooldown=65.
   self.spawn_roamers()
   self.spawn_law_patrols()
   self.update_npc_schedules()
@@ -775,6 +779,11 @@ class Game:
    self.camps_used=list(s.get('camps_used',[]))
    self.visited_settlements=list(s.get('visited_settlements',[]))
    self.landmarks_found=list(s.get('landmarks_found',[]))
+   self.road_contract=s.get('road_contract')
+   self.road_contracts_done=int(s.get('road_contracts_done',0))
+   self.road_income=int(s.get('road_income',0))
+   self.road_offer_day=dict(s.get('road_offer_day',{}))
+   self.regional_standing=dict(s.get('regional_standing',{}))
    self.field_arrests=int(s.get('field_arrests',0))
    self.jail_roster=list(s.get('jail_roster',[]))
    self.law_reputation=int(s.get('law_reputation',0))
@@ -797,6 +806,7 @@ class Game:
     self.spawn_mission(tag,positions,{'hollow':95,'blackspur':105,'crow':115}[tag],boss=(1480,1030) if tag=='crow' else None)
     eliminated=int(s.get('stage_kills',0))
     for a in [a for a in self.actors if a.kind=='mission_'+tag][:eliminated]:a.dead=True
+   self.restore_road_escort()
    self.update_npc_schedules()
    self.screen='playing';self.safe_timer=18.;self.notify('Recovered backup save. Press F5 to restore primary.' if self.loaded_backup else 'Loaded last save from disk. F5 saves manually.',5)
   except (OSError,ValueError,TypeError,KeyError) as ex:
@@ -834,6 +844,9 @@ class Game:
   d['gathered_nodes']=self.gathered_nodes;d['camps_used']=self.camps_used
   d['visited_settlements']=self.visited_settlements
   d['landmarks_found']=self.landmarks_found
+  d['road_contract']=self.road_contract;d['road_contracts_done']=self.road_contracts_done
+  d['road_income']=self.road_income;d['road_offer_day']=self.road_offer_day
+  d['regional_standing']=self.regional_standing
   d['save_version']=VERSION
   tag={1:'hollow',4:'blackspur',6:'crow'}.get(self.stage)
   if tag:d['stage_kills']=sum(a.dead for a in self.actors if a.kind=='mission_'+tag)
