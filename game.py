@@ -2405,6 +2405,13 @@ class Game:
   if p:self.canvas.create_oval(p[0]-6,p[1]-6,p[0]+6,p[1]+6,fill='#d94530',outline='#fff8d7',width=2)
   _key,_name,_px,_py=MAP_DESTINATIONS[self.map_destination_index]
   self.draw_text(184,88,'TAB: '+_name[:42]+'  •  ENTER: PIN',10,'#e4d6a9',True)
+  # Compact cartographic legend; overlay avoids adding a huge atlas texture.
+  self.canvas.create_rectangle(597,109,778,177,fill='#e0cfaa',outline='#70563d',width=2)
+  self.draw_text(606,115,'MAP LEGEND',9,'#4c3929',True)
+  for px,py,color,label in ((606,133,'#d94530','YOU'),(681,133,'#516f4e','TOWN'),
+                            (606,153,'#eee7d4','STORY'),(681,153,'#3288aa','JOB')):
+   self.canvas.create_oval(px,py,px+7,py+7,fill=color,outline='#61513e')
+   self.draw_text(px+11,py-2,label,9,'#4c3929',True)
   self.draw_text(480,570,'CLICK PIN • Z ZOOM • WASD PAN • TAB DESTINATIONS • M CLOSE',10,'#e2c397',anchor='center')
 
  def draw_journal(self):
