@@ -586,7 +586,7 @@ class Game:
    self.notify('You have already used the free camp at this settlement.',3);return False
   self.camps_used.append(town)
   self.hp=min(self.maxhp,self.hp+30)
-  self.clock=(self.clock+6)%24;self.update_npc_schedules()
+  self.advance_clock(6);self.update_npc_schedules()
   self.safe_timer=max(self.safe_timer,15.)
   self.notify('Rested by the campfire: +30 HP, six hours passed.',5)
   self.save()
@@ -957,13 +957,14 @@ class Game:
   if mag:
    self.indoor_x=max(225,min(735,self.indoor_x+vx/mag*165*dt))
    self.indoor_y=max(340,min(510,self.indoor_y+vy/mag*165*dt))
-  self.clock=(self.clock+dt*.020)%24
+  self.advance_clock(dt*.020)
 
  def use_counter(self):
   kind=INTERIOR_TYPES.get(self.interior,'home')
   if kind in SHOP_GOODS:
    if kind=='office' and self.wanted<=0:
     self.say('DEPUTY',['No warrants out for you. Keep it that way.']);return
+   self.shop_inventory()
    self.shop_open=True;self.keys.clear();return
   talks={'home':'The hearth is cold, but the roof still holds.',
          'chapel':'The frontier holds many sins, and few confessions.',
@@ -973,25 +974,29 @@ class Game:
  def buy_item(self,index):
   kind=INTERIOR_TYPES.get(self.interior,'home')
   goods=SHOP_GOODS.get(kind,[])
-  if index>=len(goods):return
-  label,cost,action=goods[index]
-  if action=='bounty':cost=int(math.ceil(self.wanted*28))
+  if index<0 or index>=len(goods):return
+  label,_base,action=goods[index]
+  stock=self.shop_inventory()
+  if not stock or stock[index]<=0:
+   self.notify('Sold out today. Stock returns tomorrow.',3);return
+  cost=self.shop_cost(index)
   if self.money<cost:self.notify('Not enough money for '+label+'.');return
   if action=='heal' and self.hp>=100:self.notify('Already at full health.');return
   if action=='bounty' and self.wanted<=0:self.notify('No bounty to pay.');return
   self.money-=cost
+  stock[index]-=1;self.work_expenses+=cost
   if action=='bounty':self.change_honor(2,'Settled a debt with the law')
   if action=='ammo':self.reserve+=30
   elif action=='tonic':self.tonics+=1
   elif action=='supplies':self.hp=min(100,self.hp+15)
   elif action=='meal':self.hp=min(100,self.hp+35)
-  elif action=='coffee':self.clock=(self.clock+2)%24;self.update_npc_schedules()
+  elif action=='coffee':self.advance_clock(2);self.update_npc_schedules()
   elif action=='heal':self.hp=100
   elif action=='horse':self.horse_hp=100
-  elif action=='sleep':self.clock=(self.clock+8)%24;self.hp=min(100,self.hp+25);self.update_npc_schedules()
+  elif action=='sleep':self.advance_clock(8);self.hp=min(100,self.hp+25);self.update_npc_schedules()
   elif action=='bounty':self.wanted=0;self.law_timer=0;self.law_status='PEACE';self.witness_timer=0
   self.notify('Purchased '+label+f' for ${cost}.',3)
-  self.save()
+  self.audio.cue('purchase');self.save()
 
  def change_honor(self,amount,reason=''):
   before=self.honor
@@ -1222,12 +1227,14 @@ class Game:
   kind=INTERIOR_TYPES.get(self.interior,'home')
   goods=SHOP_GOODS.get(kind,[])
   self.panel(205,128,550,350,'#211d1a','#d4a76a')
-  self.draw_text(480,147,'TRADING COUNTER',23,'#ffe0a9',True,anchor='center')
+  self.draw_text(480,147,'TRADING COUNTER  •  DAY '+str(self.economy_day+1),20,'#ffe0a9',True,anchor='center')
   self.draw_text(232,191,f'YOUR MONEY: ${self.money}',14,'#f0c994',True)
-  for i,(name,price,action) in enumerate(goods):
-   if action=='bounty':price=int(math.ceil(self.wanted*28))
-   self.draw_text(232,239+i*53,f'{i+1}   {name}',15,'#f7e1c2')
-   self.draw_text(700,239+i*53,f'${price}',15,'#d6ac76',True,anchor='e')
+  stock=self.shop_inventory()
+  for i,(name,_base,action) in enumerate(goods):
+   price=self.shop_cost(i)
+   count=stock[i] if i<len(stock) else 0
+   self.draw_text(232,239+i*53,f'{i+1}   {name}   [{count} left]',13,'#f7e1c2' if count else '#997e6e')
+   self.draw_text(700,239+i*53,f'${price}' if count else 'SOLD OUT',13,'#d6ac76',True,anchor='e')
   self.draw_text(480,445,'PRESS NUMBER TO BUY    •    B / ESC TO CLOSE',12,'#f0d2a6',True,anchor='center')
 
  def toggle_horse(self):
@@ -1278,7 +1285,7 @@ class Game:
   self.root.after(FPS,self.loop)
 
  def update(self,dt):
-  self.frame+=1;self.clock=(self.clock+dt*.032)%24
+  self.frame+=1;self.advance_clock(dt*.032)
   self.safe_timer=max(0.,self.safe_timer-dt)
   self.deadeye_regen_delay=max(0,self.deadeye_regen_delay-dt)
   if self.deadeye_active:
