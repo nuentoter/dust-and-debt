@@ -8,6 +8,7 @@ import os, math, random, json, time, textwrap, sys, shutil
 from dataclasses import dataclass
 from working_frontier import work_offer, shop_prices, daily_stock
 from audio_system import AudioDirector
+import deadwood_pulp as pulp
 from road_events import (EVENT_TYPES,EVENT_TITLES,offer_for_day,nearby_station,
                         dispatch_rumor,safe_event_position,nearest_landmark)
 from frontier_world import (WORLD_WIDTH,WORLD_HEIGHT,SECTOR_W,SECTOR_H,SECTOR_NAMES,
@@ -1750,8 +1751,7 @@ class Game:
   if shadow:self.canvas.create_text(x+1,y+2,text=s,fill='#211912',font=font,anchor=anchor,width=width)
   self.canvas.create_text(x,y,text=s,fill=color,font=font,anchor=anchor,width=width)
  def panel(self,x,y,w,h,fill='#221c18',edge='#b68b54'):
-  self.canvas.create_rectangle(x+3,y+4,x+w+3,y+h+4,fill='#140f0d',outline='')
-  self.canvas.create_rectangle(x,y,x+w,y+h,fill=fill,outline=edge,width=2)
+  pulp.panel(self.canvas,x,y,w,h,fill,edge)
  def pos(self,x,y):return int(x-self.camx),int(y-self.camy)
  def draw_actor(self,a):
   sx,sy=self.pos(a.x,a.y)
@@ -1775,18 +1775,11 @@ class Game:
    return
   villain=a.kind in ('bandit','deputy','bounty_target') or a.kind.startswith('mission_')
   clothes=('#3e4b59' if a.kind=='deputy' else '#694332') if villain else {'station_agent':'#596c60','escort':'#9a7a5a','law_patrol':'#3f5361','sheriff':'#384a4f','saloon':'#973f50','store':'#747143','doctor':'#e0d0a4','stable':'#55644a','station':'#526783'}.get(a.kind,'#73654f')
-  # Lower shadow, boots, poncho, head and hat: tiny expressive pixel figure.
-  self.canvas.create_oval(sx-13,sy+8,sx+15,sy+15,fill='#6d563f',outline='')
-  self.canvas.create_rectangle(sx-9,sy+4,sx-2,sy+13,fill='#312c2a',outline='')
-  self.canvas.create_rectangle(sx+2,sy+4,sx+9,sy+13,fill='#312c2a',outline='')
-  self.canvas.create_rectangle(sx-11,sy-10,sx+11,sy+8,fill=clothes,outline='#362f2c',width=2)
-  self.canvas.create_oval(sx-7,sy-21,sx+7,sy-5,fill='#c9956d',outline='#5b3c2a')
-  hat='#342824' if villain else '#684732'
-  self.canvas.create_rectangle(sx-9,sy-24,sx+9,sy-14,fill=hat,outline='')
-  self.canvas.create_rectangle(sx-15,sy-17,sx+15,sy-13,fill=hat,outline='')
+  pulp.person(self.canvas,sx,sy,clothes,
+              '#342824' if villain else '#684732',
+              sheriff=a.kind in ('sheriff','law_patrol'))
   if a.name=='Crow':
-   self.canvas.create_rectangle(sx-11,sy-12,sx+11,sy+7,fill='#341e21',outline='#b44538',width=2)
-  if a.kind in ('sheriff','law_patrol'):self.canvas.create_polygon(sx,sy-3,sx+5,sy,sx+2,sy+5,sx-2,sy+5,sx-5,sy,fill='#ecc46b')
+   self.canvas.create_rectangle(sx-11,sy-10,sx+11,sy+8,outline='#b44538',width=2)
   if villain and a.hp<a.maxhp:
    self.canvas.create_rectangle(sx-16,sy-34,sx+16,sy-30,fill='#3d201c',outline='')
    self.canvas.create_rectangle(sx-16,sy-34,sx-16+32*max(0,a.hp)/a.maxhp,sy-30,fill='#b84f40',outline='')
@@ -1807,28 +1800,15 @@ class Game:
    hx,hy=self.pos(self.horse_x,self.horse_y)
    if -60<hx<VW+60 and -60<hy<VH+60:self.draw_horse(hx,hy)
   else:self.draw_horse(sx,sy+9)
-  self.canvas.create_oval(sx-12,sy+8,sx+14,sy+16,fill='#836845',outline='')
-  offset=-7 if self.mounted else 0
-  self.canvas.create_rectangle(sx-9,sy-7+offset,sx+9,sy+10+offset,fill='#344e50',outline='#1c292b',width=2)
-  self.canvas.create_rectangle(sx-10,sy+3+offset,sx+10,sy+7+offset,fill='#95673a',outline='')
-  self.canvas.create_oval(sx-7,sy-20+offset,sx+7,sy-5+offset,fill='#d3a27a',outline='#533b2a')
-  self.canvas.create_rectangle(sx-9,sy-24+offset,sx+9,sy-14+offset,fill='#5d3e2c',outline='')
-  self.canvas.create_rectangle(sx-17,sy-17+offset,sx+17,sy-13+offset,fill='#5d3e2c',outline='')
-  dx,dy=self.facing
-  self.canvas.create_line(sx+dx*6,sy+dy*6+offset,sx+dx*25,sy+dy*25+offset,fill='#3a3530',width=7)
-  self.canvas.create_line(sx+dx*9,sy+dy*9+offset,sx+dx*25,sy+dy*25+offset,fill='#beb4a2',width=3)
+  pulp.person(self.canvas,sx,sy,'#344e50','#5d3e2c',
+              facing=self.facing,mounted=self.mounted)
   if self.bounty_state()=='carried' or self.field_status()=='carried':
    cx,cy=sx+18,sy+(5 if self.mounted else 12)
    self.canvas.create_oval(cx-9,cy-9,cx+10,cy+9,fill='#6b4e3d',outline='#e6c88e',width=3)
    self.canvas.create_line(cx-9,cy-3,cx+8,cy+6,fill='#e6c88e',width=3)
   if self.invuln>0:self.canvas.create_oval(sx-23,sy-30,sx+23,sy+20,outline='#eead90',width=2)
  def draw_horse(self,sx,sy):
-  self.canvas.create_oval(sx-19,sy-18,sx+22,sy+24,fill='#5b3d2d',outline='#31291f',width=2)
-  self.canvas.create_oval(sx-12,sy-24,sx+11,sy-4,fill='#7b5338',outline='#34271f',width=2)
-  for x in (-12,11):
-   self.canvas.create_rectangle(sx+x-3,sy+15,sx+x+4,sy+29,fill='#493128',outline='')
-  self.canvas.create_rectangle(sx-12,sy-1,sx+13,sy+9,fill='#372b29',outline='#b59260')
-  self.canvas.create_line(sx-4,sy+18,sx-18,sy+35,fill='#342823',width=3)
+  pulp.horse(self.canvas,sx,sy)
 
  def terrain_patch(self,tx,ty):
   value=(tx*73856093 ^ ty*19349663 ^ 0xA53B7C19)&0xffffffff
