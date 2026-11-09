@@ -1,10 +1,13 @@
-"""Audio event router for future Dust & Debt music and sound effects.
+"""Optional lightweight audio playback for Dust & Debt.
 
-The core game publishes semantic cues here without depending on any playback
-library. Currently a gated Tk system-bell fallback is available. This module
-does NOT decode or play audio samples and does not promise a soundtrack.
+Sound routing is decoupled from Tkinter. Without a media player, game remains
+functional and uses the opt-in system bell. With ffplay (or mpv), small original
+WAV cues and atmospheric loops are generated lazily with the standard library.
+A supplied theme file at assets/audio/music/title.m4a takes precedence, but is
+not bundled. Volume levels apply to newly started streams.
 """
-import time
+import os,shutil,subprocess,time
+from audio_assets import ensure_wav
 
 CUES = frozenset((
     "gunshot", "reload", "lasso", "hogtie", "bounty_complete",
@@ -14,47 +17,134 @@ CUES = frozenset((
 MUSIC_STATES = frozenset(("title", "town", "wilderness", "combat", "interior", "night", "silence"))
 
 class AudioDirector:
-    def __init__(self, bell=None, clock=None):
-        self.bell = bell
-        self.clock = clock or time.monotonic
-        self.enabled = False
-        self.music_enabled = False
-        self.master_volume = 0.7
-        self.music_volume = 0.55
-        self.effects_volume = 0.8
-        self.music_state = "silence"
-        self.last_event = None
-        self.last_bell = -1e9
-        self.backend = "bell" if bell else "none"
+    def __init__(self, bell=None, clock=None, assets_path=None, cache_path=None):
+        self.bell=bell
+        self.clock=clock or time.monotonic
+        self.assets_path=assets_path
+        self.cache_path=cache_path or os.path.join(os.path.expanduser("~"),".cache","dust-and-debt","audio")
+        self.player=(shutil.which("ffplay") or shutil.which("mpv")) if assets_path else None
+        self.backend=("ffplay" if self.player and os.path.basename(self.player)=="ffplay" else
+                      "mpv" if self.player else "bell" if bell else "none")
+        self.enabled=False
+        self.music_enabled=False
+        self.master_volume=.7
+        self.music_volume=.55
+        self.effects_volume=.8
+        self.music_state="silence"
+        self.last_event=None
+        self.last_bell=-1e9
+        self.music_process=None
+        self.effects=[]
 
-    def cue(self, event):
+    def _run(self,file,volume,loop=False):
+        if not self.player or not file:return None
+        value=int(100*max(0.,min(1.,volume)))
+        if value<=0:return None
+        if self.backend=="ffplay":
+            args=[self.player,"-nodisp","-loglevel","quiet","-nostats",
+                  "-volume",str(value)]
+            if loop:args+=["-stream_loop","-1"]
+            args+=["-autoexit",file]
+        else:
+            args=[self.player,"--no-config","--no-video","--really-quiet",
+                  "--volume="+str(value)]
+            if loop:args+=["--loop-file=inf"]
+            args.append(file)
+        try:
+            return subprocess.Popen(args,stdin=subprocess.DEVNULL,
+                                    stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,
+                                    start_new_session=True)
+        except (OSError,ValueError):
+            return None
+
+    def cue(self,event):
         if event not in CUES:return False
         self.last_event=event
-        if not self.enabled or not self.bell:return False
+        if not self.enabled:return False
         now=self.clock()
-        if now-self.last_bell<.35:return False
+        if now-self.last_bell<.14:return False
         self.last_bell=now
+        if self.player:
+            self.effects=[p for p in self.effects if p.poll() is None]
+            if len(self.effects)<4:
+                try:
+                    file=self._effect_file(event)
+                    proc=self._run(file,self.master_volume*self.effects_volume)
+                    if proc:
+                        self.effects.append(proc)
+                        return True
+                except (OSError,ValueError):pass
+        if not self.bell:return False
+        if now-getattr(self,"last_fallback_bell",-1e9)<.35:return False
+        self.last_fallback_bell=now
         try:self.bell()
         except Exception:return False
         return True
 
-    def set_music_state(self, state):
+    def _effect_file(self,event):
+        if not self.assets_path:return None
+        folder=os.path.join(self.assets_path,"sfx")
+        for ext in (".wav",".ogg",".mp3"):
+            path=os.path.join(folder,event+ext)
+            if os.path.isfile(path):return path
+        return ensure_wav(self.cache_path,"sfx",event)
+
+    def _music_file(self,state):
+        if not self.assets_path or state=="silence":return None
+        folder=os.path.join(self.assets_path,"music")
+        for ext in (".ogg",".m4a",".mp3",".wav"):
+            path=os.path.join(folder,state+ext)
+            if os.path.isfile(path):return path
+        # Do not replace the user's intended Forsaken to This Land title theme.
+        if state=="title":return None
+        return ensure_wav(self.cache_path,"music",state)
+
+    def set_music_state(self,state):
         if state not in MUSIC_STATES:return False
         if self.music_state==state:return False
         self.music_state=state
-        # Future sample/streaming backends will implement transitions here.
+        self.refresh_music()
         return True
+
+    def set_music_enabled(self,enabled):
+        self.music_enabled=bool(enabled)
+        self.refresh_music()
+
+    def refresh_music(self):
+        self._stop_music()
+        if not self.music_enabled or not self.player or self.music_state=="silence":return
+        try:file=self._music_file(self.music_state)
+        except (OSError,ValueError):return
+        self.music_process=self._run(file,self.master_volume*self.music_volume,True)
+
+    def _stop_music(self):
+        proc=self.music_process
+        self.music_process=None
+        if proc and proc.poll() is None:
+            try:proc.terminate();proc.wait(timeout=.12)
+            except (OSError,subprocess.TimeoutExpired):
+                try:proc.kill()
+                except OSError:pass
+
+    def stop(self):
+        self._stop_music()
+        for proc in self.effects:
+            if proc.poll() is None:
+                try:proc.terminate()
+                except OSError:pass
+        self.effects=[]
 
     def settings(self):
         return {"enabled":self.enabled,"music_enabled":self.music_enabled,
                 "master_volume":self.master_volume,"music_volume":self.music_volume,
                 "effects_volume":self.effects_volume}
 
-    def configure(self, data):
+    def configure(self,data):
         if not isinstance(data,dict):return
         self.enabled=bool(data.get("enabled",self.enabled))
-        self.music_enabled=bool(data.get("music_enabled",self.music_enabled))
+        enabled=bool(data.get("music_enabled",self.music_enabled))
         for name in ("master_volume","music_volume","effects_volume"):
             try:value=float(data.get(name,getattr(self,name)))
             except (TypeError,ValueError):continue
             setattr(self,name,max(0.,min(1.,value)))
+        self.set_music_enabled(enabled)
