@@ -8,7 +8,7 @@ import os, math, random, json, time, textwrap, sys, shutil
 from dataclasses import dataclass
 from working_frontier import work_offer, shop_prices, daily_stock
 from audio_system import AudioDirector
-from natural_terrain import draw_ground,draw_landforms,landform_solid
+from natural_terrain import draw_ground,draw_landforms,landform_solid,hash32,noise
 from combat_progression import WEAPONS, DIFFICULTIES, available_weapons, normal_weapon, normal_difficulty, incoming_damage, aim_vector
 from horse_riding import step_motion, TROT_SPEED, GALLOP_SPEED
 from frontier_chapters import CHAPTERS,CHAPTER_BY_ID,node_for,available_chapter
@@ -1363,26 +1363,28 @@ class Game:
   self.law_status='WANTED' if self.wanted>=1.2 else ('INVESTIGATING' if self.wanted>0 else 'PEACE')
 
  def draw_scattered_props(self):
-  # Deterministic lightweight foreground accents; no new graphics dependencies.
-  # World base image stays unchanged for v1.2 save/map compatibility.
-  cell=104
-  left=max(0,int(self.camx//cell)-1);top=max(0,int(self.camy//cell)-1)
-  right=min(int(WW//cell),int((self.camx+VW)//cell)+1)
-  bottom=min(int(WH//cell),int((self.camy+VH)//cell)+1)
-  for gy in range(top,bottom+1):
-   for gx in range(left,right+1):
-    h=(gx*92821+gy*68917+gx*gy*103)%997
-    if h%7>2:continue
-    wx=gx*cell+20+h%55;wy=gy*cell+17+(h//7)%53
-    if self.in_town(wx,wy) or any(bx-30<wx<bx+bw+30 and by-30<wy<by+bh+30 for _,bx,by,bw,bh in BUILDINGS):continue
+  # Staggered, heavily jittered foliage and scree: no visible cell grid.
+  cell=265
+  left=int(self.camx//cell)-2;top=int(self.camy//cell)-2
+  right=int((self.camx+VW)//cell)+3;bottom=int((self.camy+VH)//cell)+3
+  for gy in range(top,bottom):
+   for gx in range(left,right):
+    h=hash32(gx+319,gy-67)
+    if h%5>=3:continue
+    wx=(gx+.5+(gy%2)*.3)*cell+(h%177)-88
+    wy=(gy+.5)*cell+((h//177)%183)-91
+    if not(0<wx<WW and 0<wy<WH):continue
+    if noise(wx,wy,1800)<.32:continue
+    if self.in_town(wx,wy) or self.is_frontier_road(wx,wy) or is_water(wx,wy):continue
+    if any(bx-45<wx<bx+bw+45 and by-45<wy<by+bh+45 for _,bx,by,bw,bh in BUILDINGS):continue
     sx,sy=self.pos(wx,wy)
-    if h%4==0:  # dry grass
-     for o in (-5,0,5):self.canvas.create_line(sx+o,sy+5,sx+o-2,sy-4-(h%5),fill='#997f4c',width=2)
-    elif h%4==1: # small stones
-     self.canvas.create_oval(sx-6,sy-2,sx+8,sy+5,fill='#8d806b',outline='#635b4b')
-    else: # sage scrub
-     self.canvas.create_oval(sx-9,sy-6,sx+9,sy+5,fill='#697052',outline='#474f3a')
-     self.canvas.create_line(sx-6,sy,sx+7,sy-3,fill='#9b976a',width=2)
+    if h%4==0:
+     for off in (-7,0,8):self.canvas.create_line(sx+off,sy+6,sx+off-3,sy-6-(h%6),fill='#9f8658',width=2)
+    elif h%4==1:
+     self.canvas.create_oval(sx-13,sy-4,sx+12,sy+6,fill='#897c67',outline='#645b50')
+    else:
+     self.canvas.create_oval(sx-17,sy-9,sx+17,sy+7,fill='#6c7654',outline='#4b5943')
+     self.canvas.create_line(sx-12,sy+2,sx+10,sy-6,fill='#9a9d70',width=2)
 
  def daily_period(self):
   hour=self.clock%24
