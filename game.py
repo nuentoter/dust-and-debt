@@ -8,6 +8,8 @@ import os, math, random, json, time, textwrap, sys, shutil
 from dataclasses import dataclass
 from working_frontier import work_offer, shop_prices, daily_stock
 from audio_system import AudioDirector
+from horse_riding import step_motion, TROT_SPEED, GALLOP_SPEED
+from frontier_chapters import CHAPTERS,CHAPTER_BY_ID,node_for,available_chapter
 import deadwood_pulp as pulp
 from road_events import (EVENT_TYPES,EVENT_TITLES,offer_for_day,nearby_station,
                         dispatch_rumor,safe_event_position,nearest_landmark)
@@ -28,7 +30,7 @@ VW,VH=960,600
 OLD_WW,OLD_WH=4800,3200
 WW,WH=WORLD_WIDTH,WORLD_HEIGHT  # Exactly 10x v2.5 world area; camera-local terrain
 FPS=33
-VERSION='2.6 — Roads & Consequences'
+VERSION='2.7 — Handcrafted Frontier'
 # Interiors are lightweight procedural rooms: no extra graphics libraries or image files.
 INTERIOR_TYPES={
  'Sheriff':'office','Sheriff Annex':'office','Saloon':'saloon','Sagebrush Saloon':'saloon',
@@ -104,7 +106,7 @@ class Actor:
 
 class Game:
  def __init__(self,root):
-  self.root=root;root.title('DUST & DEBT | Roads & Consequences v2.6')
+  self.root=root;root.title('DUST & DEBT | Handcrafted Frontier v2.7')
   root.resizable(False,False)
   self.canvas=tk.Canvas(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
@@ -137,6 +139,7 @@ class Game:
   self.stage=0;self.kills=0;self.wanted=0.;self.law_timer=0.;self.clock=8.0;self.mounted=False
   self.honor=50;self.crimes=0;self.law_status='PEACE';self.deadeye=100.;self.deadeye_active=False;self.deadeye_regen_delay=0.;self.witness_timer=0.;self.law_spawn_timer=0.;self.shot_trails=[]
   self.horse_x,self.horse_y=764.,646.;self.horse_hp=100
+  self.horse_motion={'stamina':100.,'speed':0.,'heading_x':0.,'heading_y':-1.,'exhausted':False}
   self.facing=(0.,-1.);self.shot_timer=0;self.reload_timer=0;self.invuln=0;self.hit_marker=0.;self.combat_warning=0.
   self.actors=[];self.bullets=[];self.effects=[];self.dialog=None;self.choice_dialog=None;self.dialog_from='';self.toast=[]
   self.camx=0;self.camy=0;self.map_open=False;self.journal_open=False;self.show_help=False
@@ -156,6 +159,7 @@ class Game:
   self.field_prisoner=None;self.field_arrests=0
   self.jail_roster=[];self.law_reputation=0;self.patrol_alert_timer=0.
   self.side_job=None;self.side_completed=[];self.gathered_nodes=[];self.camps_used=[]
+  self.chapter_active=None;self.chapter_completed=[];self.chapter_earnings=0
   self.visited_settlements=[];self.settlement_news_timer=0.
   self.road_contract=None;self.road_contracts_done=0;self.road_income=0
   self.road_offer_day={};self.regional_standing={};self.road_event_cooldown=65.
@@ -947,6 +951,10 @@ class Game:
    self.work_finished=int(s.get('work_finished',0))
    self.work_income=int(s.get('work_income',0))
    self.work_expenses=int(s.get('work_expenses',0))
+   self.chapter_active=s.get('chapter_active')
+   self.chapter_completed=list(s.get('chapter_completed',[]))
+   self.chapter_earnings=int(s.get('chapter_earnings',0))
+   self.horse_motion.update(s.get('horse_motion',{}))
    self.side_job=s.get('side_job')
    self.side_completed=list(s.get('side_completed',[]))
    self.gathered_nodes=list(s.get('gathered_nodes',[]))
@@ -1014,6 +1022,8 @@ class Game:
   d['economy_day']=self.economy_day;d['shop_stock']=self.shop_stock
   d['work_active']=self.work_active;d['work_records']=self.work_records
   d['work_finished']=self.work_finished;d['work_income']=self.work_income;d['work_expenses']=self.work_expenses
+  d['chapter_active']=self.chapter_active;d['chapter_completed']=self.chapter_completed
+  d['chapter_earnings']=self.chapter_earnings;d['horse_motion']=self.horse_motion
   d['side_job']=self.side_job;d['side_completed']=self.side_completed
   d['gathered_nodes']=self.gathered_nodes;d['camps_used']=self.camps_used
   d['visited_settlements']=self.visited_settlements
