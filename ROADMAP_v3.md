@@ -1,11 +1,11 @@
 # Dust & Debt — Development Roadmap: v2.4 → v3.0
 
 **Updated:** November 9, 2026  
-**Current playable source:** v2.6 — Roads & Consequences  
+**Current playable source:** v2.7 — Handcrafted Frontier  
 **Release target:** v3.0 — Living Frontier  
 **Operating model:** GitHub-first development, one milestone at a time; user pulls the current main branch when desired.
 
-**v2.4, v2.5, the 10× world map, v2.6 regional gameplay, and the New Austellia geography/transport alignment are implemented and Linux-CI tested.** Optional procedural WAV effects and background atmospheres work with ffplay/mpv. The user's actual title recording, production SFX, mixing and remaining v2.7–v3.0 features remain to be finished.
+**v2.4, v2.5, the 10× world map, v2.6 regional gameplay, the New Austellia geography, and v2.7 Handcrafted Frontier are implemented and Linux-CI tested.** Optional procedural WAV effects and background atmospheres work with ffplay/mpv. The user's actual title recording, production SFX, mixing and remaining v2.7–v3.0 features remain to be finished.
 
 ## Timeline / dependency map
 
@@ -35,8 +35,8 @@ New Austellia Atlas Alignment (GEOGRAPHY IMPLEMENTED) #17
   image packaging and art polish remain open
        │
        ▼
-v2.7 Handcrafted Frontier           #11
-  landmarks • interiors • regional quests
+v2.7 Handcrafted Frontier (IMPLEMENTED) #11
+  unique town landmarks • interiors • 2 regional stories • faster horse
        │
        ▼
 v2.8 Combat & Character Progression #12
@@ -60,7 +60,7 @@ v3.0 Living Frontier Release        #14
 | 2.6-map | Great Territory — implemented | 10× world area, earlier provisional terrain, zoomable atlas, local radar | [#16](https://github.com/nuentoter/dust-and-debt/issues/16) |
 | 2.6 | Roads and Consequences — implemented | Four rotating road contracts, escorts, varied incidents, regional reputation and optional generated audio; [soundtrack sprint still open #15](https://github.com/nuentoter/dust-and-debt/issues/15) | [#10](https://github.com/nuentoter/dust-and-debt/issues/10) |
 | 2.6-atlas | New Austellia alignment — geography implemented | 15 named illustrated regions, 30+ sites, railways, rivers, coastline and relocated frontier quests; source artwork packaging remains | [#17](https://github.com/nuentoter/dust-and-debt/issues/17) |
-| 2.7 | Handcrafted Frontier | Landmark variety, improved interiors, regional quest arcs | [#11](https://github.com/nuentoter/dust-and-debt/issues/11) |
+| 2.7 | Handcrafted Frontier — implemented | Distinct town landmarks, regional interiors, two multi-stop quests, atlas selector, 1.5× trot/2.5× gallop and stamina | [#11](https://github.com/nuentoter/dust-and-debt/issues/11) |
 | 2.8 | Combat and Character Progression | Weapon depth, enemy morale, earned upgrades, difficulty options | [#12](https://github.com/nuentoter/dust-and-debt/issues/12) |
 | 2.9 | Presentation and Reliability | Settings, polish, accessibility, profiling, current-version save reliability | [#13](https://github.com/nuentoter/dust-and-debt/issues/13) |
 | 3.0 | Living Frontier Release | Integrated testing, documentation and a verified source release | [#14](https://github.com/nuentoter/dust-and-debt/issues/14) |
@@ -69,7 +69,7 @@ v3.0 Living Frontier Release        #14
 
 **First: make arresting people matter.** Version 2.4 builds on 2.2/2.3 lasso mechanics rather than discarding them. Outlaws should have a chance to surrender when injured or outmatched; sheriffs and deputies should patrol outside the starting town; arrested criminals should visibly occupy jail cells. These changes must not introduce new story softlocks or confusing **E** versus **Shift+E** prompts.
 
-**Second: settle the physical map, then populate it.** Version 2.5 adds repeatable honest work and audio hooks; the **10× Great Territory map foundation** freezes geographic names, highways, and exploration stops in [WORLD_ATLAS.md](WORLD_ATLAS.md). Version 2.6 populates distant territory with dispatchers, jobs, escorts and incidents; v2.7 adds deeper settlements and regional questlines. Original authored title music and professionally recorded/mixed SFX are still planned in [Audio Sprint #15](https://github.com/nuentoter/dust-and-debt/issues/15); v2.6 already plays original synthesized ambient beds and effects when ffplay/mpv is available. The 60,000×40,960 Great Territory must remain camera-local and lightweight; do not solve the art problem by loading a giant full-map bitmap.
+**Second: settle the physical map, then populate it.** Version 2.5 adds repeatable honest work and audio hooks; the **10× Great Territory map foundation** freezes geographic names, highways, and exploration stops in [WORLD_ATLAS.md](WORLD_ATLAS.md). Version 2.6 populates distant territory with dispatchers, jobs, escorts and incidents; v2.7 adds distinct settlement landmarks, two regional questlines and faster horse traversal. Original authored title music and professionally recorded/mixed SFX are still planned in [Audio Sprint #15](https://github.com/nuentoter/dust-and-debt/issues/15); v2.6 already plays original synthesized ambient beds and effects when ffplay/mpv is available. The 60,000×40,960 Great Territory must remain camera-local and lightweight; do not solve the art problem by loading a giant full-map bitmap.
 
 **Third: improve the feel and finish.** Versions 2.8–3.0 focus on deeper gunfights, progression, UX, save reliability, low-spec optimization, release packaging and a substantial integration test pass.
 
@@ -90,4 +90,4 @@ Each milestone should be considered complete only after its issue checklist is s
 
 ## Next implementation
 
-**New Austellia's named geography, railways, rivers, coast, towns and gameplay settlements are now implemented** in [issue #17](https://github.com/nuentoter/dust-and-debt/issues/17); artwork binary packaging and visual polish remain open. Before creating many new region-specific quests, finish this packaging/art review. Then proceed to [v2.7 Handcrafted Frontier](https://github.com/nuentoter/dust-and-debt/issues/11). [Audio Sprint #15](https://github.com/nuentoter/dust-and-debt/issues/15) still needs actual sound troubleshooting and the intended opening theme. Build varied encounters and escorts, select an optional playback backend, and add original SFX/music when correctly licensed and tested.
+**Next: [v2.8 Combat & Character Progression](https://github.com/nuentoter/dust-and-debt/issues/12).** New Austellia geography and v2.7 story routes are implemented. Finish the remaining illustrated map packaging/art polish in [#17](https://github.com/nuentoter/dust-and-debt/issues/17), and investigate silent audio on the owner's Archcraft computer under [Audio Sprint #15](https://github.com/nuentoter/dust-and-debt/issues/15).
