@@ -40,3 +40,5 @@ jobs:
         run: xvfb-run -a python3 tests/bounty_capture_test.py
       - name: Frontier Justice field arrests
         run: xvfb-run -a python3 tests/field_arrest_test.py
+      - name: Living Law surrender patrol and jail regression
+        run: xvfb-run -a python3 tests/living_law_test.py
