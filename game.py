@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from working_frontier import work_offer, shop_prices, daily_stock
 from audio_system import AudioDirector
 from road_events import (EVENT_TYPES,EVENT_TITLES,offer_for_day,nearby_station,
-                        dispatch_rumor,safe_event_position)
+                        dispatch_rumor,safe_event_position,nearest_landmark)
 from frontier_world import (WORLD_WIDTH,WORLD_HEIGHT,SECTOR_W,SECTOR_H,SECTOR_NAMES,
  BIOME_PALETTES,BIOME_GRID,LANDMARKS,ROAD_X,ROAD_Y,START_SPUR,MAP_RECT,
  region_at,biome_at,near_landmark,landmark_by_key,road_at,map_view,
@@ -227,8 +227,11 @@ class Game:
   self.dialog=[speaker,lines,0]
  def offer_civilian_dialogue(self,a):
   # Choice replies reflect reputation and the current legal situation.
+  local_standing=self.regional_standing.get(region_at(a.x,a.y),0)
   if self.law_status=='WANTED':
    greeting='Keep your hands where I can see them, stranger.'
+  elif local_standing>=9:greeting='You have helped travelers all over this district. Folks remember.'
+  elif local_standing<=-9:greeting='Word of your crimes has reached this town. Keep your distance.'
   elif self.law_reputation>=12:greeting='The deputies say you have brought real outlaws to justice.'
   elif self.honor>=75:greeting='Word is you have been helping folks around here.'
   elif self.honor<30:greeting='You have made a name for yourself, and not a good one.'
@@ -673,7 +676,11 @@ class Game:
 
  def regional_rumor(self):
   text=dispatch_rumor(self.x,self.y,self.economy_day)
-  self.notify('ROAD RUMOR: '+text,5)
+  site=nearest_landmark(self.x,self.y)
+  if site and not (self.road_contract or self.work_active or self.side_job):
+   self.waypoint=[site[2],site[3]]
+   self.notify('RUMOR: '+site[1]+' marked on map. '+text,6)
+  else:self.notify('ROAD RUMOR: '+text,5)
   return text
 
  def offer_frontier_job(self,guide):
