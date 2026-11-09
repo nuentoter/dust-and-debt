@@ -1282,7 +1282,13 @@ class Game:
   dx=target[0]-a.x;dy=target[1]-a.y
   norm=math.hypot(dx,dy)
   if norm<21:a.route_index=(index+1)%len(route);return
+  before=(a.x,a.y)
   self.move_actor(a,dx/norm*a.speed*dt,dy/norm*a.speed*dt)
+  if math.hypot(a.x-before[0],a.y-before[1])<.01:
+   a.stuck_time=getattr(a,'stuck_time',0.)+dt
+   if a.stuck_time>2.5:
+    a.route_index=(index+1)%len(route);a.stuck_time=0.
+  else:a.stuck_time=0.
 
  def update_ai(self,dt):
   for a in self.actors:
@@ -1295,6 +1301,7 @@ class Game:
    if dist>1200:continue
    a.shoot=max(0,a.shoot-dt);a.wander-=dt
    if a.kind=='law_patrol':self.update_patrol(a,dt);continue
+   if a.kind in ('bandit','bounty_target') and dist<370 and self.check_surrender(a):continue
    ishostile=a.kind in ('bandit','deputy','bounty_target') or a.kind.startswith('mission_')
    if a.kind=='civilian':
     if (self.law_status=='WANTED' or (self.witness_timer>0 and dist<310)) and dist<280:dx,dy=a.x-self.x,a.y-self.y
