@@ -36,7 +36,13 @@ def main():
   g.interact()
   assert g.field_arrests==1 and g.money==balance+24
   assert g.jail_roster[-1]['case']=='field arrest' and g.law_reputation>=2
-  g.interior='Sheriff';g.show_jail=True;g.render()
+  g.interior='Sheriff';g.show_jail=False
+  event=type('Event',(),{'keysym':'k'})()
+  g.key_down(event);g.key_up(event)
+  assert g.show_jail
+  g.render()
+  g.key_down(event);g.key_up(event)
+  assert not g.show_jail
   assert g.jail_roster[-1]['name']=='Drifter'
   assert g.save(manual=True)
   restored=game.Game(root);restored.continue_game();restored.dialog=None
@@ -73,6 +79,16 @@ def main():
   starter.x,starter.y=bell.x,bell.y
   starter.interact()
   assert starter.stage==1 and starter.dialog is not None
+  # Outnumbered bandits surrender without a gunshot when two patrollers arrive.
+  surrounded=game.Game(root);surrounded.new_game();surrounded.dialog=None
+  fugitive=game.Actor(2130,865,'bandit','Drifter',70,70,75)
+  surrounded.actors.append(fugitive)
+  guards=[a for a in surrounded.actors if a.kind=='law_patrol'][:2]
+  guards[0].x,guards[0].y=2130,815
+  guards[1].x,guards[1].y=2190,865
+  surrounded.x,surrounded.y=2110,895
+  surrounded.update_ai(.05)
+  assert fugitive.kind=='field_prisoner' and surrounded.field_status()=='surrendered'
   root.destroy()
  print('OK: patrol routes, surrender, hogtie, jail intake, persistence, named bounty, original story')
 if __name__=='__main__':main()
