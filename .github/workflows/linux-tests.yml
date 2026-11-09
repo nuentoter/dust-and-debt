@@ -44,3 +44,5 @@ jobs:
         run: xvfb-run -a python3 tests/living_law_test.py
       - name: Working Frontier economy and future audio regression
         run: xvfb-run -a python3 tests/working_frontier_test.py
+      - name: Great Territory 10x map and long-distance regression
+        run: xvfb-run -a python3 tests/great_territory_test.py
