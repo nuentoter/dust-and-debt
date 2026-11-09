@@ -957,7 +957,9 @@ class Game:
    return
   if key=='escape' and self.work_ledger_open:self.work_ledger_open=False;return
   if key=='escape':self.screen='playing' if self.screen=='paused' else 'paused';self.deadeye_active=False;return
-  if self.screen=='paused':return
+  if self.screen=='paused':
+   if key=='f1':self.show_help=not self.show_help
+   return
   if self.map_open and key in ('z','up','down','left','right','w','a','s','d','escape','tab','return'):
    if key=='z':self.map_zoom=not self.map_zoom;self.map_center=[self.x,self.y]
    elif key=='escape':self.map_open=False
@@ -2176,6 +2178,7 @@ class Game:
    self.draw_text(572,558,f'PIN {int(math.hypot(dx,dy))} m / {self.cardinal(math.atan2(dy,dx))}',11,'#f6d68d',True)
   for i,(s,t) in enumerate(self.toast[-3:]):
    self.draw_text(480,114+i*23,s,13,'#ffe7a8',True,anchor='center')
+  if not self.context_hints:return
   nearest=None;dist=65
   for a in self.actors:
    if a.dead or a.kind.startswith('mission_') or a.kind in ('bandit','deputy','law_patrol','animal','bounty_target'):continue
@@ -2534,6 +2537,7 @@ class Game:
    self.draw_interior()
    if self.shop_open:self.draw_shop()
    if self.show_help:self.draw_help()
+   if self.settings_open:self.draw_settings()
    self.draw_dialog()
    self.draw_choice_dialogue()
    return
