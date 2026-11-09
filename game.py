@@ -8,6 +8,7 @@ import os, math, random, json, time, textwrap, sys, shutil
 from dataclasses import dataclass
 from working_frontier import work_offer, shop_prices, daily_stock
 from audio_system import AudioDirector
+from natural_terrain import draw_ground,draw_landforms,landform_solid
 from combat_progression import WEAPONS, DIFFICULTIES, available_weapons, normal_weapon, normal_difficulty, incoming_damage, aim_vector
 from horse_riding import step_motion, TROT_SPEED, GALLOP_SPEED
 from frontier_chapters import CHAPTERS,CHAPTER_BY_ID,node_for,available_chapter
@@ -231,6 +232,7 @@ class Game:
  def solid(self,x,y,r=11):
   if x<23 or y<23 or x>WW-23 or y>WH-23:return True
   if is_water(x,y):return True
+  if landform_solid(x,y,r):return True
   for n,bx,by,bw,bh in BUILDINGS:
    if bx-r<x<bx+bw+r and by-r<y<by+bh+r:return True
   obstacle=self.terrain_obstacle(x,y)
@@ -1935,87 +1937,19 @@ class Game:
   return road_at(x,y)
 
  def terrain_obstacle(self,x,y):
-  # Consistent cover objects on procedural terrain; roads remain passable.
-  if x<OLD_WW and y<OLD_WH:return None
-  if nearby_settlement(x,y,520) or near_waystation(x,y,190) or near_atlas_town(x,y,390):return None
-  tile=112;tx=int(x//tile);ty=int(y//tile)
-  for cy in range(ty-1,ty+2):
-   for cx in range(tx-1,tx+2):
-    if cx<0 or cy<0:continue
-    h=self.terrain_patch(cx,cy)
-    if h%11 not in (0,1):continue
-    ox=cx*tile+30+(h//11)%48;oy=cy*tile+30+(h//73)%45
-    if self.is_frontier_road(ox,oy):continue
-    radius=14 if h%11==0 else 10
-    if abs(x-ox)<radius+25 and abs(y-oy)<radius+25:return (ox,oy,radius)
+  # Collision for new natural cover is handled by landform_solid in solid().
   return None
 
  def draw_far_terrain(self):
-  # Only screen-visible terrain cells are rendered, so RAM stays nearly constant.
-  c=self.canvas;c.create_rectangle(0,0,VW,VH,fill='#9d895e',outline='')
-  tile=112
-  ix0=max(0,int(self.camx//tile)-1);iy0=max(0,int(self.camy//tile)-1)
-  ix1=min(int(WW//tile)+1,int((self.camx+VW)//tile)+2)
-  iy1=min(int(WH//tile)+1,int((self.camy+VH)//tile)+2)
-  for yy in range(iy0,iy1):
-   for xx in range(ix0,ix1):
-    cx=xx*tile;cy=yy*tile
-    if cx+tile<=OLD_WW and cy+tile<=OLD_WH:continue
-    h=self.terrain_patch(xx,yy)
-    biome=biome_at(cx+tile/2,cy+tile/2)
-    palette=BIOME_PALETTES[biome]
-    px=cx-self.camx;py=cy-self.camy
-    c.create_rectangle(px,py,px+tile+1,py+tile+1,fill=palette[h%len(palette)],outline='')
-    # Regional dressings distinguish forest, mesas, salt, water and desert.
-    if biome=='lake' and h%4==0:
-     c.create_oval(px+13,py+28,px+94,py+76,fill='#739e9e',outline='#9fbdb3',width=2)
-    elif biome=='forest' and h%3==0:
-     c.create_polygon(px+46,py+72,px+63,py+5,px+82,py+72,fill='#526f55',outline='#465b45')
-     c.create_line(px+63,py+61,px+63,py+88,fill='#5b4c39',width=5)
-    elif biome in ('canyon','mesa','mountain') and h%4==0:
-     c.create_polygon(px+8,py+91,px+26,py+48,px+67,py+44,px+95,py+90,
-                      fill='#946959' if biome!='mountain' else '#7e7975',outline='')
-    elif biome=='salt' and h%4==0:
-     c.create_line(px+8,py+40,px+39,py+31,px+67,py+53,px+96,py+35,fill='#f0e3c9',width=3)
-    if h%4==0:
-     c.create_line(px+9,py+35,px+40,py+28,px+64,py+39,fill='#8d7657',width=3,smooth=True)
-    if h%5==0:
-     for gx in (20,27,35):
-      c.create_line(px+gx,py+86,px+gx-4,py+75-(h%5),fill='#6b704b',width=2)
-    if h%6==0:
-     c.create_oval(px+74,py+21,px+93,py+29,fill='#bda479',outline='#8e7554')
-    # Prop layer: cover objects match terrain collision.
-    if h%11 in (0,1) and not is_water(cx+tile/2,cy+tile/2):
-     ox=cx+30+(h//11)%48;oy=cy+30+(h//73)%45
-     if not self.is_frontier_road(ox,oy):
-      rx=ox-self.camx;ry=oy-self.camy
-      if h%11==0:
-       c.create_polygon(rx-17,ry+12,rx-12,ry-7,rx+1,ry-17,rx+16,ry+8,fill='#746e60',outline='#4d4d45',width=2)
-       c.create_polygon(rx-10,ry-4,rx+2,ry-12,rx+8,ry+1,fill='#a39a7c',outline='')
-      elif biome in ('forest','grass','mountain','lake','prairie'):
-       c.create_line(rx,ry+12,rx,ry-12,fill='#5f5444',width=6)
-       c.create_polygon(rx-18,ry+2,rx,ry-31,rx+19,ry+2,fill='#4e7354',outline='#3d5844',width=2)
-       c.create_polygon(rx-13,ry-10,rx,ry-35,rx+14,ry-10,fill='#668a5c',outline='')
-      else:
-       c.create_line(rx,ry+10,rx,ry-20,fill='#496549',width=7)
-       c.create_line(rx,ry-8,rx-11,ry-8,rx-11,ry-17,fill='#496549',width=5)
-       c.create_line(rx,ry-2,rx+12,ry-2,rx+12,ry-12,fill='#496549',width=5)
+  # Organic, deterministic landforms replace the old square terrain tile grid.
+  c=self.canvas
+  draw_ground(c,self.camx,self.camy,VW,VH)
+  draw_landforms(c,self.camx,self.camy,VW,VH)
   # The starting region connects to the first new trade-route crossroads.
   (x1,y1),(x2,y2)=START_SPUR
   if self.camx-80<x2 and self.camy-80<y2 and self.camx+VW+80>x1 and self.camy+VH+80>y1:
    c.create_line(x1-self.camx,y1-self.camy,x2-self.camx,y2-self.camy,fill='#b9a276',width=38)
    c.create_line(x1-self.camx,y1-self.camy,x2-self.camx,y2-self.camy,fill='#d3b789',width=2,dash=(12,16))
-  # Legacy crossroads survive only in the original six-town province.
-  if self.camx<17000 and self.camy<10300:
-   for gx in ROAD_X:
-    if gx>17000:break
-    sx=gx-self.camx
-    if -70<sx<VW+70:
-     c.create_rectangle(sx-17,0,sx+17,VH,fill='#b9a276',outline='')
-   for gy in ROAD_Y:
-    if gy>10300:break
-    sy=gy-self.camy
-    if -70<sy<VH+70:c.create_rectangle(0,sy-18,VW,sy+18,fill='#b9a276',outline='')
 
  def draw_expansion_markers(self):
   # Camera-local sprites for gatherable items, campfires, and side-job clues.
