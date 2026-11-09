@@ -1,3 +1,22 @@
+## v2.6 Roads and Consequences — regional activities and optional real audio (November 2026)
+
+The Great Territory now has interactive activity beyond the original map:
+
+- **13 named waystation dispatch agents** with region-specific rumors, and **roaming bandit pairs** scattered through the distant sectors.
+- **Four rotating road jobs:** **Safe Passage** (escort a passenger to another station), **The Sealed Letter** (courier delivery), **The Missing Freight** (recover lost cargo at a landmark and bring it back), and **Trail Survey** (inspect a landmark, then report back).
+- **Press N** at a named waystation to accept/turn in road assignments, **U** to hear the latest local rumor. Go to the **green square** on the map; press **E on foot** at your destination or landmark. Escort passengers follow you and can fall behind; if you abandon them too long, the job fails. Road jobs earn approximately **$38–$130** and raise local reputation. One job per station per game day.
+- Random road incidents now include stranded travelers, broken wagons to help repair, forgotten crates with ammunition, and occasional hostile ambushes. In populated settlements and safe waystations, roadside bandits are suppressed.
+- Regional standing improves when helping towns and falls when committing crimes. **I** shows road earnings, completed jobs and local standing; ongoing assignments and passengers persist through save/reload. The 60,000 × 40,960 world stays camera-rendered.
+
+### New optional sound and atmosphere
+
+- **V** turns on sound effects; **O** turns on atmospheric music (both off by default). **ffplay** or **mpv** is required for audio playback; if unavailable, optional sound effects use a Tk bell fallback and music stays silent. No Python pip dependencies were added.
+- **Original synthesized WAV effects and five background atmospheres** are generated on demand in the local cache by `audio_assets.py`; real music or recorded sound files placed in `assets/audio/` override them.
+- The intended main title composition **“Forsaken to This Land”** is *not bundled in the repository yet*. To play the authorized original recording at the title screen, put it at `assets/audio/music/title.m4a` (or `title.ogg`). Enable **O** on the title screen. The game does **not** reproduce or replace it with an imitation.
+- The audio system stops old loops when scenes change and shuts down child players on exit. This is functional audio groundwork, not yet a professionally mixed soundtrack with recorded footsteps or crossfades.
+
+See [assets/audio/README.md](assets/audio/README.md) for full instructions. The [Audio Sprint #15](https://github.com/nuentoter/dust-and-debt/issues/15) remains open for production-quality recordings, mixing, title-theme integration and accessibility controls. The regression suite includes `tests/roads_audio_test.py`.
+
 ## The Great Territory — 10× world map foundation (November 2026)
 
 The playable territory is now **60,000 × 40,960 world units**, exactly **10 times the area** of the previous 19,200 × 12,800 map. Its existing towns, missions, buildings, and six newer settlements remain at their original coordinates. The surrounding terrain extends through **24 named geographic regions** with a variety of deserts, forests, grasslands, canyons, salt flats, mountains, mesas, and lake country. **22 discoverable wilderness landmarks** and **13 protected rest waystations** add fixed places to explore in the new territory.
@@ -15,7 +34,7 @@ See [WORLD_ATLAS.md](WORLD_ATLAS.md) for region geography, named landmark and wa
 
 ## Development roadmap: v2.4–v3.0
 
-The post-v2.3 plan is tracked in [ROADMAP_v3.md](ROADMAP_v3.md). **v2.4 Living Law, v2.5 Working Frontier and the 10× Great Territory map foundation are implemented.** Full v2.6 road encounters and actual sound/music remain planned; see [v2.6 Roads and Consequences](https://github.com/nuentoter/dust-and-debt/issues/10) and the [audio sprint](https://github.com/nuentoter/dust-and-debt/issues/15). Save-format compatibility between development milestones is no longer guaranteed, at the owner's request; make a backup before upgrading if progress matters.
+The post-v2.3 plan is tracked in [ROADMAP_v3.md](ROADMAP_v3.md). **v2.4 Living Law, v2.5 Working Frontier and the 10× Great Territory map foundation are implemented.** **v2.6 Roads and Consequences is implemented**, with real optional synthesized audio playback. The production soundtrack, recorded SFX, and full v2.7–v3.0 milestones remain planned; see the [Audio Sprint](https://github.com/nuentoter/dust-and-debt/issues/15). Save-format compatibility between development milestones is no longer guaranteed, at the owner's request; make a backup before upgrading if progress matters.
 
 # DUST & DEBT
 ### A complete, original top-down Western adventure for Linux
