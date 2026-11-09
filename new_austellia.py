@@ -116,6 +116,44 @@ ROADS_SRC=(
 )
 ROADS=tuple(path(p) for p in ROADS_SRC)
 
+def _crossing(a,b,c,d):
+ """Intersection of two finite line segments; return the crossing and road heading."""
+ ux,uy=b[0]-a[0],b[1]-a[1]
+ vx,vy=d[0]-c[0],d[1]-c[1]
+ determinant=ux*vy-uy*vx
+ if abs(determinant)<1e-7:return None
+ wx,wy=c[0]-a[0],c[1]-a[1]
+ t=(wx*vy-wy*vx)/determinant
+ u=(wx*uy-wy*ux)/determinant
+ if not(0<=t<=1 and 0<=u<=1):return None
+ length=math.hypot(ux,uy)
+ return (a[0]+t*ux,a[1]+t*uy,ux/length,uy/length) if length else None
+
+def build_bridges():
+ """Find real road/rail/water intersections, not arbitrary walkable water strips."""
+ crossings=[]
+ for water_name,water,width in WATERWAYS:
+  for route_type,routes in (('rail',RAILS),('road',ROADS)):
+   for route in routes:
+    for a,b in zip(route,route[1:]):
+     for c,d in zip(water,water[1:]):
+      hit=_crossing(a,b,c,d)
+      if hit and not any(math.hypot(hit[0]-p[0],hit[1]-p[1])<180
+                         for p in crossings):
+       crossings.append((*hit,water_name,route_type,width))
+ return tuple(crossings)
+
+BRIDGES=build_bridges()
+
+def bridge_at(x,y,margin=8):
+ """Only the actual bridge deck across a river is passable."""
+ for bx,by,dx,dy,name,kind,width in BRIDGES:
+  along=(x-bx)*dx+(y-by)*dy
+  across=abs(-(x-bx)*dy+(y-by)*dx)
+  if abs(along)<width+120 and across<74+margin:return True
+ return False
+
+
 def place(key):
  return TOWN_BY_ID.get(key)
 
@@ -164,15 +202,20 @@ def coastal_water(x,y):
  return False
 
 def ford_at(x,y):
- # Caravans cross mapped waterways at roads/railroad bridge positions.
- return travel_road(x,y)
+ # Bridge decks are restricted to actual line intersections.
+ return bridge_at(x,y)
 
 def is_water(x,y):
- if x<4800 and y<3200:return False  # old authored Cinder Creek parcel
- # Settlement platforms and station approaches are raised above floodwater.
+ if x<4800 and y<3200:return False  # inherited Cinder Creek parcel
+ # Cheap water test comes first: most world positions are dry.
+ coast=coastal_water(x,y)
+ lake=lake_at(x,y)
+ river=river_at(x,y)
+ if not(coast or lake or river):return False
  if near_atlas_town(x,y,230) is not None:return False
- if ford_at(x,y):return False
- return coastal_water(x,y) or bool(lake_at(x,y)) or bool(river_at(x,y))
+ # Bridges can cross rivers, but no invisible roads across open Gulf water.
+ if river and not coast and not lake and bridge_at(x,y):return False
+ return True
 
 SETTLEMENT_KINDS=frozenset(('city','town','port','post','settlement','fort','ranch','mine','camp','ruin','tower'))
 def near_atlas_town(x,y,radius=420):
@@ -213,6 +256,27 @@ def draw_local_geography(canvas,camx,camy,width,height):
    x1,y1=xy(a);x2,y2=xy(b)
    canvas.create_line(x1,y1,x2,y2,width=25,fill="#745c48")
    canvas.create_line(x1,y1,x2,y2,width=4,fill="#3e3430",dash=(8,10))
+ # Distinct planked bridges with rails and timber ties, at true intersections.
+ for bx,by,dx,dy,river,kind,water_width in BRIDGES:
+  if not(camx-450<bx<camx+width+450 and camy-450<by<camy+height+450):continue
+  half=water_width+105
+  cx,cy=bx-camx,by-camy
+  ax,ay=cx-dx*half,cy-dy*half
+  ex,ey=cx+dx*half,cy+dy*half
+  canvas.create_line(ax,ay,ex,ey,fill='#594b39',width=122)
+  canvas.create_line(ax,ay,ex,ey,fill='#bb9d70',width=106)
+  nx,ny=-dy,dx
+  for side in (-1,1):
+   canvas.create_line(ax+nx*side*63,ay+ny*side*63,
+                      ex+nx*side*63,ey+ny*side*63,fill='#6a4b33',width=7)
+  for offset in range(-int(half)+12,int(half),28):
+   px,py=cx+dx*offset,cy+dy*offset
+   canvas.create_line(px-nx*45,py-ny*45,px+nx*45,py+ny*45,
+                      fill='#786344',width=3)
+  if kind=='rail':
+   for side in (-1,1):
+    canvas.create_line(ax+nx*side*14,ay+ny*side*14,
+                       ex+nx*side*14,ey+ny*side*14,fill='#3e3831',width=5)
  for key,name,tx,ty,kind in TOWNS:
   sx,sy=tx-camx,ty-camy
   if not(-420<sx<width+420 and -420<sy<height+420):continue
