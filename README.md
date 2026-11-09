@@ -1,6 +1,21 @@
+## The Great Territory — 10× world map foundation (November 2026)
+
+The playable territory is now **60,000 × 40,960 world units**, exactly **10 times the area** of the previous 19,200 × 12,800 map. Its existing towns, missions, buildings, and six newer settlements remain at their original coordinates. The surrounding terrain extends through **24 named geographic regions** with a variety of deserts, forests, grasslands, canyons, salt flats, mountains, mesas, and lake country. **22 discoverable wilderness landmarks** and **13 protected rest waystations** add fixed places to explore in the new territory.
+
+The large map is still **camera-local**: it draws only visible terrain rather than allocating a huge texture. The original hand-painted 4,800 × 3,200 area is kept intact. The user-provided Dust Hollow screenshot remains a visual art reference, not a source terrain texture (the screenshot contains the game HUD and desktop interface). This implementation establishes the **stable world layout**; the entire outer world is **not** yet filled with unique buildings or narrative content.
+
+### New world navigation
+
+- **M** toggles the territory atlas. **Z** switches between the whole world and a regional zoom; **WASD/arrow keys** pan the regional view, and clicking places a waypoint.
+- The compact lower-right map is now a **local trail radar** so roads and nearby objectives remain legible despite the world getting much larger.
+- Long-distance roads connect the starting frontier to the new region grid, and new waystations allow **T** resting without constant returns to the starting town.
+- New exploration discoveries and waystation rest flags are saved. Existing story and economy controls are retained.
+
+See [WORLD_ATLAS.md](WORLD_ATLAS.md) for region geography, named landmark and waystation lists, and the map coordinate rules. Track remaining optional performance/art review in [map milestone #16](https://github.com/nuentoter/dust-and-debt/issues/16). Full coverage includes `tests/great_territory_test.py` in the Linux Actions suite.
+
 ## Development roadmap: v2.4–v3.0
 
-The post-v2.3 plan is tracked in [ROADMAP_v3.md](ROADMAP_v3.md). **v2.4 Living Law and v2.5 Working Frontier are implemented**; v2.6–v3.0 are planned. Next is [v2.6 Roads and Consequences](https://github.com/nuentoter/dust-and-debt/issues/10), with the [early audio sprint](https://github.com/nuentoter/dust-and-debt/issues/15). Save-format compatibility between development milestones is no longer guaranteed, at the owner's request; make a backup before upgrading if progress matters.
+The post-v2.3 plan is tracked in [ROADMAP_v3.md](ROADMAP_v3.md). **v2.4 Living Law, v2.5 Working Frontier and the 10× Great Territory map foundation are implemented.** Full v2.6 road encounters and actual sound/music remain planned; see [v2.6 Roads and Consequences](https://github.com/nuentoter/dust-and-debt/issues/10) and the [audio sprint](https://github.com/nuentoter/dust-and-debt/issues/15). Save-format compatibility between development milestones is no longer guaranteed, at the owner's request; make a backup before upgrading if progress matters.
 
 # DUST & DEBT
 ### A complete, original top-down Western adventure for Linux
