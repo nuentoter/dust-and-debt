@@ -1,79 +1,84 @@
-# The Great Territory — World Atlas (Map Foundation)
+# Dust & Debt — The Frontier Lands of New Austellia (1898)
 
-**Build:** v2.6-map (the map-first stage before v2.6 Roads & Consequences)  
-**Current territory:** **60,000 × 40,960 world units**  
-**Previous territory:** 19,200 × 12,800  
-**Area growth:** **exactly 10×** (3.125× wider and 3.2× taller)  
-**Source of geography:** `frontier_world.py`; source of existing towns and side jobs: `frontier_expansion.py`.
+**Source of truth:** The *illustrated map supplied by the game creator*, titled “The Frontier Lands of New Austellia”. It is a real parchment atlas, **not a screenshot of the game**. All named geography here is traced from that reference.
 
-This is a functional *interim physical layout* for the v2.6 road encounters and audio states, pending alignment with the illustrated New Austellia geography in [issue #17](https://github.com/nuentoter/dust-and-debt/issues/17). It is not a claim that the entire playable area has hand-authored stories or buildings.
+**Playable world dimensions:** 60,000 × 40,960 world units, retaining the requested 10× area expansion. The pictured map was 1448 × 1086 pixels; all atlas coordinates are translated linearly to the playable world:
 
-## Territory sectors
+`world_x = atlas_x × 60,000 / 1448` and `world_y = atlas_y × 40,960 / 1086`.
 
-The map is divided into six columns and four rows; each named sector spans 10,000 × 10,240 world units. The southwest of the *original* game world remains in the top-left corner. Coordinates increase eastward and southward.
+The Python module [new_austellia.py](new_austellia.py) owns these authoritative locations and route polylines. In-game atlas view, navigational pins, coastal water, rivers, town sprites and railroad track visuals use the same coordinates. Only nearby terrain and landmarks are drawn during gameplay.
 
-| North-to-south band | Western 1 | 2 | 3 | 4 | 5 | Eastern 6 |
-|---|---|---|---|---|---|---|
-| 0–10,240 | The Old Frontier | Rustbelt Plains | Thornwood | Black Mesa | Saltwind Basin | Northern Range |
-| 10,240–20,480 | The Borderlands | Broken Prairie | Oxhead Gulch | Whisper Hills | Deadwater Flats | Far Lanterns |
-| 20,480–30,720 | Sunbleached Trail | Prairie Sea | Copper Divide | Redstone Maze | Blueglass Country | Distant Run |
-| 30,720–40,960 | South Marches | Three Forks | Fallen Timber | Devil's Reach | Ashfall Desert | Last Horizon |
+## Named geographical regions
 
-Biomes use lightweight, deterministic terrain coloring/props: grassland, prairie, desert, scrub, forest, mesas, canyon, salt, lakes, and mountains. These sector labels and centers are provisional; they should be replaced or deliberately mapped to the illustrated New Austellia source before the next large quest expansion.
+| North | Center | South |
+|---|---|---|
+| Glacier Peaks | Heartland Plains | Copper Sands Desert |
+| Graystone Range | Everwood Forest | Red Mesa Buttes |
+| Cinder Ridge Badlands | Cedarheart Woods | Cypress Bayou |
+| Northridge Territory | Sablestone Territory | Auburn Gulf |
+| Iron Mesa | Red Thorn Canyon | Sundown Plateau |
 
-## Settlements preserved from previous builds
+These are irregular geographic areas approximated by distance to source-map regional anchors, not the discarded 4 × 6 fictional checkerboard. Biomes include mountain, forest, prairie/grassland, dry mesas, canyon, desert, water country and scrub.
 
-- Cinder Creek (original Sheriff Bell story hub and the hand-authored map), with Dust Hollow, Sagebrush Crossing, Blackspur, Silverwater and Copper Ridge, all unchanged in local coordinates.
-- Drybone Junction at (6,000, 4,300)
-- Ironwell at (10,200, 4,300)
-- Painted Mesa at (14,400, 4,300)
-- Saltwater Crossing at (6,000, 7,900)
-- Ember Gulch at (10,200, 7,900)
-- Sundown Station at (14,400, 7,900)
+## Major towns and illustrated destinations
 
-The existing hand-painted world image remains **4,800 × 3,200**. It is composited over the camera-local procedural land only when on screen. We do **not** scale it up or convert the huge whole territory into a giant PNG.
+**Central and northern routes:** Galloway, Saint's Hollow, Roan Creek, Hollow Bend, Blackwater Crossing, Larkfield, Pineheart Trading Post, Elmshade.
 
-## 22 discoverable wilderness landmarks
+**Southern routes and seaboard:** Harper's Landing, Valleyford, Dustwell, Riversend, Saint Brigid's Port, Bayou Haven.
 
-| Region | Landmarks |
+**Camps, mines, landmarks, forts:** Cinder Ridge Mining Camp, Silvervein Mine, Iron Mesa Fort, Stonewall Fort, Brimstone Point, Bearclaw Lookout, Mercy Flats Ranch, Prairie View Ranch, Black Rock Ranch, Rattler's Rest, Old Kestrel Mill, Widow's Pass, Lone Pine Mine, Driftwood Springs, Highfalls.
+
+**Geography:** Frostvein Lake, Northstar Lake, Sable River, Blackwater River, Roan Creek, Riversend Channel, Dustwell Wash, Cypress Bayou, Auburn Gulf, Calhoun Island, Heron's Key, Drake Isles.
+
+The coordinates of these destinations have been traced from the atlas rather than distributed arbitrarily throughout a square grid.
+
+## Roads, railway and water
+
+The illustrated railroad is a branched network through **Galloway, Saint's Hollow, Roan Creek, Blackwater Crossing, Larkfield, Harper's Landing, Valleyford, Dustwell, Riversend and Saint Brigid's Port**. Secondary wagon roads link mining camps, forts and trading posts. The original old-world approach road is retained only in its limited starting province so legacy opening missions still work.
+
+The named rivers and lakes visibly exist in the top-down world and act as geographical obstacles; mapped road/rail crossings allow movement across them. The Gulf has a traced coastline and is rendered as coastal water, not unexplained traversable desert. Towns and docks have walkable platforms.
+
+Routes and boundaries are approximations of the illustration, not survey-grade hydrology. Bridge behavior is based on proximity to the mapped road/rail line; sophisticated ferry and boat navigation remain future work.
+
+## Relocated existing gameplay settlements
+
+The existing six extra towns and their six side quests have been relocated to named sites on this map, rather than being abandoned:
+
+| Existing gameplay location ID | New Austellia location |
 |---|---|
-| Far northern and northeastern trails | Rustwatch Tower, White Stag Grove, Black Spire, Salt Bell Flats, North Pass |
-| Borderlands | Deadman's Mill, Oxhead Fossil, Stillwater Falls, Broken Dam, Last Lantern Post |
-| Mid-territory | Mirage Well, Twin Pines, Copper Gate, Devil's Stair, Blueglass Shore, Far Station |
-| Southern trails | Coyote Crossing, Three Forks, Timberfall, Red Obelisk, Ash Garden, Horizon Gates |
+| drybone | Galloway |
+| ironwell | Iron Mesa |
+| painted | Dustwell |
+| saltwater | Roan Creek |
+| ember | Larkfield |
+| sundown | Riversend |
 
-Landmarks each use camera-local vector sprites, a unique map position, a discoverable name, and saved discovery flags. These sites serve as stable locations for future stories and encounters.
+Their guides, schedules, resource gathering, camps, shop buildings, clinics and objective points remain functional. The **original Cinder Creek game zone** remains at its old starting coordinates to preserve Sheriff Bell, Dust Hollow, Blackspur and the original story missions. It represents the inherited western playable area rather than a separate city on the New Austellia atlas.
 
-## 13 resting waystations
+The 13 waystations in v2.6 are now based on actual New Austellia transport hubs; the dispatcher/escort system uses their new positions. All future v2.7 content should use the New Austellia coordinates rather than the discarded temporary geography.
 
-West Ridge Post, Juniper Gate, Flintwater Depot, Bitter Salt Wells, Northern Spur, Long Prairie Camp, Copper Relay, Hollowstone Post, Blueglass Ferry, Three Forks Station, Timber Lodge, Ashfall Outpost, and Horizon Rest.
+## Map artwork
 
-The smaller waystations provide a recognizable local sign/tent/water trough/campfire and **T** rest while on foot. They are protected against ambient bandit aggression, and each rest stop is usable once per save just like the existing town camps. They are **not yet** full shops, saloons, or NPC towns.
+The game supports an optimized PNG of the actual illustrated atlas at:
 
-## Roads and navigation
+```text
+assets/new_austellia_map.png
+```
 
-- North–south tracks at x = 6,000, 10,200, 14,400, etc., as far as the eastern edge.
-- East–west tracks at y = 4,300, 7,900, 11,500, etc., as far as the southern edge.
-- A connector joins the original starting area to the first trade-road intersection. Collision checks recognize the tracks and suppress random rock/cactus obstruction on them.
-- These routes will support escort and wagon pathfinding in v2.6; visual route art is already included.
+The expected dimensions are **610 × 457 pixels** (matching the built-in full-map rectangle). The user's original image was 1448 × 1086; the image can be resized once using Pillow, ImageMagick or ffmpeg, then copied under that path. If the artwork file is unavailable, the built-in vector atlas displays the same named places, rivers, lakes, railroads and region colors. **The source PNG is not yet stored as a binary asset in GitHub**, so this file is optional until it is distributed. The main world and route mechanics do not depend on it.
 
-**M:** Toggle full territory atlas. **Z:** Toggle region zoom centered on Jesse. **WASD / arrow keys:** Pan the regional map. **Click:** Set a navigational waypoint accurately in full or zoomed mode. **Escape or M:** Close.
+With the source PNG available locally, a conversion command is:
 
-The tiny lower-right minimap is now a **local trail radar**, not a compressed image of the entire territory. It shows nearby roads, settlements, stations, enemies, landmarks, objectives, and the player within a 6,400 × 5,600 unit window.
+```bash
+ffmpeg -i "Vintage Map of the Frontier Lands.png" -vf scale=610:457 -frames:v 1 assets/new_austellia_map.png
+```
 
-## Engineering rules for further development
+The genuine artwork appears in the map overview; regional zoom renders the vector atlas for correct pan and coordinate labels.
 
-1. Keep `WORLD_WIDTH`, `WORLD_HEIGHT`, named sector geometry, road anchors, and landmark coordinates stable unless intentionally redesigning the map.
-2. Render **only visible** terrain cells and nearby landmarks, stations, buildings and NPCs. Never generate an uncompressed 60,000 × 40,960 image in RAM.
-3. Use the same deterministic terrain/obstacle logic for collision and artwork. Don't place mission enemies inside obstacles.
-4. Keep story/NPC/quest locations in the original area. New missions can be placed in outer sectors to populate empty travel routes.
-5. Sound/music integration can switch by biome, weather, time and proximity to settlements using region names and music states.
-6. Remain on Python/Tkinter without new heavy dependencies; retain CI testing under Xvfb. Performance on the user's specific Archcraft Intel machine still requires optional local verification.
+## Controls and testing
 
-## Verification
+**M** shows the atlas; **Z** toggles regional zoom; **WASD / arrows** pan; **click** places a waypoint; **M/Escape** closes. The map click coordinates are projected through the same source as the land and towns.
 
-Run `xvfb-run -a python3 tests/great_territory_test.py` or run the GitHub Actions suite. The regression checks geography, 10× area growth, core story locations, collision, distant corners, view limits, map coordinate roundtrips, camp rest and discoverable landmark saves.
+Run `xvfb-run -a python3 tests/new_austellia_test.py` and the full GitHub Actions suite for map coordinates, coasts, bridge safety, new town locations, atlas rendering, mission compatibility and saves.
 
-## Artwork reference
-
-**Correction:** The user's supplied image is an illustrated geographic atlas titled **The Frontier Lands of New Austellia**, not a Dust Hollow gameplay screenshot. The current Great Territory is an optimized **interim procedural world layout**, and its region names, rivers, railroads and towns do not yet match that artwork. Faithful geography and a full-map atlas image are high-priority work in [issue #17](https://github.com/nuentoter/dust-and-debt/issues/17) before v2.7 handcrafted content. The illustrated image is the visual source of truth; earlier text describing it as a screenshot was incorrect.
+**Save compatibility:** Earlier development-format saves are not guaranteed to load with every location/state fully correct, at the owner's request; start a new game after any intentional geographical reset if behavior is inconsistent.
