@@ -777,7 +777,7 @@ class Game:
   if self.advance_side_job():return
   nearest=None;best=64
   for a in self.actors:
-   if a.dead or a.kind.startswith('mission_') or a.kind in ('bandit','animal','deputy','bounty_target'):continue
+   if a.dead or a.kind.startswith('mission_') or a.kind in ('bandit','animal','deputy','law_patrol','bounty_target'):continue
    dist=math.hypot(a.x-self.x,a.y-self.y)
    if dist<best:nearest=a;best=dist
   # Plain E never enters a building; Shift+E owns that action.
@@ -1297,7 +1297,7 @@ class Game:
      self.combat_warning=.7
      self.bullets.append([a.x,a.y,math.cos(angle)*330,math.sin(angle)*330,1.3,False])
   if self.law_status=='WANTED':
-   deputies=sum(not a.dead and a.kind=='deputy' for a in self.actors)
+   deputies=sum(not a.dead and a.kind in ('deputy','law_patrol') and math.hypot(a.x-self.x,a.y-self.y)<720 for a in self.actors)
    self.law_spawn_timer=max(0.,self.law_spawn_timer-dt)
    if deputies<min(5,1+int(self.wanted)) and self.law_spawn_timer<=0:
     self.law_spawn_timer=max(1.1,4.0-self.wanted*.4)
@@ -1318,7 +1318,7 @@ class Game:
      for a in self.actors:
       if a.dead or a.kind=='field_prisoner' or a.kind=='animal' and a.name=='Jackrabbit' and random.random()<.12:continue
       if math.hypot(a.x-px,a.y-py)<(17 if a.name=='Crow' else 13):
-       if a.kind in ('sheriff','store','doctor','stable','saloon','station'):
+       if a.kind in ('sheriff','law_patrol','store','doctor','stable','saloon','station'):
         self.report_crime(2,'Assault on a citizen');self.change_honor(-8,'Assault')
         a.hp-=32
        elif a.kind=='civilian':
@@ -1334,8 +1334,11 @@ class Game:
          else:
           reward=8 if a.kind=='bandit' else 5
           self.money+=reward;self.kills+=1;self.deadeye=min(100.,self.deadeye+12);self.change_honor(1,'Outlaw defeated');self.notify('Outlaw down! +$'+str(reward),1.7)
-        elif a.kind in ('civilian','sheriff','store','doctor','stable','saloon','station','traveler'):
-         self.report_crime(5,'Murder');self.change_honor(-20,'Killed a civilian');self.wanted=5.;self.notify('MURDER! Wanted level maximum.')
+        elif a.kind in ('civilian','sheriff','law_patrol','store','doctor','stable','saloon','station','traveler'):
+         is_lawman=a.kind in ('sheriff','law_patrol')
+         self.report_crime(5,'Murdered a lawman' if is_lawman else 'Murder')
+         self.change_honor(-22 if is_lawman else -20,'Killed a lawman' if is_lawman else 'Killed a civilian')
+         self.wanted=5.;self.law_status='WANTED';self.notify('MURDER! Wanted level maximum.')
        break
     else:
      if math.hypot(self.x-px,self.y-py)<(17 if self.mounted else 11):
@@ -1368,7 +1371,7 @@ class Game:
    self.canvas.create_oval(sx+7,sy-9,sx+16,sy,fill=co,outline='#65523e')
    return
   villain=a.kind in ('bandit','deputy','bounty_target') or a.kind.startswith('mission_')
-  clothes=('#3e4b59' if a.kind=='deputy' else '#694332') if villain else {'sheriff':'#384a4f','saloon':'#973f50','store':'#747143','doctor':'#e0d0a4','stable':'#55644a','station':'#526783'}.get(a.kind,'#73654f')
+  clothes=('#3e4b59' if a.kind=='deputy' else '#694332') if villain else {'law_patrol':'#3f5361','sheriff':'#384a4f','saloon':'#973f50','store':'#747143','doctor':'#e0d0a4','stable':'#55644a','station':'#526783'}.get(a.kind,'#73654f')
   # Lower shadow, boots, poncho, head and hat: tiny expressive pixel figure.
   self.canvas.create_oval(sx-13,sy+8,sx+15,sy+15,fill='#6d563f',outline='')
   self.canvas.create_rectangle(sx-9,sy+4,sx-2,sy+13,fill='#312c2a',outline='')
@@ -1380,7 +1383,7 @@ class Game:
   self.canvas.create_rectangle(sx-15,sy-17,sx+15,sy-13,fill=hat,outline='')
   if a.name=='Crow':
    self.canvas.create_rectangle(sx-11,sy-12,sx+11,sy+7,fill='#341e21',outline='#b44538',width=2)
-  if a.kind=='sheriff':self.canvas.create_polygon(sx,sy-3,sx+5,sy,sx+2,sy+5,sx-2,sy+5,sx-5,sy,fill='#ecc46b')
+  if a.kind in ('sheriff','law_patrol'):self.canvas.create_polygon(sx,sy-3,sx+5,sy,sx+2,sy+5,sx-2,sy+5,sx-5,sy,fill='#ecc46b')
   if villain and a.hp<a.maxhp:
    self.canvas.create_rectangle(sx-16,sy-34,sx+16,sy-30,fill='#3d201c',outline='')
    self.canvas.create_rectangle(sx-16,sy-34,sx-16+32*max(0,a.hp)/a.maxhp,sy-30,fill='#b84f40',outline='')
@@ -1639,7 +1642,7 @@ class Game:
    self.draw_text(480,114+i*23,s,13,'#ffe7a8',True,anchor='center')
   nearest=None;dist=65
   for a in self.actors:
-   if a.dead or a.kind.startswith('mission_') or a.kind in ('bandit','deputy','animal','bounty_target'):continue
+   if a.dead or a.kind.startswith('mission_') or a.kind in ('bandit','deputy','law_patrol','animal','bounty_target'):continue
    q=math.hypot(a.x-self.x,a.y-self.y)
    if q<dist:nearest=a;dist=q
   if nearest and not self.dialog and not self.choice_dialog:self.draw_text(480,474,'[ E ]  TALK TO '+nearest.name.upper(),14,'#fff0c4',True,anchor='center')
