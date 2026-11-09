@@ -12,7 +12,7 @@ def main():
   assert hasattr(g,'set_waypoint_from_map') and hasattr(g,'weather_kind')
   assert g.waypoint is None and g.sound_on is False
   assert not g.set_waypoint_from_map(20,20)
-  assert g.set_waypoint_from_map(808,504)
+  assert g.set_waypoint_from_map(game.MAP_RECT[0]+game.MAP_RECT[2]-1,game.MAP_RECT[1]+game.MAP_RECT[3]-1)
   assert g.waypoint and 0<g.waypoint[0]<game.WW and 0<g.waypoint[1]<game.WH
   g.map_open=True;g.render()
   g.map_open=False;g.render()
