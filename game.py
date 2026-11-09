@@ -109,7 +109,7 @@ class Game:
   self.titleimg=tk.PhotoImage(file=os.path.join(ASSETS,'title.png'))
   self.mapimg=tk.PhotoImage(file=os.path.join(ASSETS,'map.png'))
   self.mapthumb=self.mapimg.subsample(4,4)
-  self.audio=AudioDirector(bell=root.bell)
+  self.audio=AudioDirector(bell=root.bell,assets_path=os.path.join(ASSETS,'audio'))
   self.keys=set();self.mouse=(VW//2,VH//2);self.mouse_down=False
   self.screen='title';self.fullscreen=False
   self.font='DejaVu Sans';self.last=time.monotonic();self.frame=0
@@ -121,6 +121,7 @@ class Game:
   root.after(FPS,self.loop)
 
  def reset(self):
+  self.audio.stop()
   self.x,self.y=698.,610.;self.hp=100.;self.maxhp=100;self.money=35;self.ammo=6;self.reserve=42;self.tonics=2
   self.stage=0;self.kills=0;self.wanted=0.;self.law_timer=0.;self.clock=8.0;self.mounted=False
   self.honor=50;self.crimes=0;self.law_status='PEACE';self.deadeye=100.;self.deadeye_active=False;self.deadeye_regen_delay=0.;self.witness_timer=0.;self.law_spawn_timer=0.;self.shot_trails=[]
@@ -777,8 +778,12 @@ class Game:
    self.save(manual=True);return
   if key=='v' and self.screen in ('playing','paused'):
    self.sound_on=not self.sound_on;self.audio.enabled=self.sound_on
-   self.notify('SOUND CUES '+('ON' if self.sound_on else 'OFF')+' (system bell)',2)
+   self.notify('SOUND EFFECTS '+('ON' if self.sound_on else 'OFF')+' ('+self.audio.backend+')',2)
    self.sound_cue('menu');return
+  if key=='o' and self.screen in ('playing','paused'):
+   self.audio.set_music_enabled(not self.audio.music_enabled)
+   self.notify('AMBIENT MUSIC '+('ON' if self.audio.music_enabled else 'OFF')+' ('+self.audio.backend+')',3)
+   return
   if key=='f11':
    self.fullscreen=not self.fullscreen;self.root.attributes('-fullscreen',self.fullscreen);return
   if self.screen=='title':
@@ -2274,7 +2279,7 @@ class Game:
  def draw_help(self):
   self.panel(190,52,580,506)
   self.draw_text(216,110,'HOW TO SURVIVE THE FRONTIER',20,'#efc58a',True)
-  controls=[('WASD / ARROWS','Move'),('SHIFT','Sprint / gallop'),('MOUSE CLICK','Aim and shoot'),('SPACE / R','Fire / reload'),('Q','Dead Eye'),('E / SHIFT+E','Interact / enter buildings'),('H','Mount / dismount Whiskey'),('B','Accept bounty near sheriff'),('L','Lasso wanted targets or bandits'),('G','Hogtie roped outlaw (on foot)'),('E BY TIED TARGET','Pick up captive'),('E BY SHERIFF','Deliver prisoner alive (on foot)'),('1','Health tonic'),('M / J','World map / journal'),('F / T','Gather / camp'),('P','Take or collect paid work'),('I','Work ledger and horse condition'),('V','Toggle bell sound cues'),('F5','Save game'),('F11','Fullscreen'),('ESC / F1','Pause / help')]
+  controls=[('WASD / ARROWS','Move'),('SHIFT','Sprint / gallop'),('MOUSE CLICK','Aim and shoot'),('SPACE / R','Fire / reload'),('Q','Dead Eye'),('E / SHIFT+E','Interact / enter buildings'),('H','Mount / dismount Whiskey'),('B','Accept bounty near sheriff'),('L','Lasso wanted targets or bandits'),('G','Hogtie roped outlaw (on foot)'),('E BY TIED TARGET','Pick up captive'),('E BY SHERIFF','Deliver prisoner alive (on foot)'),('1','Health tonic'),('M / J','World map / journal'),('F / T','Gather / camp'),('P','Take or collect paid work'),('I','Work ledger and horse condition'),('V / O','Sound effects / ambient music'),('F5','Save game'),('F11','Fullscreen'),('ESC / F1','Pause / help')]
   for i,(k,v) in enumerate(controls):
    yy=143+i*19
    self.draw_text(218,yy,k,11,'#f4d59e',True)
@@ -2339,6 +2344,7 @@ class Game:
 
  def quit(self):
   if self.screen in ('playing','paused','ending'):self.save()
+  self.audio.stop()
   self.root.destroy()
 
 
