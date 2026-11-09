@@ -61,3 +61,6 @@ jobs:
 
       - name: Enemy tactics and morale regression v2.8
         run: xvfb-run -a python3 tests/enemy_tactics_test.py
+
+      - name: v2.9 presentation save integrity and settings regression
+        run: xvfb-run -a python3 tests/presentation_reliability_test.py
