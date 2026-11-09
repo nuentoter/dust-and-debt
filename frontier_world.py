@@ -110,6 +110,12 @@ def draw_landmark(canvas,camx,camy,width,height):
  for key,name,x,y,kind in LANDMARKS:
   sx,sy=x-camx,y-camy
   if not(-250<sx<width+250 and -250<sy<height+250):continue
+  if kind=='water':
+   # Water geometry is drawn below by the real lakes/river layer.
+   # Do not paint an opaque land-colored patch over the water surface.
+   canvas.create_text(sx,sy-65,text=name.upper(),fill='#f1e7cd',
+                      font=('DejaVu Sans',9,'bold'))
+   continue
   canvas.create_oval(sx-75,sy-38,sx+75,sy+38,fill='#baa17c',outline='#877658',width=3)
   if kind in ('tower','ruin','pass'):
    canvas.create_rectangle(sx-27,sy-51,sx+27,sy+8,fill='#7e7060',outline='#4a453e',width=4)
