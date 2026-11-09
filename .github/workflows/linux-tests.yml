@@ -50,3 +50,5 @@ jobs:
         run: xvfb-run -a python3 tests/roads_audio_test.py
       - name: Illustrated New Austellia atlas and geographical collision regression
         run: xvfb-run -a python3 tests/new_austellia_test.py
+      - name: Handcrafted Frontier horse gallop and regional quests
+        run: xvfb-run -a python3 tests/handcrafted_frontier_test.py
