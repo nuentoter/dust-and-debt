@@ -230,7 +230,7 @@ def draw_atlas(canvas,view,rect):
   sx,sy=scr((x,y))
   if not(rx-40<sx<rx+rw+40 and ry-25<sy<ry+rh+25):continue
   color=BIOME_COLORS.get(biome,"#c8ae85")
-  radius=100*rw/vw*7500
+  radius=6500*rw/vw
   radius=max(20,min(220,radius))
   canvas.create_oval(sx-radius,sy-radius*.64,sx+radius,sy+radius*.64,
                      fill=color,outline="",stipple="gray75")
