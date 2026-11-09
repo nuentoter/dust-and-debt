@@ -679,6 +679,7 @@ class Game:
    elif key=='f5':self.save(manual=True)
    elif key=='f1':self.show_help=not self.show_help
    return
+  if key=='escape' and self.work_ledger_open:self.work_ledger_open=False;return
   if key=='escape':self.screen='playing' if self.screen=='paused' else 'paused';self.deadeye_active=False;return
   if self.screen=='paused':return
   if key=='f1':self.show_help=not self.show_help
@@ -1690,11 +1691,23 @@ class Game:
       c.create_oval(sx-7,sy-23,sx+7,sy-9,fill='#4caaa2',outline='#244e4a',width=2)
       self.draw_text(sx,sy-41,'SIDE JOB CLUE',10,'#a8e3d8',True,anchor='center')
 
+ def draw_work_marker(self):
+  if not self.work_active:return
+  job=self.work_active
+  wx,wy=job['destination'] if job['status']=='outbound' else job['giver_pos']
+  sx,sy=self.pos(wx,wy)
+  if not (-45<sx<VW+45 and -45<sy<VH+45):return
+  self.canvas.create_oval(sx-17,sy-17,sx+17,sy+17,outline='#90c9dc',width=3)
+  self.canvas.create_line(sx-10,sy,sx+10,sy,fill='#e3f1e7',width=3)
+  self.canvas.create_line(sx,sy-10,sx,sy+10,fill='#e3f1e7',width=3)
+  self.draw_text(sx,sy-38,'WORK — E' if job['status']=='outbound' else 'RETURN — P',10,'#d7edf5',True,anchor='center')
+
  def draw_world(self):
   self.draw_far_terrain()
   self.canvas.create_image(-self.camx,-self.camy,image=self.world,anchor='nw')
   draw_frontier_towns(self.canvas,self.camx,self.camy,VW,VH)
   self.draw_expansion_markers()
+  self.draw_work_marker()
   self.draw_scattered_props()
   visible=(a for a in self.actors if self.camx-45<=a.x<=self.camx+VW+45 and self.camy-50<=a.y<=self.camy+VH+50)
   for a in sorted(visible,key=lambda a:a.y):self.draw_actor(a)
@@ -1789,6 +1802,8 @@ class Game:
     tx,ty=job[4][step]
     distance=int(math.hypot(tx-self.x,ty-self.y))
     self.draw_text(575,534,'SIDE JOB: '+job[2][:20]+f' ({distance}m)',10,'#f0d39b',True)
+  if self.work_active:
+   self.draw_text(572,514,'WORK: '+self.work_active['title'][:22],10,'#b8dce2',True)
   if self.waypoint:
    dx=self.waypoint[0]-self.x;dy=self.waypoint[1]-self.y
    self.draw_text(572,558,f'PIN {int(math.hypot(dx,dy))} m / {self.cardinal(math.atan2(dy,dx))}',11,'#f6d68d',True)
@@ -1800,6 +1815,13 @@ class Game:
    q=math.hypot(a.x-self.x,a.y-self.y)
    if q<dist:nearest=a;dist=q
   if nearest and not self.dialog and not self.choice_dialog:self.draw_text(480,474,'[ E ]  TALK TO '+nearest.name.upper(),14,'#fff0c4',True,anchor='center')
+  provider=self.work_provider() if not self.mounted else None
+  if provider:
+   label='[ P ] COLLECT WORK PAY' if self.work_active and self.work_active['giver']==provider.name and self.work_active['status']=='return' else '[ P ] ASK FOR WORK'
+   self.draw_text(480,380,label,11,'#b7dfe9',True,anchor='center')
+  if self.work_active and self.work_active['status']=='outbound' and not self.mounted:
+   wx,wy=self.work_active['destination']
+   if math.hypot(wx-self.x,wy-self.y)<95:self.draw_text(480,402,'[ E ] COMPLETE WORK TASK',12,'#c2e7ea',True,anchor='center')
   if self.near_bounty_board():
    label='[ E ] TURN IN PRISONER' if (self.bounty_state()=='carried' or self.field_status()=='carried') else '[ B ] BOUNTY BOARD'
    self.draw_text(480,427,label,12,'#f0d28a',True,anchor='center')
@@ -1955,7 +1977,7 @@ class Game:
   self.draw_text(160,210,MISSIONS[self.stage][1],15,'#e9d7b7',width=630)
   self.canvas.create_line(160,280,801,280,fill='#8d744e',width=2)
   self.draw_text(160,305,'YOUR RECORD',12,'#b89c70',True)
-  self.draw_text(160,340,f'Outlaws defeated: {self.kills}       Money: ${self.money}',15,'#f1dfbd')
+  self.draw_text(160,340,f'Outlaws defeated: {self.kills}       Money: ${self.money}    Paid jobs: {self.work_finished}',14,'#f1dfbd')
   self.draw_text(160,382,f'Honor: {self.honor}/100   Law: {self.law_status}   Crimes: {self.crimes}   Booked: {len(self.jail_roster)}',13,'#f1dfbd')
   self.draw_text(160,424,f'Missions finished: {min(4,self.stage//2)} / 4       Story: {"COMPLETE" if self.stage==8 else "IN PROGRESS"}',15,'#f1dfbd')
   if self.contract:
@@ -1969,14 +1991,31 @@ class Game:
    job=get_job(self.side_job['id'])
    if job:self.draw_text(160,499,'SIDE JOB: '+job[2]+f' ({int(self.side_job["step"])+1}/{len(job[4])})',10,'#b2dbce',True)
   else:self.draw_text(160,499,f'Side jobs: {len(self.side_completed)}/{len(SIDE_JOBS)}    Towns found: {len(self.visited_settlements)}/{len(SETTLEMENTS)}',10,'#b2dbce',True)
-  self.draw_text(480,516,'J TO CLOSE',12,'#e2bb7e',True,anchor='center')
+  self.draw_text(480,516,'J CLOSE   •   I WORK LEDGER',11,'#e2bb7e',True,anchor='center')
+
+ def draw_work_ledger(self):
+  self.panel(130,70,700,465,fill='#24201b')
+  self.draw_text(480,98,'WORKING FRONTIER — LEDGER',24,'#efcc94',True,anchor='center')
+  self.draw_text(158,152,'Day '+str(self.economy_day+1)+'   Jobs finished: '+str(self.work_finished),15,'#ead6b3',True)
+  self.draw_text(158,193,'Wages earned: $'+str(self.work_income)+'    Purchases and services: $'+str(self.work_expenses),14,'#e2c5a1')
+  self.draw_text(158,230,'Whiskey condition: '+str(int(self.horse_hp))+'/100     Law reputation: '+str(self.law_reputation),13,'#d9bca0')
+  if self.work_active:
+   job=self.work_active
+   self.draw_text(158,285,'CURRENT WORK: '+job['title'],16,'#b9e5ee',True)
+   instruction='Go to the blue map marker; press E on foot.' if job['status']=='outbound' else 'Return to '+job['giver']+' and press P.'
+   self.draw_text(158,320,instruction,13,'#e9d3b5')
+   self.draw_text(158,355,'Payment due: $'+str(job['reward']),14,'#f6d4a1')
+  else:
+   self.draw_text(158,290,'No active job. Press P near a station, rancher, miner,',13,'#e9d3b5')
+   self.draw_text(158,316,'stablehand or settlement worker to accept paid work.',13,'#e9d3b5')
+  self.draw_text(480,486,'I / ESC CLOSE LEDGER',12,'#e6c38b',True,anchor='center')
 
  def draw_help(self):
   self.panel(190,52,580,506)
   self.draw_text(216,110,'HOW TO SURVIVE THE FRONTIER',20,'#efc58a',True)
-  controls=[('WASD / ARROWS','Move'),('SHIFT','Sprint / gallop'),('MOUSE CLICK','Aim and shoot'),('SPACE / R','Fire / reload'),('Q','Dead Eye'),('E / SHIFT+E','Interact / enter buildings'),('H','Mount / dismount Whiskey'),('B','Accept bounty near sheriff'),('L','Lasso wanted targets or bandits'),('G','Hogtie roped outlaw (on foot)'),('E BY TIED TARGET','Pick up captive'),('E BY SHERIFF','Deliver prisoner alive (on foot)'),('1','Health tonic'),('M / J','World map / journal'),('F / T','Gather resources / rest at camp'),('V','Toggle sound'),('F5','Save game'),('F11','Fullscreen'),('ESC / F1','Pause / help')]
+  controls=[('WASD / ARROWS','Move'),('SHIFT','Sprint / gallop'),('MOUSE CLICK','Aim and shoot'),('SPACE / R','Fire / reload'),('Q','Dead Eye'),('E / SHIFT+E','Interact / enter buildings'),('H','Mount / dismount Whiskey'),('B','Accept bounty near sheriff'),('L','Lasso wanted targets or bandits'),('G','Hogtie roped outlaw (on foot)'),('E BY TIED TARGET','Pick up captive'),('E BY SHERIFF','Deliver prisoner alive (on foot)'),('1','Health tonic'),('M / J','World map / journal'),('F / T','Gather / camp'),('P','Take or collect paid work'),('I','Work ledger and horse condition'),('V','Toggle bell sound cues'),('F5','Save game'),('F11','Fullscreen'),('ESC / F1','Pause / help')]
   for i,(k,v) in enumerate(controls):
-   yy=143+i*20
+   yy=143+i*19
    self.draw_text(218,yy,k,11,'#f4d59e',True)
    self.draw_text(445,yy,v,11,'#e3d2b8')
 
@@ -2032,6 +2071,7 @@ class Game:
   if self.screen=='paused':self.draw_pause()
   if self.map_open:self.draw_map()
   if self.journal_open:self.draw_journal()
+  if self.work_ledger_open:self.draw_work_ledger()
   if self.show_help:self.draw_help()
   self.draw_dialog()
   self.draw_choice_dialogue()
