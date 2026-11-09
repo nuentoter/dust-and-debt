@@ -42,3 +42,5 @@ jobs:
         run: xvfb-run -a python3 tests/field_arrest_test.py
       - name: Living Law surrender patrol and jail regression
         run: xvfb-run -a python3 tests/living_law_test.py
+      - name: Working Frontier economy and future audio regression
+        run: xvfb-run -a python3 tests/working_frontier_test.py
