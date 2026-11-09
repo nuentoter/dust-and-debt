@@ -58,3 +58,6 @@ jobs:
 
       - name: Rivers Ridges and Stone natural terrain
         run: xvfb-run -a python3 tests/natural_terrain_test.py
+
+      - name: Enemy tactics and morale regression v2.8
+        run: xvfb-run -a python3 tests/enemy_tactics_test.py
