@@ -1,6 +1,6 @@
 ## Development roadmap: v2.4–v3.0
 
-The next seven planned milestones are tracked in [ROADMAP_v3.md](ROADMAP_v3.md), with individual GitHub issues for surrender, patrols and jails; a working economy; road encounters; deeper settlements; combat progression; reliability; and the v3.0 release. These features are **planned, not implemented**. Start with [v2.4 Living Law](https://github.com/nuentoter/dust-and-debt/issues/8).
+The post-v2.3 plan is tracked in [ROADMAP_v3.md](ROADMAP_v3.md). **v2.4 Living Law is implemented**; the remaining v2.5–v3.0 features are planned. Next is [v2.5 Working Frontier](https://github.com/nuentoter/dust-and-debt/issues/9). Save-format compatibility between development milestones is no longer guaranteed, at the owner's request; make a backup before upgrading if progress matters.
 
 # DUST & DEBT
 ### A complete, original top-down Western adventure for Linux
@@ -8,6 +8,17 @@ The next seven planned milestones are tracked in [ROADMAP_v3.md](ROADMAP_v3.md),
 **1889.** Ride your horse Whiskey into Cinder Creek. Sheriff Bell has a job, the railroad is hiding a conspiracy, and an outlaw named Crow controls the desert. Finish **four connected story jobs** to earn your freedom, then continue playing in free roam.
 
 Features include a 4,800×3,200 scrolling handcrafted Western map, 27 buildings, multiple frontier settlements with interactive characters, horseback riding, 6-shot revolver gunplay, reloading, bandit combat, money and shops, a doctor and saloon, enemy pursuit, a wanted system, wildlife, a day/night cycle, an objective marker, a map and journal, health tonics, save/load, story ending and free roam.
+
+## v2.4 Living Law — surrender, patrols and jail (November 2026)
+
+- **Surrender:** Wounded ordinary bandits and active named bounty targets may surrender when reduced to 35% health or surrounded by two patrol officers while Jesse is nearby. They drop out of combat and can be **hogtied with G**, picked up with **E**, and delivered alive. The existing eight-second timer still applies to lassoed enemies. Story mission enemies are exempt, so missions that require defeating them cannot become stuck.
+- **Patrolling lawmen:** Eight deputy patrol routes circle the original and expanded frontier settlements. Lawmen walk their beats peacefully until the player becomes wanted. They pursue and can shoot wanted fugitives, but will not attack merely because Jesse approaches them. Patrol routes include a stuck-position escape mechanism.
+- **Jail intake:** Delivering named bounties or ordinary drifters alive adds their names and charges to the jail register. Inside the **Sheriff** building, cells display up to three recent prisoners; press **K** to inspect the register, or K/E/Escape to close it. Ordinary E outside remains for talking with Sheriff Bell, while Shift+E enters the building.
+- **Reputation and witnesses:** Lawful arrests increase a dedicated law reputation score, crimes reduce it, and Sheriff Bell/townspeople acknowledge a strong record. Witnessed crimes notify of a deputy response, and patrols respond to wanted status.
+- **Persistence:** The jail roster, arrest totals and reputation are saved. Save compatibility with older development milestones is no longer a release requirement; preserve your save manually if needed.
+- **Testing:** `tests/living_law_test.py` covers patrol safety, surrender, capture, jail rendering, saved records, named bounty delivery, and unaffected Sheriff Bell story initiation. The complete Linux GitHub Actions suite also runs the earlier regression tests.
+
+**Scope:** Cells are a simple visible roster inside the Sheriff building, not a fully simulated prison with sentence timers or jailbreak missions. Patrol movement follows waypoints rather than global obstacle-aware pathfinding. Actual Archcraft hardware playtesting remains optional and unverified.
 
 ## v2.3 Frontier Justice — field arrests (November 2026)
 
