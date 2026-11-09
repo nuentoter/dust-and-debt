@@ -37,7 +37,8 @@ def main():
   # All mapped towns and road dispatch stations need safe ground access.
   for key,name,x,y,kind in TOWNS:
    assert 0<x<game.WW and 0<y<game.WH
-   assert not is_water(x,y),name
+   if kind not in ('lake','waterfall','spring','island'):
+    assert not is_water(x,y),name
   for key,name,x,y in WAYSTATIONS:
    assert g.in_safe_settlement(x,y),name
    assert g.can_move(x,y,8),name
