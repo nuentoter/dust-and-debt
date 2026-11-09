@@ -909,17 +909,19 @@ class Game:
   self.law_timer=max(self.law_timer,5. if witnessed else 2.)
   self.witness_timer=5. if witnessed else 0.
   self.law_status='WANTED' if self.wanted>=1.2 else 'INVESTIGATING'
-  if witnessed:self.notify('WITNESSES ALERTED: '+reason,2.0)
+  self.patrol_alert_timer=12. if witnessed else 5.
+  if witnessed:self.notify('WITNESSES ALERTED: '+reason+' — deputies responding.',2.8)
   else:self.notify('CRIME REPORTED: '+reason,2.0)
 
  def update_law(self,dt):
   if self.wanted<=0:
    self.wanted=0.;self.law_status='PEACE';return
+  self.patrol_alert_timer=max(0.,self.patrol_alert_timer-dt)
   self.law_timer=max(0.,self.law_timer-dt)
   self.witness_timer=max(0.,self.witness_timer-dt)
   if self.law_timer==0:
    rate=.008 if self.in_town(self.x,self.y) else .035
-   if not any(a.kind=='deputy' and not a.dead and math.hypot(a.x-self.x,a.y-self.y)<230 for a in self.actors):
+   if not any(a.kind in ('deputy','law_patrol') and not a.dead and math.hypot(a.x-self.x,a.y-self.y)<230 for a in self.actors):
     self.wanted=max(0,self.wanted-dt*rate)
   self.law_status='WANTED' if self.wanted>=1.2 else ('INVESTIGATING' if self.wanted>0 else 'PEACE')
 
@@ -1230,6 +1232,27 @@ class Game:
   # Dead Eye shots are more accurate and slightly more damaging.
   return 64 if self.deadeye_active and (a.kind=='bandit' or a.kind.startswith('mission_')) else 52
 
+ def update_patrol(self,a,dt):
+  # Patrols follow bounded routes. They pursue only genuinely wanted players.
+  distance=math.hypot(a.x-self.x,a.y-self.y)
+  if self.law_status=='WANTED' and distance<430:
+   dx=self.x-a.x;dy=self.y-a.y;norm=max(1.,distance)
+   if distance>125:self.move_actor(a,dx/norm*a.speed*dt,dy/norm*a.speed*dt)
+   if distance<320 and a.shoot<=0 and self.line_of_fire(a.x,a.y,self.x,self.y):
+    a.shoot=2.8
+    angle=math.atan2(dy,dx)+random.uniform(-.13,.13)
+    self.combat_warning=.6
+    self.bullets.append([a.x,a.y,math.cos(angle)*325,math.sin(angle)*325,1.2,False])
+   return
+  route=getattr(a,'route',())
+  if not route:return
+  index=getattr(a,'route_index',0)%len(route)
+  target=route[index]
+  dx=target[0]-a.x;dy=target[1]-a.y
+  norm=math.hypot(dx,dy)
+  if norm<21:a.route_index=(index+1)%len(route);return
+  self.move_actor(a,dx/norm*a.speed*dt,dy/norm*a.speed*dt)
+
  def update_ai(self,dt):
   for a in self.actors:
    if a.dead:continue
@@ -1240,6 +1263,7 @@ class Game:
    # Dormant distant actors avoid unnecessary pathfinding and collision checks.
    if dist>1200:continue
    a.shoot=max(0,a.shoot-dt);a.wander-=dt
+   if a.kind=='law_patrol':self.update_patrol(a,dt);continue
    ishostile=a.kind in ('bandit','deputy','bounty_target') or a.kind.startswith('mission_')
    if a.kind=='civilian':
     if (self.law_status=='WANTED' or (self.witness_timer>0 and dist<310)) and dist<280:dx,dy=a.x-self.x,a.y-self.y
