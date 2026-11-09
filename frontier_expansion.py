@@ -3,30 +3,37 @@ Only Python/Tkinter; no extra media, packages, or engine dependencies.
 """
 # Settlements sit along the existing procedural north/south and east/west roads.
 # key, display name, center (world coordinates), wall/roof palette, local character
-SETTLEMENTS=(
- ("drybone","Drybone Junction",6000,4300,"#866e50","#70513f","Ada Pike"),
- ("ironwell","Ironwell",10200,4300,"#817b68","#595958","Silas Flint"),
- ("painted","Painted Mesa",14400,4300,"#a07454","#784837","Rose Ortega"),
- ("saltwater","Saltwater Crossing",6000,7900,"#857f66","#536b62","Jonah Reed"),
- ("ember","Ember Gulch",10200,7900,"#956447","#663d35","Mara Ash"),
- ("sundown","Sundown Station",14400,7900,"#a1895e","#665943","Caleb West"),
+from new_austellia import TOWN_BY_ID
+
+# Existing six playable frontier towns are moved to illustrated New Austellia
+# locations. Their guides and original six side quests remain playable.
+_SETTLEMENT_IDS=(
+ ('drybone','galloway','#866e50','#70513f','Ada Pike'),
+ ('ironwell','iron_mesa','#817b68','#595958','Silas Flint'),
+ ('painted','dustwell','#a07454','#784837','Rose Ortega'),
+ ('saltwater','roan_creek','#857f66','#536b62','Jonah Reed'),
+ ('ember','larkfield','#956447','#663d35','Mara Ash'),
+ ('sundown','riversend','#a1895e','#665943','Caleb West'),
 )
-# Each job is a named multi-stage expedition; E interacts with each objective.
-# key, originating settlement, title, instruction, world targets, reward
-SIDE_JOBS=(
- ("lost_mail","drybone","The Missing Mailbag","Recover two lost mailbags along the Drybone trail",
-  ((6630,4680),(6820,5320)),75),
- ("ore_samples","ironwell","The Ironwell Survey","Retrieve two samples of ore from the old shaft",
-  ((10960,4750),(11250,5250)),95),
- ("painted_marks","painted","Signs in the Dust","Follow the painted markers and find the scout's notebook",
-  ((15220,4680),(15630,5130)),110),
- ("river_supplies","saltwater","Supplies Downriver","Find the lost medicine crate and the ferry manifest",
-  ((6740,8450),(7100,8910)),90),
- ("ember_ledger","ember","The Smuggler's Account","Recover the stolen ledger and its missing seal",
-  ((11000,8240),(11400,8730)),135),
- ("sundown_signal","sundown","Last Signal West","Collect the telegraph parts and repair notes",
-  ((15150,8460),(15820,8960)),150),
+SETTLEMENTS=tuple((key,TOWN_BY_ID[place][1],TOWN_BY_ID[place][2],
+                   TOWN_BY_ID[place][3],wall,roof,guide)
+                  for key,place,wall,roof,guide in _SETTLEMENT_IDS)
+
+# Each job remains a two-site expedition, now based on its real settlement.
+_JOB_DEFS=(
+ ('lost_mail','drybone','The Missing Mailbag','Recover two mailbags on Galloway trails',75),
+ ('ore_samples','ironwell','The Iron Mesa Survey','Retrieve ore samples in the Iron Mesa badlands',95),
+ ('painted_marks','painted','Signs in the Dust','Follow painted markers outside Dustwell',110),
+ ('river_supplies','saltwater','Supplies Downriver','Retrieve medicine crates on Roan Creek',90),
+ ('ember_ledger','ember','The Smuggler’s Account','Recover the missing Larkfield ledger',135),
+ ('sundown_signal','sundown','Last Signal West','Retrieve railroad signal parts outside Riversend',150),
 )
+_TOWN_CENTER={k:(x,y) for k,_,x,y,*_ in SETTLEMENTS}
+SIDE_JOBS=tuple((key,origin,title,instructions,
+                 ((_TOWN_CENTER[origin][0]+650,_TOWN_CENTER[origin][1]+470),
+                  (_TOWN_CENTER[origin][0]+1030,_TOWN_CENTER[origin][1]+920)),reward)
+                for key,origin,title,instructions,reward in _JOB_DEFS)
+
 # Buildings leave the old map untouched and keep the central road crossroads free.
 def extra_buildings():
  out=[]
