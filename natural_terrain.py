@@ -5,7 +5,7 @@ No runtime images, third-party modules, dynamic RNG or terrain-sized arrays.
 Named water and bridge collision stays in new_austellia.py.
 """
 import math
-from new_austellia import P,REGIONS,TOWNS,WATERWAYS,near_atlas_town,is_water
+from new_austellia import P,REGIONS,TOWNS,WATERWAYS,near_atlas_town,is_water,distance_to_segment
 from frontier_world import biome_at,road_at,BIOME_PALETTES
 
 SEED=1889
@@ -110,13 +110,24 @@ ROCKS=tuple((x,y,r,solid) for x,y,r,solid in rock_positions()
             if not near_protected(x,y,r+135))
 
 def landform_solid(x,y,radius=11):
-    # Broad cliff contours are currently traversable; major rocks alone
-    # collide. Only check expensive road/water protections near actual rocks.
+    # Major rocks obstruct movement. High cliff cores block movement except
+    # across the mapped road/rail, bridge and settlement approach corridors.
+    candidate=False
     for rx,ry,rr,solid in ROCKS:
         if solid and abs(x-rx)<=rr+radius and abs(y-ry)<=rr+radius:
             if (x-rx)**2+(y-ry)**2<(rr+radius)**2:
-                return not near_protected(x,y,radius+24)
-    return False
+                candidate=True
+                break
+    if not candidate:
+        for name,pts in RIDGES:
+            for a,b in zip(pts,pts[1:]):
+                limit=67+radius
+                if min(a[0],b[0])-limit<=x<=max(a[0],b[0])+limit and min(a[1],b[1])-limit<=y<=max(a[1],b[1])+limit:
+                    if distance_to_segment(x,y,a,b)<limit:
+                        candidate=True
+                        break
+            if candidate:break
+    return candidate and not near_protected(x,y,radius+24)
 
 def _visible(x,y,camx,camy,w,h,pad=120):
     return camx-pad<x<camx+w+pad and camy-pad<y<camy+h+pad
