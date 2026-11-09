@@ -11,7 +11,8 @@ from audio_system import AudioDirector
 from frontier_world import (WORLD_WIDTH,WORLD_HEIGHT,SECTOR_W,SECTOR_H,SECTOR_NAMES,
  BIOME_PALETTES,BIOME_GRID,LANDMARKS,ROAD_X,ROAD_Y,START_SPUR,MAP_RECT,
  region_at,biome_at,near_landmark,landmark_by_key,road_at,map_view,
- point_on_map,world_from_map,draw_map_background,draw_landmark)
+ point_on_map,world_from_map,draw_map_background,draw_landmark,
+ WAYSTATIONS,near_waystation,waystation_by_key,draw_waystations)
 from frontier_expansion import (SETTLEMENTS,SIDE_JOBS,extra_buildings,extra_npcs,resource_nodes,
                                 nearby_settlement,get_settlement,get_job,draw_frontier_towns)
 
@@ -149,7 +150,8 @@ class Game:
   self.last_save_ok=False;self.save_error='';self.last_save_time=''
 
  def in_safe_settlement(self,x,y):
-  return self.in_town(x,y) or (3120<x<3890 and 1500<y<2230) or nearby_settlement(x,y,445) is not None
+  return (self.in_town(x,y) or (3120<x<3890 and 1500<y<2230) or
+          nearby_settlement(x,y,445) is not None or near_waystation(x,y,275) is not None)
 
  def spawn_roamers(self):
   camps=[(1700,500),(2010,990),(1650,1370),(2100,1480),(2970,1080),(4150,1070),(4300,2000),(3650,2840),(2890,2940),(1820,2290),(6500,4200),(8200,7100),(10800,2550),(13100,9700),(15900,4700),(17900,10900),(6900,10300),(10200,11200)]
@@ -585,7 +587,7 @@ class Game:
 
  def rest_at_frontier_camp(self):
   if self.mounted or self.interior:return False
-  town=nearby_settlement(self.x,self.y,225)
+  town=nearby_settlement(self.x,self.y,225) or near_waystation(self.x,self.y,225)
   if not town:return False
   if town in self.camps_used:
    self.notify('You have already used the free camp at this settlement.',3);return False
@@ -1625,7 +1627,7 @@ class Game:
  def terrain_obstacle(self,x,y):
   # Consistent cover objects on procedural terrain; roads remain passable.
   if x<OLD_WW and y<OLD_WH:return None
-  if nearby_settlement(x,y,520):return None
+  if nearby_settlement(x,y,520) or near_waystation(x,y,190):return None
   tile=112;tx=int(x//tile);ty=int(y//tile)
   for cy in range(ty-1,ty+2):
    for cx in range(tx-1,tx+2):
@@ -1739,6 +1741,7 @@ class Game:
    self.canvas.create_image(-self.camx,-self.camy,image=self.world,anchor='nw')
   draw_frontier_towns(self.canvas,self.camx,self.camy,VW,VH)
   draw_landmark(self.canvas,self.camx,self.camy,VW,VH)
+  draw_waystations(self.canvas,self.camx,self.camy,VW,VH)
   self.draw_expansion_markers()
   self.draw_work_marker()
   self.draw_scattered_props()
@@ -1872,7 +1875,8 @@ class Game:
    if job and int(self.side_job['step'])<len(job[4]):
     tx,ty=job[4][int(self.side_job['step'])]
     if math.hypot(self.x-tx,self.y-ty)<85:self.draw_text(480,400,'[ E ]  COLLECT QUEST CLUE',13,'#f9e2a5',True,anchor='center')
-  if nearby_settlement(self.x,self.y,220):self.draw_text(480,380,'[ T ] REST AT CAMP',12,'#f0d39b',True,anchor='center')
+  if nearby_settlement(self.x,self.y,220) or near_waystation(self.x,self.y,220):
+   self.draw_text(480,380,'[ T ] REST AT CAMP',12,'#f0d39b',True,anchor='center')
   for _id,nx,ny,label,kind in RESOURCE_NODES:
    if _id not in self.gathered_nodes and math.hypot(nx-self.x,ny-self.y)<90:
     self.draw_text(480,411,'[ F ]  GATHER '+label.upper(),12,'#e1efb3',True,anchor='center');break
@@ -1884,6 +1888,8 @@ class Game:
   new_town=nearby_settlement(x,y,440)
   if new_town:return get_settlement(new_town)[1]
   if x>=OLD_WW or y>=OLD_WH:
+   station=near_waystation(x,y,290)
+   if station:return waystation_by_key(station)[1]
    landmark=near_landmark(x,y,335)
    if landmark:return landmark_by_key(landmark)[1]
    return region_at(x,y)
@@ -1964,6 +1970,12 @@ class Game:
     sx,sy=p
     self.canvas.create_rectangle(sx-4,sy-4,sx+4,sy+4,fill='#4e7060',outline='#f7dfaa')
     if self.map_zoom:self.draw_text(sx+7,sy,name,8,'#342a20',True)
+  for key,name,tx,ty in WAYSTATIONS:
+   p=mark(tx,ty)
+   if p:
+    sx,sy=p
+    self.canvas.create_rectangle(sx-3,sy-3,sx+3,sy+3,fill='#52726d',outline='#e1d8a2')
+    if self.map_zoom:self.draw_text(sx+7,sy+5,name.upper(),8,'#3f3025',True)
   for key,name,tx,ty,kind in LANDMARKS:
    p=mark(tx,ty)
    if not p:continue
