@@ -1655,8 +1655,18 @@ class Game:
     biome=biome_at(cx+tile/2,cy+tile/2)
     palette=BIOME_PALETTES[biome]
     px=cx-self.camx;py=cy-self.camy
-    c.create_rectangle(px,py,px+tile+1,py+tile+1,fill=palette[biome],outline='')
-    # Ground layer: ridges, dry grass and sun-baked cracks.
+    c.create_rectangle(px,py,px+tile+1,py+tile+1,fill=palette[h%len(palette)],outline='')
+    # Regional dressings distinguish forest, mesas, salt, water and desert.
+    if biome=='lake' and h%4==0:
+     c.create_oval(px+13,py+28,px+94,py+76,fill='#739e9e',outline='#9fbdb3',width=2)
+    elif biome=='forest' and h%3==0:
+     c.create_polygon(px+46,py+72,px+63,py+5,px+82,py+72,fill='#526f55',outline='#465b45')
+     c.create_line(px+63,py+61,px+63,py+88,fill='#5b4c39',width=5)
+    elif biome in ('canyon','mesa','mountain') and h%4==0:
+     c.create_polygon(px+8,py+91,px+26,py+48,px+67,py+44,px+95,py+90,
+                      fill='#946959' if biome!='mountain' else '#7e7975',outline='')
+    elif biome=='salt' and h%4==0:
+     c.create_line(px+8,py+40,px+39,py+31,px+67,py+53,px+96,py+35,fill='#f0e3c9',width=3)
     if h%4==0:
      c.create_line(px+9,py+35,px+40,py+28,px+64,py+39,fill='#8d7657',width=3,smooth=True)
     if h%5==0:
@@ -1672,10 +1682,19 @@ class Game:
       if h%11==0:
        c.create_polygon(rx-17,ry+12,rx-12,ry-7,rx+1,ry-17,rx+16,ry+8,fill='#746e60',outline='#4d4d45',width=2)
        c.create_polygon(rx-10,ry-4,rx+2,ry-12,rx+8,ry+1,fill='#a39a7c',outline='')
+      elif biome in ('forest','grass','mountain','lake','prairie'):
+       c.create_line(rx,ry+12,rx,ry-12,fill='#5f5444',width=6)
+       c.create_polygon(rx-18,ry+2,rx,ry-31,rx+19,ry+2,fill='#4e7354',outline='#3d5844',width=2)
+       c.create_polygon(rx-13,ry-10,rx,ry-35,rx+14,ry-10,fill='#668a5c',outline='')
       else:
        c.create_line(rx,ry+10,rx,ry-20,fill='#496549',width=7)
        c.create_line(rx,ry-8,rx-11,ry-8,rx-11,ry-17,fill='#496549',width=5)
        c.create_line(rx,ry-2,rx+12,ry-2,rx+12,ry-12,fill='#496549',width=5)
+  # The starting region connects to the first new trade-route crossroads.
+  (x1,y1),(x2,y2)=START_SPUR
+  if self.camx-80<x2 and self.camy-80<y2 and self.camx+VW+80>x1 and self.camy+VH+80>y1:
+   c.create_line(x1-self.camx,y1-self.camy,x2-self.camx,y2-self.camy,fill='#b9a276',width=38)
+   c.create_line(x1-self.camx,y1-self.camy,x2-self.camx,y2-self.camy,fill='#d3b789',width=2,dash=(12,16))
   # Intersecting tracks provide landmarks and long-distance navigation.
   for gx in ROAD_X:
    sx=gx-self.camx
