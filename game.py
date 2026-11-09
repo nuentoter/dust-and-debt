@@ -330,7 +330,7 @@ class Game:
   self.field_prisoner=None;self.field_arrests+=1
   self.money+=24;self.change_honor(2,'Bandit arrested alive')
   self.notify('DRIFTER DELIVERED ALIVE: +$24',5)
-  self.sound_cue();self.save()
+  self.sound_cue('arrest');self.save()
   return True
 
  def bounty_state(self):
@@ -384,7 +384,7 @@ class Game:
   self.money+=reward;self.bounties_done+=1;self.contract=None
   self.change_honor(5 if alive else 2,'Bounty delivered alive' if alive else 'Bounty brought to justice')
   self.notify(name+(' DELIVERED ALIVE' if alive else ' DEAD')+': +$'+str(reward),5)
-  self.sound_cue();self.save()
+  self.sound_cue('bounty_complete');self.save()
   return True
 
  def throw_lasso(self):
@@ -416,7 +416,7 @@ class Game:
    else:
     target.kind='field_prisoner';target.shoot=0.
     self.field_prisoner={'status':'roped','position':[target.x,target.y],'rope_timer':8.0}
-   self.notify('LASSO HIT! Dismount and press G nearby to hogtie.',4)
+   self.notify('LASSO HIT! Dismount and press G nearby to hogtie.',4);self.audio.cue('lasso')
    return True
   self.lasso_visual=[fx,fy,tx,ty,.3]
   self.notify('Lasso missed. Aim at an outlaw within range.',2)
@@ -463,7 +463,7 @@ class Game:
   else:
    self.contract['status']='hogtied';self.contract.pop('rope_timer',None)
    self.contract['captive_pos']=[a.x,a.y]
-  self.notify('HOGTIED! Press E nearby to pick up the prisoner.',4)
+  self.notify('HOGTIED! Press E nearby to pick up the prisoner.',4);self.audio.cue('hogtie')
   self.save();return True
 
  def pick_up_bounty(self):
@@ -639,7 +639,9 @@ class Game:
   if key=='f5' and self.screen in ('playing','paused'):
    self.save(manual=True);return
   if key=='v' and self.screen in ('playing','paused'):
-   self.sound_on=not self.sound_on;self.notify('SOUND '+('ON' if self.sound_on else 'OFF'),2);self.sound_cue();return
+   self.sound_on=not self.sound_on;self.audio.enabled=self.sound_on
+   self.notify('SOUND CUES '+('ON' if self.sound_on else 'OFF')+' (system bell)',2)
+   self.sound_cue('menu');return
   if key=='f11':
    self.fullscreen=not self.fullscreen;self.root.attributes('-fullscreen',self.fullscreen);return
   if self.screen=='title':
@@ -839,14 +841,9 @@ class Game:
   value=(cycle*7+region*11)%13
   return 'rain' if value in (2,6) else ('dust' if value in (4,8,10) else 'clear')
 
- def sound_cue(self):
-  # Optional low-rate system bell; no extra audio dependencies.
-  if not self.sound_on:return
-  now=time.monotonic()
-  if now-self.last_bell<.35:return
-  self.last_bell=now
-  try:self.root.bell()
-  except tk.TclError:pass
+ def sound_cue(self,event='menu'):
+  # Routes semantic cues to optional backend (system bell for now).
+  return self.audio.cue(event)
 
  def quest_target(self):
   return [(418,463),(1840,470),(418,463),(1270,1465),(2040,1280),(1270,1465),(1480,1030),(418,463),None][self.stage]
@@ -942,6 +939,7 @@ class Game:
  def enter_interior(self,name):
   self.deadeye_active=False
   self.interior=name;self.indoor_x=480.;self.indoor_y=465.;self.shop_open=False;self.show_jail=False
+  self.audio.cue('door')
   self.keys.clear();self.notify('Entered '+name+' — E at counter; E at south door to leave.',4)
 
  def leave_interior(self):
@@ -1251,7 +1249,7 @@ class Game:
  def reload(self):
   if self.reload_timer>0 or self.ammo==6:return
   if self.reserve<=0:self.notify('Out of ammunition. Visit the general store.');return
-  self.reload_timer=1.15;self.notify('Reloading...',1.2)
+  self.reload_timer=1.15;self.notify('Reloading...',1.2);self.audio.cue('reload')
  def fire(self):
   if self.screen!='playing' or self.dialog or self.shot_timer>0 or self.reload_timer>0 or self.map_open or self.journal_open:return
   if self.ammo<=0:self.reload();return
@@ -1262,7 +1260,7 @@ class Game:
   self.facing=(dx,dy)
   self.bullets.append([self.x+dx*19,self.y+dy*19,dx*710,dy*710,1.0,True])
   self.effects.append([self.x+dx*22,self.y+dy*22,.14,'flash'])
-  self.sound_cue()
+  self.sound_cue('gunshot')
   self.combat_warning=max(self.combat_warning,.16)
   self.shot_trails.append([self.x+dx*18,self.y+dy*18,self.x+dx*210,self.y+dy*210,.13])
   if self.in_town(self.x,self.y):self.report_crime(.40,'Gunshots in town')
@@ -1286,6 +1284,11 @@ class Game:
 
  def update(self,dt):
   self.frame+=1;self.advance_clock(dt*.032)
+  if self.interior:self.audio.set_music_state('interior')
+  elif self.combat_warning>0:self.audio.set_music_state('combat')
+  elif self.clock>=20 or self.clock<5:self.audio.set_music_state('night')
+  elif self.in_safe_settlement(self.x,self.y):self.audio.set_music_state('town')
+  else:self.audio.set_music_state('wilderness')
   self.safe_timer=max(0.,self.safe_timer-dt)
   self.deadeye_regen_delay=max(0,self.deadeye_regen_delay-dt)
   if self.deadeye_active:
