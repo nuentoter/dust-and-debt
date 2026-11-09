@@ -1196,6 +1196,8 @@ class Game:
   # longer to reach the law. Mission firefights against bandits are legal.
   self.crimes+=1
   self.law_reputation=max(0,self.law_reputation-max(1,int(severity*2)))
+  region=region_at(self.x,self.y)
+  self.regional_standing[region]=max(-100,self.regional_standing.get(region,0)-max(1,int(severity*3)))
   nearby=any(not a.dead and a.kind in ('civilian','sheriff','store','doctor','station','saloon','stable') and math.hypot(a.x-self.x,a.y-self.y)<310 for a in self.actors)
   witnessed=nearby or self.in_town(self.x,self.y)
   self.wanted=min(5.,self.wanted+severity*(1 if witnessed else .55))
@@ -2213,6 +2215,13 @@ class Game:
    job=self.work_active
    p=mark(*(job['destination'] if job['status']=='outbound' else job['giver_pos']))
    if p:self.canvas.create_oval(p[0]-6,p[1]-6,p[0]+6,p[1]+6,outline='#3288aa',width=3)
+  if self.road_contract:
+   job=self.road_contract
+   marker=job['target_pos'] if job['status']=='outbound' else job['origin_pos']
+   p=mark(*marker)
+   if p:
+    self.canvas.create_rectangle(p[0]-7,p[1]-7,p[0]+7,p[1]+7,outline='#5c8357',width=3)
+    if self.map_zoom:self.draw_text(p[0]+10,p[1]-9,job['title'].upper(),8,'#423728',True)
   target=self.quest_target()
   if target:
    p=mark(*target)
@@ -2265,6 +2274,7 @@ class Game:
   self.draw_text(158,152,'Day '+str(self.economy_day+1)+'   Jobs finished: '+str(self.work_finished),15,'#ead6b3',True)
   self.draw_text(158,193,'Wages earned: $'+str(self.work_income)+'    Purchases and services: $'+str(self.work_expenses),14,'#e2c5a1')
   self.draw_text(158,230,'Whiskey condition: '+str(int(self.horse_hp))+'/100     Law reputation: '+str(self.law_reputation),13,'#d9bca0')
+  self.draw_text(158,255,'Road jobs: '+str(self.road_contracts_done)+'   Road wages: $'+str(self.road_income)+'   Region standing: '+str(self.regional_standing.get(region_at(self.x,self.y),0)),12,'#c7d8ae')
   if self.work_active:
    job=self.work_active
    self.draw_text(158,285,'CURRENT WORK: '+job['title'],16,'#b9e5ee',True)
@@ -2274,14 +2284,16 @@ class Game:
   else:
    self.draw_text(158,290,'No active job. Press P near a station, rancher, miner,',13,'#e9d3b5')
    self.draw_text(158,316,'stablehand or settlement worker to accept paid work.',13,'#e9d3b5')
+  if self.road_contract:self.draw_text(158,408,'ROAD JOB: '+self.road_contract['title']+' — '+self.road_contract['status'].upper(),13,'#c7d8ae',True)
+  else:self.draw_text(158,408,'N at waystations: escort, courier, salvage or survey jobs.',12,'#c7d8ae')
   self.draw_text(480,486,'I / ESC CLOSE LEDGER',12,'#e6c38b',True,anchor='center')
 
  def draw_help(self):
   self.panel(190,52,580,506)
   self.draw_text(216,110,'HOW TO SURVIVE THE FRONTIER',20,'#efc58a',True)
-  controls=[('WASD / ARROWS','Move'),('SHIFT','Sprint / gallop'),('MOUSE CLICK','Aim and shoot'),('SPACE / R','Fire / reload'),('Q','Dead Eye'),('E / SHIFT+E','Interact / enter buildings'),('H','Mount / dismount Whiskey'),('B','Accept bounty near sheriff'),('L','Lasso wanted targets or bandits'),('G','Hogtie roped outlaw (on foot)'),('E BY TIED TARGET','Pick up captive'),('E BY SHERIFF','Deliver prisoner alive (on foot)'),('1','Health tonic'),('M / J','World map / journal'),('F / T','Gather / camp'),('P','Take or collect paid work'),('I','Work ledger and horse condition'),('V / O','Sound effects / ambient music'),('F5','Save game'),('F11','Fullscreen'),('ESC / F1','Pause / help')]
+  controls=[('WASD / ARROWS','Move'),('SHIFT','Sprint / gallop'),('MOUSE CLICK','Aim and shoot'),('SPACE / R','Fire / reload'),('Q','Dead Eye'),('E / SHIFT+E','Interact / enter buildings'),('H','Mount / dismount Whiskey'),('B','Accept bounty near sheriff'),('L','Lasso wanted targets or bandits'),('G','Hogtie roped outlaw (on foot)'),('E BY TIED TARGET','Pick up captive'),('E BY SHERIFF','Deliver prisoner alive (on foot)'),('1','Health tonic'),('M / J','World map / journal'),('F / T','Gather / camp'),('P','Take or collect paid work'),('N / U','Waystation road jobs / rumors'),('I','Work ledger and horse condition'),('V / O','Sound effects / ambient music'),('F5','Save game'),('F11','Fullscreen'),('ESC / F1','Pause / help')]
   for i,(k,v) in enumerate(controls):
-   yy=143+i*19
+   yy=143+i*18
    self.draw_text(218,yy,k,11,'#f4d59e',True)
    self.draw_text(445,yy,v,11,'#e3d2b8')
 
@@ -2353,7 +2365,7 @@ def main():
   assert len(MISSIONS)==9 and len(BUILDINGS)>=25 and (WW,WH)==(60000,40960)
   assert all(t in INTERIOR_TYPES for t in ('Saloon','General Store','Hotel','Sheriff'))
   assert len(SHOP_GOODS)>=6
-  assert VERSION.startswith('2.6-map')
+  assert VERSION.startswith('2.6')
   assert os.path.exists(os.path.join(ASSETS,'world.png'))
   assert os.path.exists(os.path.join(ASSETS,'title.png'))
   print('Self-test OK: story, buildings, and artwork present.')
