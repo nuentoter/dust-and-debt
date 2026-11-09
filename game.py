@@ -195,6 +195,7 @@ class Game:
   # Choice replies reflect reputation and the current legal situation.
   if self.law_status=='WANTED':
    greeting='Keep your hands where I can see them, stranger.'
+  elif self.law_reputation>=12:greeting='The deputies say you have brought real outlaws to justice.'
   elif self.honor>=75:greeting='Word is you have been helping folks around here.'
   elif self.honor<30:greeting='You have made a name for yourself, and not a good one.'
   else:greeting='Afternoon, traveler. What brings you this way?'
@@ -806,7 +807,8 @@ class Game:
    elif self.wanted>0:
     self.say('SHERIFF BELL',['You are carrying heat. The law does not overlook trouble in Cinder Creek.','Keep your hands clean and stay out of sight until your wanted level cools.'])
    elif self.honor<30:self.say('SHERIFF BELL',['I know what you have been doing out there, Vale. Folks remember.','A clean slate is earned, not handed over.'])
-   elif self.honor>=75:self.say('SHERIFF BELL',['People are beginning to speak well of you, Jesse.','There is still a place for an honest gun on the frontier.'])
+   elif self.law_reputation>=12:self.say('SHERIFF BELL',['The cells are filling because you have been bringing criminals in alive.','Keep the roads safe, Vale, and the town will remember.'])
+   elif self.honor>=75:self.say('SHERIFF BELL',['People are beginning to speak well of you, Jesse.,'There is still a place for an honest gun on the frontier.'])
    else:self.say('SHERIFF BELL',['Crow left friends scattered across the territory. They may still be worth a bounty.','Watch your ammunition and keep your horse watered.'])
   elif k=='station':
    if self.stage==3:
@@ -905,6 +907,7 @@ class Game:
   # A crime witnessed near town escalates immediately; elsewhere it may take
   # longer to reach the law. Mission firefights against bandits are legal.
   self.crimes+=1
+  self.law_reputation=max(0,self.law_reputation-max(1,int(severity*2)))
   nearby=any(not a.dead and a.kind in ('civilian','sheriff','store','doctor','station','saloon','stable') and math.hypot(a.x-self.x,a.y-self.y)<310 for a in self.actors)
   witnessed=nearby or self.in_town(self.x,self.y)
   self.wanted=min(5.,self.wanted+severity*(1 if witnessed else .55))
@@ -1840,7 +1843,7 @@ class Game:
   self.canvas.create_line(160,280,801,280,fill='#8d744e',width=2)
   self.draw_text(160,305,'YOUR RECORD',12,'#b89c70',True)
   self.draw_text(160,340,f'Outlaws defeated: {self.kills}       Money: ${self.money}',15,'#f1dfbd')
-  self.draw_text(160,382,f'Honor: {self.honor}/100    Law: {self.law_status}    Crimes: {self.crimes}',15,'#f1dfbd')
+  self.draw_text(160,382,f'Honor: {self.honor}/100   Law: {self.law_status}   Crimes: {self.crimes}   Booked: {len(self.jail_roster)}',13,'#f1dfbd')
   self.draw_text(160,424,f'Missions finished: {min(4,self.stage//2)} / 4       Story: {"COMPLETE" if self.stage==8 else "IN PROGRESS"}',15,'#f1dfbd')
   if self.contract:
    dead=int(self.contract['reward']);alive=int(self.contract.get('alive_reward',dead*2))
