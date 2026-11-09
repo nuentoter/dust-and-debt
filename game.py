@@ -803,11 +803,11 @@ class Game:
    return
   if key=='f5' and self.screen in ('playing','paused'):
    self.save(manual=True);return
-  if key=='v' and self.screen in ('playing','paused'):
+  if key=='v' and self.screen in ('title','playing','paused'):
    self.sound_on=not self.sound_on;self.audio.enabled=self.sound_on
    self.notify('SOUND EFFECTS '+('ON' if self.sound_on else 'OFF')+' ('+self.audio.backend+')',2)
    self.sound_cue('menu');return
-  if key=='o' and self.screen in ('playing','paused'):
+  if key=='o' and self.screen in ('title','playing','paused'):
    self.audio.set_music_enabled(not self.audio.music_enabled)
    self.notify('AMBIENT MUSIC '+('ON' if self.audio.music_enabled else 'OFF')+' ('+self.audio.backend+')',3)
    return
@@ -901,7 +901,11 @@ class Game:
   elif self.screen=='playing' and not self.interior and not self.dialog and not self.map_open and not self.journal_open:
    self.mouse_down=True;self.mouse=(e.x,e.y);self.fire()
   elif self.screen in ('death','ending'):self.key_down(type('E',(),{'keysym':'Return'})())
- def new_game(self):self.reset();self.screen='playing';self.say('NARRATOR',['1889. The borderlands have no patience for saints.','Your name is Jesse Vale. You have $35, six rounds, and a horse named Whiskey.','Sheriff Bell is looking for someone with nothing left to lose. Find him at the jail.']);self.save()
+ def new_game(self):
+  sound=self.audio.enabled;music=self.audio.music_enabled
+  self.reset();self.audio.enabled=sound;self.sound_on=sound
+  self.audio.set_music_enabled(music)
+  self.screen='playing';self.say('NARRATOR',['1889. The borderlands have no patience for saints.','Your name is Jesse Vale. You have $35, six rounds, and a horse named Whiskey.','Sheriff Bell is looking for someone with nothing left to lose. Find him at the jail.']);self.save()
  def continue_game(self):
   self.reset()
   try:
@@ -2379,7 +2383,9 @@ class Game:
 
  def render(self):
   self.canvas.delete('all')
-  if self.screen=='title':self.draw_title();return
+  if self.screen=='title':
+   self.audio.set_music_state('title')
+   self.draw_title();return
   if self.screen=='death':self.draw_death();return
   if self.screen=='ending':self.draw_ending();return
   if self.interior:
