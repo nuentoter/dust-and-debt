@@ -6,7 +6,7 @@ import game
 from new_austellia import (
  P,TOWNS,TOWN_BY_ID,REGIONS,MAJOR_TOWNS,RAILS,ROADS,WATERWAYS,LAKES,
  region_at,biome_at,travel_road,river_at,is_water,coastal_water,
- near_atlas_town,draw_atlas
+ near_atlas_town,draw_atlas,BRIDGES,bridge_at,distance_to_segment
 )
 from frontier_world import WAYSTATIONS,LANDMARKS,MAP_RECT,world_from_map,point_on_map
 
@@ -25,6 +25,20 @@ def main():
  assert biome_at(*P(1200,495))=="forest"
  assert river_at(*P(320,440))=="Sable River"
  assert travel_road(*P(648,515)),'Blackwater railroad crossing must be navigable'
+ assert len(BRIDGES)>=3,'Author roads and railroads must have actual mapped river intersections'
+ assert all(0<b[0]<game.WW and 0<b[1]<game.WH for b in BRIDGES)
+ assert all(bridge_at(b[0],b[1]) for b in BRIDGES)
+ assert not bridge_at(*P(505,146)),'Lake cannot be an invisible bridge'
+ assert not bridge_at(*P(900,1020)),'Open Gulf cannot be an invisible bridge'
+ for bx,by,dx,dy,river,kind,width in BRIDGES:
+  # Bridge faces remain traversable. A perpendicular offset into the river
+  # must not inherit an arbitrary road-wide ford.
+  assert not is_water(bx,by),(river,bx,by)
+  offset=width+235
+  px=bx+dx*offset;py=by+dy*offset
+  assert not bridge_at(px,py)
+ # Non-crossing stretches of river must be blocked, even near a wagon trail.
+ assert is_water(*P(320,440)),'Sable River outside the bridge is impassable'
  assert not is_water(*P(648,515)), 'Rail bridge must permit passage'
  assert is_water(*P(505,146)),'Frostvein Lake is an obstacle'
  assert coastal_water(*P(900,1020)),'Auburn Gulf must exist'
@@ -44,6 +58,13 @@ def main():
    assert g.can_move(x,y,8),name
   assert g.solid(*P(505,146),r=8)
   assert g.can_move(*P(648,515),8)
+  for bx,by,dx,dy,river,kind,width in BRIDGES:
+   assert g.can_move(bx,by,8),('Bridge blocked',river,bx,by)
+   g.x,g.y=bx,by
+   g.camx=max(0,min(game.WW-game.VW,int(bx-game.VW/2)))
+   g.camy=max(0,min(game.WH-game.VH,int(by-game.VH/2)))
+   g.render()
+   assert len(g.canvas.find_all())<6000
   # Relocated inherited frontier towns correspond to actual atlas locations.
   expected={"drybone":"galloway","ironwell":"iron_mesa","painted":"dustwell",
             "saltwater":"roan_creek","ember":"larkfield","sundown":"riversend"}
@@ -63,6 +84,10 @@ def main():
    assert math.hypot(world[0]-target[0],world[1]-target[1])<1
    g.render()
    assert len(g.canvas.find_all())<7000
+  # Cinder Creek's old image feathering must be bounded at the eastern and southern edges.
+  for cx,cy in ((game.OLD_WW-400,900),(900,game.OLD_WH-300)):
+   g.x,g.y=cx,cy;g.camx=max(0,int(cx-game.VW/2));g.camy=max(0,int(cy-game.VH/2))
+   g.render();assert len(g.canvas.find_all())<6000
   # Landmarks and mapped towns remain visible at distant local coordinates.
   g.map_open=False
   for key in ("galloway","blackwater_crossing","roan_creek","bayou_haven"):
