@@ -27,13 +27,19 @@ def main():
   root=tk.Tk();root.withdraw()
   g=game.Game(root);g.new_game();g.dialog=None
   assert game.VERSION.startswith('2.9')
+  g.map_open=True;g.journal_open=True
   key(g,'F8')
-  assert g.settings_open
+  assert g.settings_open and not g.map_open and not g.journal_open
+  g.render()
   key(g,'1');assert g.graphics_quality=='low'
   key(g,'2');assert not g.weather_enabled
   key(g,'3');assert not g.context_hints
   key(g,'F8');assert not g.settings_open
   g.render()
+  key(g,'Escape');assert g.screen=='paused'
+  key(g,'F8');assert g.settings_open
+  g.render()
+  key(g,'F8');key(g,'Escape');assert g.screen=='playing'
   assert g.save(manual=True)
   key(g,'F8');key(g,'1');key(g,'2');key(g,'3');key(g,'F8')
   assert g.save(manual=True)
