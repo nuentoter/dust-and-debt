@@ -15,6 +15,8 @@ from frontier_world import (WORLD_WIDTH,WORLD_HEIGHT,SECTOR_W,SECTOR_H,SECTOR_NA
  region_at,biome_at,near_landmark,landmark_by_key,road_at,map_view,
  point_on_map,world_from_map,draw_map_background,draw_landmark,
  WAYSTATIONS,near_waystation,waystation_by_key,draw_waystations)
+from new_austellia import (TOWNS,MAJOR_TOWNS,near_atlas_town,is_water,
+                            draw_local_geography,coastal_water,region_at as austellia_region)
 from frontier_expansion import (SETTLEMENTS,SIDE_JOBS,extra_buildings,extra_npcs,resource_nodes,
                                 nearby_settlement,get_settlement,get_job,draw_frontier_towns)
 
@@ -157,7 +159,8 @@ class Game:
 
  def in_safe_settlement(self,x,y):
   return (self.in_town(x,y) or (3120<x<3890 and 1500<y<2230) or
-          nearby_settlement(x,y,445) is not None or near_waystation(x,y,275) is not None)
+          nearby_settlement(x,y,445) is not None or near_waystation(x,y,275) is not None
+          or near_atlas_town(x,y,310) is not None)
 
  def spawn_roamers(self):
   camps=[(1700,500),(2010,990),(1650,1370),(2100,1480),(2970,1080),(4150,1070),(4300,2000),(3650,2840),(2890,2940),(1820,2290),(6500,4200),(8200,7100),(10800,2550),(13100,9700),(15900,4700),(17900,10900),(6900,10300),(10200,11200)]
@@ -209,6 +212,7 @@ class Game:
  def in_town(self,x,y):return 245<x<1150 and 230<y<960
  def solid(self,x,y,r=11):
   if x<23 or y<23 or x>WW-23 or y>WH-23:return True
+  if is_water(x,y):return True
   for n,bx,by,bw,bh in BUILDINGS:
    if bx-r<x<bx+bw+r and by-r<y<by+bh+r:return True
   obstacle=self.terrain_obstacle(x,y)
@@ -1829,7 +1833,7 @@ class Game:
  def terrain_obstacle(self,x,y):
   # Consistent cover objects on procedural terrain; roads remain passable.
   if x<OLD_WW and y<OLD_WH:return None
-  if nearby_settlement(x,y,520) or near_waystation(x,y,190):return None
+  if nearby_settlement(x,y,520) or near_waystation(x,y,190) or near_atlas_town(x,y,390):return None
   tile=112;tx=int(x//tile);ty=int(y//tile)
   for cy in range(ty-1,ty+2):
    for cx in range(tx-1,tx+2):
@@ -1897,17 +1901,17 @@ class Game:
   if self.camx-80<x2 and self.camy-80<y2 and self.camx+VW+80>x1 and self.camy+VH+80>y1:
    c.create_line(x1-self.camx,y1-self.camy,x2-self.camx,y2-self.camy,fill='#b9a276',width=38)
    c.create_line(x1-self.camx,y1-self.camy,x2-self.camx,y2-self.camy,fill='#d3b789',width=2,dash=(12,16))
-  # Intersecting tracks provide landmarks and long-distance navigation.
-  for gx in ROAD_X:
-   sx=gx-self.camx
-   if -70<sx<VW+70:
-    c.create_rectangle(sx-17,0,sx+17,VH,fill='#b9a276',outline='')
-    c.create_line(sx,0,sx,VH,fill='#d3b789',dash=(12,16),width=2)
-  for gy in ROAD_Y:
-   sy=gy-self.camy
-   if -70<sy<VH+70:
-    c.create_rectangle(0,sy-18,VW,sy+18,fill='#b9a276',outline='')
-    c.create_line(0,sy,VW,sy,fill='#d3b789',dash=(12,16),width=2)
+  # Legacy crossroads survive only in the original six-town province.
+  if self.camx<17000 and self.camy<10300:
+   for gx in ROAD_X:
+    if gx>17000:break
+    sx=gx-self.camx
+    if -70<sx<VW+70:
+     c.create_rectangle(sx-17,0,sx+17,VH,fill='#b9a276',outline='')
+   for gy in ROAD_Y:
+    if gy>10300:break
+    sy=gy-self.camy
+    if -70<sy<VH+70:c.create_rectangle(0,sy-18,VW,sy+18,fill='#b9a276',outline='')
 
  def draw_expansion_markers(self):
   # Camera-local sprites for gatherable items, campfires, and side-job clues.
@@ -1970,6 +1974,7 @@ class Game:
 
  def draw_world(self):
   self.draw_far_terrain()
+  draw_local_geography(self.canvas,self.camx,self.camy,VW,VH)
   if self.camx<OLD_WW and self.camy<OLD_WH:
    self.canvas.create_image(-self.camx,-self.camy,image=self.world,anchor='nw')
   draw_frontier_towns(self.canvas,self.camx,self.camy,VW,VH)
