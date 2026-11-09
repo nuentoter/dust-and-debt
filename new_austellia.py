@@ -88,6 +88,9 @@ WATERWAYS_SRC=(
 WATERWAYS=tuple((name,path(points),width) for name,points,width in WATERWAYS_SRC)
 LAKES_SRC=(("Frostvein Lake",505,148,45,23),("Northstar Lake",971,244,71,34))
 LAKES=tuple((name,*P(x,y),round(rx*WORLD_WIDTH/MAP_WIDTH),round(ry*WORLD_HEIGHT/MAP_HEIGHT)) for name,x,y,rx,ry in LAKES_SRC)
+COASTLINE_SRC=((0,1086),(380,1010),(530,967),(650,895),(720,887),
+               (820,904),(930,841),(1110,811),(1240,829),(1448,777))
+COAST_POLYGON=tuple(P(*p) for p in COASTLINE_SRC)+((60000,40960),(0,40960))
 # Red railroad routes and brown wagon trails: traced routes with intermediate bends.
 RAILS_SRC=(
  ((441,392),(505,376),(569,366),(636,336),(694,293),(754,281),(823,293),(894,330),(960,338),(1033,321),(1057,306)),
@@ -154,9 +157,7 @@ def coastal_water(x,y):
  # Illustrated gulf boundary bends up along the eastern bayou coast.
  source_x=x*MAP_WIDTH/WORLD_WIDTH
  source_y=y*MAP_HEIGHT/WORLD_HEIGHT
- coast=((0,1086),(380,1010),(530,967),(650,895),(720,887),
-        (820,904),(930,841),(1110,811),(1240,829),(1448,777))
- for a,b in zip(coast,coast[1:]):
+ for a,b in zip(COASTLINE_SRC,COASTLINE_SRC[1:]):
   if a[0]<=source_x<=b[0]:
    k=(source_x-a[0])/(b[0]-a[0])
    return source_y>a[1]+k*(b[1]-a[1])+8
@@ -184,6 +185,11 @@ def draw_local_geography(canvas,camx,camy,width,height):
   return (max(a[0],b[0])>=camx-pad and min(a[0],b[0])<=camx+width+pad and
           max(a[1],b[1])>=camy-pad and min(a[1],b[1])<=camy+height+pad)
  def xy(pt):return (pt[0]-camx,pt[1]-camy)
+ # The lower coast is real water, not just an invisible collision wall.
+ if any(coastal_water(px,py) for px,py in ((camx,camy),
+     (camx+width,camy),(camx,camy+height),(camx+width,camy+height))):
+  canvas.create_polygon(*[v for pt in COAST_POLYGON for v in xy(pt)],
+                        fill='#71979c',outline='#d3c7a6',width=4)
  for name,points,w in WATERWAYS:
   for a,b in zip(points,points[1:]):
    if not visible(a,b):continue
@@ -239,6 +245,28 @@ def draw_atlas(canvas,view,rect):
   if rx+22<sx<rx+rw-22 and ry+14<sy<ry+rh-14:
    canvas.create_text(sx,sy,text=name.upper(),fill="#473b2d",
                       font=("DejaVu Sans",8,"bold"))
+ # Gulf coastline is drawn before navigational lines and town labels.
+ def inside(pt,edge,value):
+  return (pt[edge]>=value) if edge in (0,2) else (pt[edge-2]<=value)
+ def clip_polygon(points):
+  # Sutherland-Hodgman polygon clipping to this atlas view.
+  poly=list(points)
+  for axis,bound,greater in ((0,ox,True),(0,ox+vw,False),(1,oy,True),(1,oy+vh,False)):
+   if not poly:break
+   result=[]
+   def valid(p):return p[axis]>=bound if greater else p[axis]<=bound
+   for prev,cur in zip(poly[-1:]+poly[:-1],poly):
+    start=valid(prev);end=valid(cur)
+    if start!=end:
+     delta=cur[axis]-prev[axis]
+     t=(bound-prev[axis])/delta if delta else 0
+     result.append((prev[0]+t*(cur[0]-prev[0]),prev[1]+t*(cur[1]-prev[1])))
+    if end:result.append(cur)
+   poly=result
+  return poly
+ ocean=clip_polygon(COAST_POLYGON)
+ if len(ocean)>=3:
+  canvas.create_polygon(*[v for p in ocean for v in scr(p)],fill='#779ba1',outline='')
  for name,points,w in WATERWAYS:
   coords=[scr(p) for p in points]
   canvas.create_line(*[v for p in coords for v in p],fill="#678f98",
