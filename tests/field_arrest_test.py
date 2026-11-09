@@ -26,6 +26,8 @@ def main():
   game.SAVE=os.path.join(tmp,'save.json')
   root=tk.Tk();root.withdraw()
   g=game.Game(root);g.new_game();g.dialog=None
+  # Other randomly spawned bandits can intercept the lasso aim corridor.
+  g.actors=[a for a in g.actors if a.kind!='bandit']
   x,y=g.safe_enemy_spawn(2000,900)
   drifter=game.Actor(x,y,'bandit','Drifter',70,70,75)
   g.actors.append(drifter)
@@ -65,6 +67,7 @@ def main():
   reloaded=game.Game(root);reloaded.continue_game();reloaded.dialog=None
   assert reloaded.field_arrests==1 and reloaded.field_prisoner is None
   # Escape after eight seconds: captives become hostile bandits again.
+  reloaded.actors=[a for a in reloaded.actors if a.kind!='bandit']
   ax,ay=reloaded.safe_enemy_spawn(2140,750)
   fugitive=game.Actor(ax,ay,'bandit','Drifter',70,70,75)
   reloaded.actors.append(fugitive)
