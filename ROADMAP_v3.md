@@ -1,7 +1,7 @@
 # Dust & Debt — Development Roadmap: v2.4 → v3.0
 
 **Updated:** November 9, 2026  
-**Current playable source:** v2.8 development preview — Combat Progression  
+**Current playable source:** v2.9 development preview — Presentation & Reliability  
 **Release target:** v3.0 — Living Frontier  
 **Operating model:** GitHub-first development, one milestone at a time; user pulls the current main branch when desired.
 
@@ -47,7 +47,7 @@ v2.8 Combat & Character Progression #12 (AI/PERKS IN REVIEW)
   weapons • morale • upgrades
        │
        ▼
-v2.9 Presentation & Reliability     #13
+v2.9 Presentation & Reliability (IN PROGRESS) #13
   UI • accessibility • optimization • save stability
        │
        ▼
@@ -67,7 +67,7 @@ v3.0 Living Frontier Release        #14
 | 2.7 | Handcrafted Frontier — implemented | Distinct town landmarks, regional interiors, two multi-stop quests, atlas selector, 1.5× trot/2.5× gallop and stamina | [#11](https://github.com/nuentoter/dust-and-debt/issues/11) |
 | 2.8-map | Rivers, Ridges & Stone — initial terrain pass committed | Organic biome transitions, atlas-aligned ridges, tributaries and boulder clusters; no grid seams | [#19](https://github.com/nuentoter/dust-and-debt/issues/19) · [Technical design](NATURAL_TERRAIN_MILESTONE.md) |
 | 2.8 | Combat and Character Progression | Weapon depth, enemy morale, earned upgrades, difficulty options | [#12](https://github.com/nuentoter/dust-and-debt/issues/12) |
-| 2.9 | Presentation and Reliability | Settings, polish, accessibility, profiling, current-version save reliability | [#13](https://github.com/nuentoter/dust-and-debt/issues/13) |
+| 2.9 | Presentation and Reliability — in progress | Settings panel, graphics/weather/hints controls, schema validation, backup recovery, further profiling and CI review | [#13](https://github.com/nuentoter/dust-and-debt/issues/13) |
 | 3.0 | Living Frontier Release | Integrated testing, documentation and a verified source release | [#14](https://github.com/nuentoter/dust-and-debt/issues/14) |
 
 ## Milestone priorities
