@@ -110,12 +110,12 @@ ROCKS=tuple((x,y,r,solid) for x,y,r,solid in rock_positions()
             if not near_protected(x,y,r+135))
 
 def landform_solid(x,y,radius=11):
-    # All ridge/mesa contours are traversable until dedicated passes/coverage
-    # are proven; only major boulders have solid footprints.
-    if near_protected(x,y,radius+24):return False
+    # Broad cliff contours are currently traversable; major rocks alone
+    # collide. Only check expensive road/water protections near actual rocks.
     for rx,ry,rr,solid in ROCKS:
         if solid and abs(x-rx)<=rr+radius and abs(y-ry)<=rr+radius:
-            if (x-rx)**2+(y-ry)**2<(rr+radius)**2:return True
+            if (x-rx)**2+(y-ry)**2<(rr+radius)**2:
+                return not near_protected(x,y,radius+24)
     return False
 
 def _visible(x,y,camx,camy,w,h,pad=120):
