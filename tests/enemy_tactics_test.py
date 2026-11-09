@@ -4,9 +4,15 @@ import os,sys,tempfile,tkinter as tk,math
 sys.path.insert(0,os.path.dirname(os.path.dirname(__file__)))
 from enemy_tactics import ARCHETYPES,archetype,morale,should_surrender,movement,cover_goal
 import game
+from combat_progression import earned_perks,perk_reload_multiplier,perk_incoming_multiplier,perk_deadeye_regen
 
 def main():
  assert len(ARCHETYPES)>=5
+ assert earned_perks()==()
+ assert set(earned_perks(3,6,12))=={'steady_nerve','trail_grit','quick_hands'}
+ assert perk_reload_multiplier(earned_perks(kills=12))==.90
+ assert perk_incoming_multiplier(earned_perks(arrests=3))==.90
+ assert perk_deadeye_regen(earned_perks(work=6))==14.
  raider=game.Actor(100,100,'bandit','Drifter',100,100,80)
  hunter=game.Actor(150,100,'bounty_target','Vulture Jack',145,145,86)
  boss=game.Actor(200,100,'mission_crow','Crow',240,240,105)
@@ -31,6 +37,8 @@ def main():
   assert g.check_surrender(hunter)
   assert g.bounty_state()=='surrendered'
   assert not g.check_surrender(boss)
+  g.field_arrests=3;g.work_finished=6;g.kills=12
+  assert len(g.combat_perks())==3
   # A free-roam hostile warns and aims before creating a shot.
   enemy=game.Actor(10150,6000,'bandit','Roadside Outlaw',100,100,72)
   g.actors.append(enemy)
