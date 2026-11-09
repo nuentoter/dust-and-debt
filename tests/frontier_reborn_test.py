@@ -39,7 +39,7 @@ def main():
    assert g.money>=before+job[5]
   assert len(g.side_completed)==6
   # New work schedules are occupation-based while story givers remain fixed.
-  courier=next(a for a in g.actors if a.name=='Drybone Junction Courier')
+  courier=next(a for a in g.actors if a.name==SETTLEMENTS[0][1]+' Courier')
   sheriff=next(a for a in g.actors if a.name=='Sheriff Bell')
   original=(sheriff.x,sheriff.y)
   g.clock=8;g.update_npc_schedules()
