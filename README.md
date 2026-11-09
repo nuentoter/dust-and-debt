@@ -1,6 +1,6 @@
 ## Development roadmap: v2.4–v3.0
 
-The post-v2.3 plan is tracked in [ROADMAP_v3.md](ROADMAP_v3.md). **v2.4 Living Law is implemented**; the remaining v2.5–v3.0 features are planned. Next is [v2.5 Working Frontier](https://github.com/nuentoter/dust-and-debt/issues/9). Save-format compatibility between development milestones is no longer guaranteed, at the owner's request; make a backup before upgrading if progress matters.
+The post-v2.3 plan is tracked in [ROADMAP_v3.md](ROADMAP_v3.md). **v2.4 Living Law and v2.5 Working Frontier are implemented**; v2.6–v3.0 are planned. Next is [v2.6 Roads and Consequences](https://github.com/nuentoter/dust-and-debt/issues/10), with the [early audio sprint](https://github.com/nuentoter/dust-and-debt/issues/15). Save-format compatibility between development milestones is no longer guaranteed, at the owner's request; make a backup before upgrading if progress matters.
 
 # DUST & DEBT
 ### A complete, original top-down Western adventure for Linux
@@ -8,6 +8,27 @@ The post-v2.3 plan is tracked in [ROADMAP_v3.md](ROADMAP_v3.md). **v2.4 Living L
 **1889.** Ride your horse Whiskey into Cinder Creek. Sheriff Bell has a job, the railroad is hiding a conspiracy, and an outlaw named Crow controls the desert. Finish **four connected story jobs** to earn your freedom, then continue playing in free roam.
 
 Features include a 4,800×3,200 scrolling handcrafted Western map, 27 buildings, multiple frontier settlements with interactive characters, horseback riding, 6-shot revolver gunplay, reloading, bandit combat, money and shops, a doctor and saloon, enemy pursuit, a wanted system, wildlife, a day/night cycle, an objective marker, a map and journal, health tonics, save/load, story ending and free roam.
+
+## v2.5 Working Frontier — jobs, trade and audio groundwork (November 2026)
+
+### Paid work and the new economy
+
+- **Press P** near stationmaster Nell, rancher Amos, prospector Finn, Mina the miner, Ezra the stablehand, or a settlement's Courier/Farmer/Watcher to accept repeatable honest work. The current job sends you to a blue marker on the map. Dismount and press **E** at the work site, return to the original employer, and press **P** to collect your wages.
+- Work includes mail delivery, fence repairs, mine sampling, horse feeding and road boundary inspections. Payouts vary from **$16 to $27** per completed task. Each employer offers one paid task per in-game day; other employers remain available. Work never requires attacking civilians or borrowing money.
+- Press **I** to open the **Working Frontier ledger**, showing completed jobs, earned wages, expenses, current work assignment, horse condition and available cash. Wage and expense totals persist.
+- Shops have **limited daily inventories**. Prices can shift slightly by reputation or region (not a speculative dynamic market); stock refreshes on the next in-game day. Empty shelves are marked **SOLD OUT**, and you cannot purchase beyond the stock limit.
+- Existing hotels, saloons, doctors, trading posts, stables and stations remain functional. Horse condition now decreases slowly while riding and can be restored with paid stable care. A tired horse becomes slower, but it does not die or strand the player. Resting, coffee and elapsed time advance the calendar.
+
+### Sound and music preparation — not yet full audio
+
+- The new `audio_system.py` exposes a reusable **AudioDirector** with named events (gunshots, reload, lasso, hogtie, purchases, jobs, doors and arrests) and music states (title, town, wilderness, combat, interior and night).
+- Settings include separate master/music/effects volumes and enable switches, with scene transitions tracked independently of playback.
+- **No recorded SFX or actual music is bundled or played yet.** The only audible output remains the optional Linux/Tk system-bell cue, toggled by **V**; it starts off. There are no new runtime dependencies.
+- See [assets/audio/README.md](assets/audio/README.md) and [Audio Sprint issue #15](https://github.com/nuentoter/dust-and-debt/issues/15) for the near-term implementation of streaming music, real effects, original ominous Western tracks and audio settings. This is planned as early v2.6 work.
+
+**Testing:** The `tests/working_frontier_test.py` regression checks stock limits, prices, restocking, jobs, daily work limits, save/reload, expenses, horse condition and the audio routing layer. GitHub Actions runs it alongside the older law, combat and story tests.
+
+**Save policy:** Old save compatibility is no longer guaranteed between development milestones, per the owner's preference. Current save integrity checks and backup protection remain. Archcraft-specific hardware performance remains unverified.
 
 ## v2.4 Living Law — surrender, patrols and jail (November 2026)
 
