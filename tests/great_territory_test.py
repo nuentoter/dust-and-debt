@@ -35,7 +35,7 @@ def main():
  assert road_at(4900,3250) and road_at(*START_SPUR[1])
  first_landmark=LANDMARKS[0]
  assert near_landmark(first_landmark[2],first_landmark[3])==first_landmark[0]
- assert near_waystation(18600,11500)=='west_ridge'
+ assert near_waystation(WAYSTATIONS[0][2],WAYSTATIONS[0][3])==WAYSTATIONS[0][0]
  # Both map modes preserve coordinates when converting screen/world.
  for center in ((680,630),(28600,19100),(58300,39900)):
   for zoom in (False,True):
