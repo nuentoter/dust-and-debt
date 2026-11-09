@@ -28,7 +28,8 @@ def main():
  assert biome_at(30000,21000) in BIOME_PALETTES
  assert not road_at(700,610), 'Preserve handmade original region'
  assert road_at(6000,4300) and road_at(56400,40300)
- assert road_at(*START_SPUR[0]) and road_at(*START_SPUR[1])
+ assert not road_at(*START_SPUR[0]), 'The original hand-painted terrain retains its own paths'
+ assert road_at(4900,3250) and road_at(*START_SPUR[1])
  assert near_landmark(17800,2700)=='rustwatch'
  assert near_waystation(18600,11500)=='west_ridge'
  # Both map modes preserve coordinates when converting screen/world.
