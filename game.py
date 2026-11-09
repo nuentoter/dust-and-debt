@@ -808,7 +808,7 @@ class Game:
     self.say('SHERIFF BELL',['You are carrying heat. The law does not overlook trouble in Cinder Creek.','Keep your hands clean and stay out of sight until your wanted level cools.'])
    elif self.honor<30:self.say('SHERIFF BELL',['I know what you have been doing out there, Vale. Folks remember.','A clean slate is earned, not handed over.'])
    elif self.law_reputation>=12:self.say('SHERIFF BELL',['The cells are filling because you have been bringing criminals in alive.','Keep the roads safe, Vale, and the town will remember.'])
-   elif self.honor>=75:self.say('SHERIFF BELL',['People are beginning to speak well of you, Jesse.,'There is still a place for an honest gun on the frontier.'])
+   elif self.honor>=75:self.say('SHERIFF BELL',['People are beginning to speak well of you, Jesse.','There is still a place for an honest gun on the frontier.'])
    else:self.say('SHERIFF BELL',['Crow left friends scattered across the territory. They may still be worth a bounty.','Watch your ammunition and keep your horse watered.'])
   elif k=='station':
    if self.stage==3:
