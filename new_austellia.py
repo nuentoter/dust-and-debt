@@ -233,7 +233,12 @@ def draw_local_geography(canvas,camx,camy,width,height):
  if any(coastal_water(px,py) for px,py in ((camx,camy),
      (camx+width,camy),(camx,camy+height),(camx+width,camy+height))):
   canvas.create_polygon(*[v for pt in COAST_POLYGON for v in xy(pt)],
-                        fill='#71979c',outline='#d3c7a6',width=4)
+                        fill='#71979c',outline='')
+  for a,b in zip(COAST_POLYGON,COAST_POLYGON[1:]):
+   if not visible(a,b,120):continue
+   x1,y1=xy(a);x2,y2=xy(b)
+   canvas.create_line(x1,y1,x2,y2,fill='#d6c6a3',width=15)
+   canvas.create_line(x1,y1,x2,y2,fill='#adbdad',width=4,dash=(18,23))
  for name,points,w in WATERWAYS:
   for a,b in zip(points,points[1:]):
    if not visible(a,b):continue
@@ -277,7 +282,17 @@ def draw_local_geography(canvas,camx,camy,width,height):
    for side in (-1,1):
     canvas.create_line(ax+nx*side*14,ay+ny*side*14,
                        ex+nx*side*14,ey+ny*side*14,fill='#3e3831',width=5)
+ # Coastal islands remain visible, but are not invisible pedestrian bridges.
+ for key,name,ix,iy,kind in TOWNS:
+  if kind!='island':continue
+  sx,sy=ix-camx,iy-camy
+  if -180<sx<width+180 and -150<sy<height+150:
+   canvas.create_oval(sx-78,sy-42,sx+78,sy+42,
+                      fill='#a69d72',outline='#d6c8a6',width=6)
+   canvas.create_polygon(sx-30,sy+7,sx-7,sy-25,sx+10,sy+8,
+                         fill='#678260',outline='')
  for key,name,tx,ty,kind in TOWNS:
+  if kind in ('lake','waterfall','spring','island'):continue
   sx,sy=tx-camx,ty-camy
   if not(-420<sx<width+420 and -420<sy<height+420):continue
   size=165 if kind in ("city","town","port") else 90
@@ -290,6 +305,33 @@ def draw_local_geography(canvas,camx,camy,width,height):
                          fill="#684d37",outline="")
   canvas.create_rectangle(sx-105,sy+27,sx+105,sy+49,fill="#574633",outline="#d5b78a")
   canvas.create_text(sx,sy+38,text=name.upper(),fill="#eed5a7",font=("DejaVu Sans",8,"bold"))
+  if kind=='port' or key in ('bayou_haven','harpers_landing'):
+   # A raised wooden quay; the riverbank and Gulf remain obstacles elsewhere.
+   side=1 if key=='saint_brigids' else -1
+   canvas.create_rectangle(sx+side*108-26,sy-35,sx+side*108+26,sy+82,
+                           fill='#856746',outline='#52432e',width=4)
+   for plank in range(-17,78,19):
+    canvas.create_line(sx+side*108-23,sy+plank,
+                       sx+side*108+23,sy+plank,fill='#513c2d',width=2)
+
+def draw_starting_transition(canvas,camx,camy,width,height,old_width,old_height):
+ """Dusty feather over the inherited square's hard seam; no image allocations."""
+ if camx>old_width+100 or camy>old_height+100:return
+ # Draw only on top of the original map image at its vertical/eastern edges.
+ for x1,y1,x2,y2 in ((old_width-16,0,old_width+17,old_height),
+                      (0,old_height-16,old_width,old_height+17)):
+  sx1,sy1=x1-camx,y1-camy;sx2,sy2=x2-camx,y2-camy
+  if sx2<0 or sy2<0 or sx1>width or sy1>height:continue
+  canvas.create_rectangle(sx1,sy1,sx2,sy2,fill='#bcaa85',outline='',stipple='gray50')
+ # Winding dust and small stones soften a straight rectangular border.
+ for n in range(0,old_height,91):
+  x=old_width+((n*23)%41)-20-camx;y=n-camy
+  if -30<x<width+30 and -30<y<height+30:
+   canvas.create_oval(x-8,y-3,x+9,y+3,fill='#b5a07a',outline='')
+ for n in range(0,old_width,93):
+  x=n-camx;y=old_height+((n*13)%41)-20-camy
+  if -30<x<width+30 and -30<y<height+30:
+   canvas.create_oval(x-7,y-4,x+8,y+4,fill='#b5a07a',outline='')
 
 def draw_atlas(canvas,view,rect):
  """Vector parchment atlas with authored waterways, railway, towns and regions."""
