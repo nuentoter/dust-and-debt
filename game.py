@@ -8,6 +8,10 @@ import os, math, random, json, time, textwrap, sys, shutil
 from dataclasses import dataclass
 from working_frontier import work_offer, shop_prices, daily_stock
 from audio_system import AudioDirector
+from frontier_world import (WORLD_WIDTH,WORLD_HEIGHT,SECTOR_W,SECTOR_H,SECTOR_NAMES,
+ BIOME_PALETTES,BIOME_GRID,LANDMARKS,ROAD_X,ROAD_Y,START_SPUR,MAP_RECT,
+ region_at,biome_at,near_landmark,landmark_by_key,road_at,map_view,
+ point_on_map,world_from_map,draw_map_background,draw_landmark)
 from frontier_expansion import (SETTLEMENTS,SIDE_JOBS,extra_buildings,extra_npcs,resource_nodes,
                                 nearby_settlement,get_settlement,get_job,draw_frontier_towns)
 
@@ -16,9 +20,9 @@ ASSETS=os.path.join(ROOT,'assets')
 SAVE=os.path.join(os.path.expanduser('~'),'.local','share','dust-and-debt','save.json')
 VW,VH=960,600
 OLD_WW,OLD_WH=4800,3200
-WW,WH=19200,12800  # 16x original area, drawn incrementally
+WW,WH=WORLD_WIDTH,WORLD_HEIGHT  # Exactly 10x v2.5 world area; camera-local terrain
 FPS=33
-VERSION='2.5 — Working Frontier'
+VERSION='2.6-map — The Great Territory'
 # Interiors are lightweight procedural rooms: no extra graphics libraries or image files.
 INTERIOR_TYPES={
  'Sheriff':'office','Sheriff Annex':'office','Saloon':'saloon','Sagebrush Saloon':'saloon',
@@ -94,7 +98,7 @@ class Actor:
 
 class Game:
  def __init__(self,root):
-  self.root=root;root.title('DUST & DEBT | Working Frontier v2.5')
+  self.root=root;root.title('DUST & DEBT | Great Territory (Map Foundation)')
   root.resizable(False,False)
   self.canvas=tk.Canvas(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
@@ -121,6 +125,7 @@ class Game:
   self.facing=(0.,-1.);self.shot_timer=0;self.reload_timer=0;self.invuln=0;self.hit_marker=0.;self.combat_warning=0.
   self.actors=[];self.bullets=[];self.effects=[];self.dialog=None;self.choice_dialog=None;self.dialog_from='';self.toast=[]
   self.camx=0;self.camy=0;self.map_open=False;self.journal_open=False;self.show_help=False
+  self.map_zoom=False;self.map_center=[self.x,self.y];self.landmarks_found=[]
   self.waypoint=None;self.sound_on=False;self.audio.enabled=False;self.audio.music_enabled=False;self.audio.set_music_state('silence');self.last_bell=0.;self.autosave_timer=90.;self.loaded_backup=False
   self.economy_day=0;self.shop_stock={};self.work_active=None;self.work_records={};self.work_finished=0;self.work_income=0;self.work_expenses=0;self.store_id=None;self.work_ledger_open=False
   self.interior=None;self.indoor_x=480.;self.indoor_y=465.;self.shop_open=False;self.show_jail=False
@@ -592,6 +597,16 @@ class Game:
   self.save()
   return True
 
+ def discover_landmark(self):
+  key=near_landmark(self.x,self.y,365)
+  if not key or key in self.landmarks_found:return False
+  item=landmark_by_key(key)
+  self.landmarks_found.append(key)
+  self.notify('LANDMARK DISCOVERED: '+item[1].upper()+' ('+
+              str(len(self.landmarks_found))+'/'+str(len(LANDMARKS))+')',5)
+  self.save()
+  return True
+
  def discover_settlement(self):
   town=nearby_settlement(self.x,self.y,385)
   if not town or town in self.visited_settlements:return False
@@ -744,6 +759,7 @@ class Game:
    self.gathered_nodes=list(s.get('gathered_nodes',[]))
    self.camps_used=list(s.get('camps_used',[]))
    self.visited_settlements=list(s.get('visited_settlements',[]))
+   self.landmarks_found=list(s.get('landmarks_found',[]))
    self.field_arrests=int(s.get('field_arrests',0))
    self.jail_roster=list(s.get('jail_roster',[]))
    self.law_reputation=int(s.get('law_reputation',0))
@@ -802,6 +818,7 @@ class Game:
   d['side_job']=self.side_job;d['side_completed']=self.side_completed
   d['gathered_nodes']=self.gathered_nodes;d['camps_used']=self.camps_used
   d['visited_settlements']=self.visited_settlements
+  d['landmarks_found']=self.landmarks_found
   d['save_version']=VERSION
   tag={1:'hollow',4:'blackspur',6:'crow'}.get(self.stage)
   if tag:d['stage_kills']=sum(a.dead for a in self.actors if a.kind=='mission_'+tag)
@@ -1342,7 +1359,7 @@ class Game:
    if self.spawn_road_encounter():self.encounter_cooldown=random.uniform(75,115)
    else:self.encounter_cooldown=15.
   if self.frame%40==0:
-   self.discover_settlement()
+   self.discover_settlement();self.discover_landmark()
    region=self.region_name(self.x,self.y)
    if region!=self.last_region:
     self.last_region=region;self.notify('NOW ENTERING: '+region.upper(),3.4)
@@ -1588,8 +1605,7 @@ class Game:
   return value^(value>>16)
 
  def is_frontier_road(self,x,y):
-  if x<OLD_WW and y<OLD_WH:return False
-  return any(abs(x-gx)<38 for gx in range(6000,WW,4200)) or any(abs(y-gy)<39 for gy in range(4300,WH,3600))
+  return road_at(x,y)
 
  def terrain_obstacle(self,x,y):
   # Consistent cover objects on procedural terrain; roads remain passable.
@@ -1619,8 +1635,8 @@ class Game:
     cx=xx*tile;cy=yy*tile
     if cx+tile<=OLD_WW and cy+tile<=OLD_WH:continue
     h=self.terrain_patch(xx,yy)
-    biome=(xx//18+yy//13)%5
-    palette=('#ae956b','#b4a275','#8b8c60','#bd996c','#a38c68')
+    biome=biome_at(cx+tile/2,cy+tile/2)
+    palette=BIOME_PALETTES[biome]
     px=cx-self.camx;py=cy-self.camy
     c.create_rectangle(px,py,px+tile+1,py+tile+1,fill=palette[biome],outline='')
     # Ground layer: ridges, dry grass and sun-baked cracks.
@@ -1644,12 +1660,12 @@ class Game:
        c.create_line(rx,ry-8,rx-11,ry-8,rx-11,ry-17,fill='#496549',width=5)
        c.create_line(rx,ry-2,rx+12,ry-2,rx+12,ry-12,fill='#496549',width=5)
   # Intersecting tracks provide landmarks and long-distance navigation.
-  for gx in range(6000,WW,4200):
+  for gx in ROAD_X:
    sx=gx-self.camx
    if -70<sx<VW+70:
     c.create_rectangle(sx-17,0,sx+17,VH,fill='#b9a276',outline='')
     c.create_line(sx,0,sx,VH,fill='#d3b789',dash=(12,16),width=2)
-  for gy in range(4300,WH,3600):
+  for gy in ROAD_Y:
    sy=gy-self.camy
    if -70<sy<VH+70:
     c.create_rectangle(0,sy-18,VW,sy+18,fill='#b9a276',outline='')
@@ -1704,8 +1720,10 @@ class Game:
 
  def draw_world(self):
   self.draw_far_terrain()
-  self.canvas.create_image(-self.camx,-self.camy,image=self.world,anchor='nw')
+  if self.camx<OLD_WW and self.camy<OLD_WH:
+   self.canvas.create_image(-self.camx,-self.camy,image=self.world,anchor='nw')
   draw_frontier_towns(self.canvas,self.camx,self.camy,VW,VH)
+  draw_landmark(self.canvas,self.camx,self.camy,VW,VH)
   self.draw_expansion_markers()
   self.draw_work_marker()
   self.draw_scattered_props()
@@ -1851,8 +1869,9 @@ class Game:
   new_town=nearby_settlement(x,y,440)
   if new_town:return get_settlement(new_town)[1]
   if x>=OLD_WW or y>=OLD_WH:
-   row=min(3,int(y//3200));col=min(3,int(x//4800))
-   return (('Far Rim','Prairie Expanse','Broken Plateaus','The Long Divide'),('Distant Range','Drybone Basin','Outlaw Trail','Sunset Mesa'),('Sage Ocean','Wandering Plains','Salt Flats','The Iron Hills'),('Southwood','Big Sky Prairie','Red Canyons','Last Horizon'))[row][col]
+   landmark=near_landmark(x,y,335)
+   if landmark:return landmark_by_key(landmark)[1]
+   return region_at(x,y)
   if 2800<x<3900 and 1460<y<2220:return 'Sagebrush Crossing'
   if x>3890 and y>2210:return 'Copper Ridge'
   if 1300<x<2400 and y>2160:return 'Silverwater Lake'
@@ -2083,10 +2102,10 @@ class Game:
 
 def main():
  if '--self-test' in sys.argv:
-  assert len(MISSIONS)==9 and len(BUILDINGS)>=25 and (WW,WH)==(19200,12800)
+  assert len(MISSIONS)==9 and len(BUILDINGS)>=25 and (WW,WH)==(60000,40960)
   assert all(t in INTERIOR_TYPES for t in ('Saloon','General Store','Hotel','Sheriff'))
   assert len(SHOP_GOODS)>=6
-  assert VERSION.startswith('2.5')
+  assert VERSION.startswith('2.6-map')
   assert os.path.exists(os.path.join(ASSETS,'world.png'))
   assert os.path.exists(os.path.join(ASSETS,'title.png'))
   print('Self-test OK: story, buildings, and artwork present.')
