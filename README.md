@@ -1,3 +1,11 @@
+## v2.9 development build — Presentation & Reliability (November 2026)
+
+**F8** opens an in-game settings panel while playing or paused (and while inside a building). Its numbered options toggle **graphics detail** (Normal/Low), weather effects, context-sensitive prompt hints, sound effects, and ambient music. F8 or Escape closes the panel; F5 saves. Low graphics detail skips decorative foreground scatter (not map geography, actors, critical markers or collision). Combat difficulty (F6) and aim assist (F7) remain separate.
+
+Save files now include `schema: 2` and a `settings` object. The game validates coordinates, story progress, schema version, and key inventory/contract fields before accepting a save. Older saves without schema migrate to defaults without discarding quests or earnings. When the primary save is corrupt, the game tries the last valid backup and preserves that backup until you save. Atomic writes and backup rotation remain in place. This is **not** a guarantee that every malformed nested historical save can be repaired.
+
+The F1 key reference and paused screen were updated, and the startup self-test now recognizes 2.9. New Xvfb test: `tests/presentation_reliability_test.py`. Full green CI and performance on the owner's laptop are still unverified, so this is a playtest candidate rather than a signed-off v3.0 release.
+
 ## v2.8 combat AI & earned perks — current development build (November 2026)
 
 Free-roam bandits and bounty targets now use deterministic archetypes (raider, skirmisher, marksman, enforcer). Crow retains a faster boss profile; deputies have their own behavior. Hostiles pause to aim before firing, with an **AIMING** warning above their heads. Skirmishers and marksmen can head toward nearby natural boulders for cover when there is a clear stand position. Enemy morale depends on wounds and allies, and low-morale free-roam bandits/bounties may surrender. **Story mission enemies never surrender**, preventing mission softlocks; lasso and alive bounty capture remain available.
