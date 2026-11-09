@@ -30,6 +30,10 @@ v2.6 Roads & Consequences (IMPLEMENTED) #10
   + audio playback foundation (PROGRESS): SFX and ambient beds #15
        │
        ▼
+New Austellia Atlas Alignment (HIGH PRIORITY) #17
+  exact illustrated map • named cities • waterways • roads
+       │
+       ▼
 v2.7 Handcrafted Frontier           #11
   landmarks • interiors • regional quests
        │
@@ -84,4 +88,4 @@ Each milestone should be considered complete only after its issue checklist is s
 
 ## Next implementation
 
-**Next: [v2.7 — Handcrafted Frontier](https://github.com/nuentoter/dust-and-debt/issues/11)** with richer landmarks, interiors and linked regional stories. Continue [Audio Sprint #15](https://github.com/nuentoter/dust-and-debt/issues/15) for the intended opening theme recording and final sound design. Build varied encounters and escorts, select an optional playback backend, and add original SFX/music when correctly licensed and tested.
+**Next, before v2.7: [issue #17 — faithfully map the illustrated New Austellia atlas](https://github.com/nuentoter/dust-and-debt/issues/17).** The current 10× procedural Great Territory is functional but not identical to the supplied illustrated geography. After aligning its named regions, river/rail/road network, settlement locations and full-map art, proceed with [v2.7 Handcrafted Frontier](https://github.com/nuentoter/dust-and-debt/issues/11). Continue [Audio Sprint #15](https://github.com/nuentoter/dust-and-debt/issues/15) for the intended opening theme and final sound design. Build varied encounters and escorts, select an optional playback backend, and add original SFX/music when correctly licensed and tested.
