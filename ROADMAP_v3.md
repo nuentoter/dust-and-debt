@@ -1,11 +1,11 @@
 # Dust & Debt — Development Roadmap: v2.4 → v3.0
 
 **Updated:** November 8, 2026  
-**Current playable source:** v2.5 — Working Frontier  
+**Current playable source:** v2.6-map — The Great Territory  
 **Release target:** v3.0 — Living Frontier  
 **Operating model:** GitHub-first development, one milestone at a time; user pulls the current main branch when desired.
 
-**v2.4 and v2.5 are implemented and Linux-CI tested.** v2.6–v3.0 remain planned. The audio engine is prepared; actual recordings and music playback are planned as an early v2.6 sprint.
+**v2.4, v2.5 and the 10× Great Territory map foundation are implemented and Linux-CI tested.** Full v2.6–v3.0 remain planned. The audio engine is prepared; recorded SFX and original music playback are planned for an early v2.6 sprint.
 
 ## Timeline / dependency map
 
@@ -19,6 +19,10 @@ v2.4 Living Law (IMPLEMENTED)        #8
        ▼
 v2.5 Working Frontier (IMPLEMENTED)  #9
   paid jobs • daily stock • ledgers • audio hooks
+       │
+       ▼
+v2.6-map The Great Territory (IMPLEMENTED) #16
+  60,000×40,960 • 24 sectors • landmarks • rest stops
        │
        ▼
 v2.6 Roads & Consequences           #10
@@ -48,6 +52,7 @@ v3.0 Living Frontier Release        #14
 |---|---|---|---|
 | 2.4 | Living Law — implemented | Outlaws surrender; law patrols roads; prisoners appear in jail | [#8](https://github.com/nuentoter/dust-and-debt/issues/8) |
 | 2.5 | Working Frontier — implemented | Repeatable lawful jobs, daily shop stock, accounting, horse care and audio architecture | [#9](https://github.com/nuentoter/dust-and-debt/issues/9) |
+| 2.6-map | Great Territory — implemented | 10× world area, 24 regions, 22 landmarks, 13 waystations, zoomable atlas, local radar | [#16](https://github.com/nuentoter/dust-and-debt/issues/16) |
 | 2.6 | Roads and Consequences | Road encounters, escorts, meaningful reputation; [early original audio sprint #15](https://github.com/nuentoter/dust-and-debt/issues/15) | [#10](https://github.com/nuentoter/dust-and-debt/issues/10) |
 | 2.7 | Handcrafted Frontier | Landmark variety, improved interiors, regional quest arcs | [#11](https://github.com/nuentoter/dust-and-debt/issues/11) |
 | 2.8 | Combat and Character Progression | Weapon depth, enemy morale, earned upgrades, difficulty options | [#12](https://github.com/nuentoter/dust-and-debt/issues/12) |
@@ -58,7 +63,7 @@ v3.0 Living Frontier Release        #14
 
 **First: make arresting people matter.** Version 2.4 builds on 2.2/2.3 lasso mechanics rather than discarding them. Outlaws should have a chance to surrender when injured or outmatched; sheriffs and deputies should patrol outside the starting town; arrested criminals should visibly occupy jail cells. These changes must not introduce new story softlocks or confusing **E** versus **Shift+E** prompts.
 
-**Second: put life into towns.** Version 2.5 adds repeatable honest work, a small trade economy and audio integration hooks. Versions 2.6–2.7 add meaningful road encounters, deeper settlements and multi-location story content. Actual music and recorded SFX are planned for an [early v2.6 audio sprint](https://github.com/nuentoter/dust-and-debt/issues/15). The existing 19,200×12,800 frontier must remain camera-local and lightweight; do not solve the art problem by loading a giant full-map bitmap.
+**Second: settle the physical map, then populate it.** Version 2.5 adds repeatable honest work and audio hooks; the **10× Great Territory map foundation** freezes geographic names, highways, and exploration stops in [WORLD_ATLAS.md](WORLD_ATLAS.md). Versions 2.6–2.7 add varied road encounters, deeper settlements and regional questlines across the expanded geography. Actual music and recorded SFX are planned for an [early v2.6 audio sprint](https://github.com/nuentoter/dust-and-debt/issues/15). The existing 19,200×12,800 frontier must remain camera-local and lightweight; do not solve the art problem by loading a giant full-map bitmap.
 
 **Third: improve the feel and finish.** Versions 2.8–3.0 focus on deeper gunfights, progression, UX, save reliability, low-spec optimization, release packaging and a substantial integration test pass.
 
@@ -79,4 +84,4 @@ Each milestone should be considered complete only after its issue checklist is s
 
 ## Next implementation
 
-**Next: [v2.6 — Roads and Consequences](https://github.com/nuentoter/dust-and-debt/issues/10), with [Audio Sprint #15](https://github.com/nuentoter/dust-and-debt/issues/15) in the early sequence.** Build varied encounters and escorts, select an optional playback backend, and add original SFX/music when correctly licensed and tested.
+**Map finalized first: [Great Territory #16](https://github.com/nuentoter/dust-and-debt/issues/16). Next: [v2.6 — Roads and Consequences](https://github.com/nuentoter/dust-and-debt/issues/10), with [Audio Sprint #15](https://github.com/nuentoter/dust-and-debt/issues/15) after geography is established.** Build varied encounters and escorts, select an optional playback backend, and add original SFX/music when correctly licensed and tested.
