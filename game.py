@@ -122,7 +122,7 @@ class Game:
   self.actors=[];self.bullets=[];self.effects=[];self.dialog=None;self.choice_dialog=None;self.dialog_from='';self.toast=[]
   self.camx=0;self.camy=0;self.map_open=False;self.journal_open=False;self.show_help=False
   self.waypoint=None;self.sound_on=False;self.last_bell=0.;self.autosave_timer=90.;self.loaded_backup=False
-  self.economy_day=0;self.shop_stock={};self.work_active=None;self.work_records={};self.work_finished=0;self.work_income=0;self.work_expenses=0;self.store_id=None
+  self.economy_day=0;self.shop_stock={};self.work_active=None;self.work_records={};self.work_finished=0;self.work_income=0;self.work_expenses=0;self.store_id=None;self.work_ledger_open=False
   self.interior=None;self.indoor_x=480.;self.indoor_y=465.;self.shop_open=False;self.show_jail=False
   self.npc_schedule_tick=0;self.npc_home={}
   for a in self.actors:
@@ -682,8 +682,8 @@ class Game:
   if key=='escape':self.screen='playing' if self.screen=='paused' else 'paused';self.deadeye_active=False;return
   if self.screen=='paused':return
   if key=='f1':self.show_help=not self.show_help
-  elif key=='m':self.map_open=not self.map_open;self.journal_open=False;self.deadeye_active=False
-  elif key=='j':self.journal_open=not self.journal_open;self.map_open=False;self.deadeye_active=False
+  elif key=='m':self.map_open=not self.map_open;self.journal_open=False;self.work_ledger_open=False;self.deadeye_active=False
+  elif key=='j':self.journal_open=not self.journal_open;self.map_open=False;self.work_ledger_open=False;self.deadeye_active=False
   elif key=='c' and self.waypoint is not None:self.waypoint=None;self.notify('Waypoint cleared.',2)
   elif key=='e':
    # Read the X11 Shift bit as well as key tracking for reliable combinations.
@@ -694,7 +694,8 @@ class Game:
     else:self.notify('Stand at a building entrance, then press Shift+E.',2)
    else:self.interact()
   elif key=='b' and self.near_bounty_board():self.begin_bounty()
-  elif key=='p':self.offer_work()
+  elif key=='p' and not self.map_open and not self.journal_open:self.offer_work()
+  elif key=='i':self.work_ledger_open=not self.work_ledger_open;self.map_open=False;self.journal_open=False
   elif key=='f':self.gather_resource()
   elif key=='t':self.rest_at_frontier_camp()
   elif key=='l':self.throw_lasso()
@@ -918,8 +919,13 @@ class Game:
    elif self.money>=15:self.money-=15;self.hp=self.maxhp;self.say('DOC HARPER',['Fifteen dollars. Clean bandages and a steady hand. You will live.']);self.save()
    else:self.say('DOC HARPER',['Treatment costs $15. I cannot feed my family on promises.'])
   elif k=='stable':
-   self.horse_hp=100;self.horse_x,self.horse_y=nearest.x+45,nearest.y+25
-   self.say('EZRA',['Whiskey is fed, watered, and ready to ride.','Press H while near your horse to mount or dismount.'])
+   if self.horse_hp>=100:self.say('STABLEHAND',['Whiskey is already well fed and rested.','Press H while near your horse to mount.'])
+   elif self.money>=5:
+    self.money-=5;self.work_expenses+=5;self.horse_hp=100
+    self.horse_x,self.horse_y=nearest.x+45,nearest.y+25
+    self.say('STABLEHAND',['Five dollars for good feed and a fresh brushing. Whiskey is ready.'])
+    self.audio.cue('horse');self.save()
+   else:self.say('STABLEHAND',['Five dollars for full horse care. Come back when you can afford it.'])
   elif k=='saloon':
    if self.money>=5:self.money-=5;self.hp=min(100,self.hp+20);self.say('MAE',['Five dollars for a drink and a quiet chair.','Your wounds sting a little less now.']);self.save()
    else:self.say('MAE',['Whiskey costs $5. Stories are free.'])
@@ -1324,9 +1330,11 @@ class Game:
    mag=math.hypot(vx,vy);vx/=mag;vy/=mag
    speed=(260 if 'shift_l' in self.keys or 'shift_r' in self.keys else 205) if self.mounted else (175 if 'shift_l' in self.keys or 'shift_r' in self.keys else 125)
    if (self.bounty_state()=='carried' or self.field_status()=='carried') and not self.mounted:speed*=.75
+   if self.mounted and self.horse_hp<20:speed*=.70
    if self.can_move(self.x+vx*speed*dt,self.y,16 if self.mounted else 10):self.x+=vx*speed*dt
    if self.can_move(self.x,self.y+vy*speed*dt,16 if self.mounted else 10):self.y+=vy*speed*dt
    self.facing=(vx,vy)
+  if self.mounted:self.horse_hp=max(0.,self.horse_hp-dt*.025)
   if self.frame%60==0:self.update_npc_schedules()
   self.encounter_cooldown=max(0.,self.encounter_cooldown-dt)
   if self.encounter_cooldown<=0:
