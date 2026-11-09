@@ -6,7 +6,7 @@
 **Area growth:** **exactly 10×** (3.125× wider and 3.2× taller)  
 **Source of geography:** `frontier_world.py`; source of existing towns and side jobs: `frontier_expansion.py`.
 
-This is the stable *physical layout* to use for the upcoming road encounters, settlement improvements, music/audio regions, and questlines. It is not a claim that the entire playable area has hand-authored stories or buildings.
+This is a functional *interim physical layout* for the v2.6 road encounters and audio states, pending alignment with the illustrated New Austellia geography in [issue #17](https://github.com/nuentoter/dust-and-debt/issues/17). It is not a claim that the entire playable area has hand-authored stories or buildings.
 
 ## Territory sectors
 
@@ -19,7 +19,7 @@ The map is divided into six columns and four rows; each named sector spans 10,00
 | 20,480–30,720 | Sunbleached Trail | Prairie Sea | Copper Divide | Redstone Maze | Blueglass Country | Distant Run |
 | 30,720–40,960 | South Marches | Three Forks | Fallen Timber | Devil's Reach | Ashfall Desert | Last Horizon |
 
-Biomes use lightweight, deterministic terrain coloring/props: grassland, prairie, desert, scrub, forest, mesas, canyon, salt, lakes, and mountains. The exact sector labels and centers are intentional; future expansion should not arbitrarily relocate them.
+Biomes use lightweight, deterministic terrain coloring/props: grassland, prairie, desert, scrub, forest, mesas, canyon, salt, lakes, and mountains. These sector labels and centers are provisional; they should be replaced or deliberately mapped to the illustrated New Austellia source before the next large quest expansion.
 
 ## Settlements preserved from previous builds
 
@@ -76,4 +76,4 @@ Run `xvfb-run -a python3 tests/great_territory_test.py` or run the GitHub Action
 
 ## Artwork reference
 
-The screenshot supplied during map finalization is the **existing Dust Hollow game viewport** (with in-game HUD and desktop UI visible), not a clean world atlas. It serves as a reference for the minimalist sunbaked top-down Western art style; importing the screenshot itself as terrain would paint the HUD and desktop into the world.
+**Correction:** The user's supplied image is an illustrated geographic atlas titled **The Frontier Lands of New Austellia**, not a Dust Hollow gameplay screenshot. The current Great Territory is an optimized **interim procedural world layout**, and its region names, rivers, railroads and towns do not yet match that artwork. Faithful geography and a full-map atlas image are high-priority work in [issue #17](https://github.com/nuentoter/dust-and-debt/issues/17) before v2.7 handcrafted content. The illustrated image is the visual source of truth; earlier text describing it as a screenshot was incorrect.
