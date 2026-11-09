@@ -1,11 +1,11 @@
 # Dust & Debt — Development Roadmap: v2.4 → v3.0
 
 **Updated:** November 8, 2026  
-**Current playable source:** v2.3 — Frontier Justice  
+**Current playable source:** v2.4 — Living Law  
 **Release target:** v3.0 — Living Frontier  
 **Operating model:** GitHub-first development, one milestone at a time; user pulls the current main branch when desired.
 
-This roadmap is **planned work**, not a claim these features are implemented. Features and sequencing may change if CI or gameplay reveals blockers.
+**v2.4 is implemented and Linux-CI tested.** v2.5–v3.0 remain planned. Sequencing may change when tests or gameplay reveal blockers.
 
 ## Timeline / dependency map
 
@@ -13,7 +13,7 @@ This roadmap is **planned work**, not a claim these features are implemented. Fe
 v2.3 Frontier Justice (implemented)
        │
        ▼
-v2.4 Living Law                      #8
+v2.4 Living Law (IMPLEMENTED)        #8
   surrender • patrols • jails
        │
        ▼
@@ -45,17 +45,17 @@ v3.0 Living Frontier Release        #14
 
 | Version | Milestone | Main outcome | GitHub tracker |
 |---|---|---|---|
-| 2.4 | Living Law | Outlaws surrender; law patrols roads; prisoners appear in jail | [#8](https://github.com/nuentoter/dust-and-debt/issues/8) |
+| 2.4 | Living Law — implemented | Outlaws surrender; law patrols roads; prisoners appear in jail | [#8](https://github.com/nuentoter/dust-and-debt/issues/8) |
 | 2.5 | Working Frontier | Local economy, town jobs, trading and upkeep | [#9](https://github.com/nuentoter/dust-and-debt/issues/9) |
 | 2.6 | Roads and Consequences | Road encounters, escorts, meaningful reputation | [#10](https://github.com/nuentoter/dust-and-debt/issues/10) |
 | 2.7 | Handcrafted Frontier | Landmark variety, improved interiors, regional quest arcs | [#11](https://github.com/nuentoter/dust-and-debt/issues/11) |
 | 2.8 | Combat and Character Progression | Weapon depth, enemy morale, earned upgrades, difficulty options | [#12](https://github.com/nuentoter/dust-and-debt/issues/12) |
-| 2.9 | Presentation and Reliability | Settings, polish, accessibility, profiling, save migrations | [#13](https://github.com/nuentoter/dust-and-debt/issues/13) |
+| 2.9 | Presentation and Reliability | Settings, polish, accessibility, profiling, current-version save reliability | [#13](https://github.com/nuentoter/dust-and-debt/issues/13) |
 | 3.0 | Living Frontier Release | Integrated testing, documentation and a verified source release | [#14](https://github.com/nuentoter/dust-and-debt/issues/14) |
 
 ## Milestone priorities
 
-**First: make arresting people matter.** The next update (2.4) builds on 2.2/2.3 lasso mechanics rather than discarding them. Outlaws should have a chance to surrender when injured or outmatched; sheriffs and deputies should patrol outside the starting town; arrested criminals should visibly occupy jail cells. These changes must not introduce new story softlocks or confusing **E** versus **Shift+E** prompts.
+**First: make arresting people matter.** Version 2.4 builds on 2.2/2.3 lasso mechanics rather than discarding them. Outlaws should have a chance to surrender when injured or outmatched; sheriffs and deputies should patrol outside the starting town; arrested criminals should visibly occupy jail cells. These changes must not introduce new story softlocks or confusing **E** versus **Shift+E** prompts.
 
 **Second: put life into towns.** The 2.5–2.7 stretch adds repeatable honest work, believable routines, meaningful road encounters, deeper settlements and multi-location story content. The existing 19,200×12,800 frontier must remain camera-local and lightweight; do not solve the art problem by loading a giant full-map bitmap.
 
@@ -78,4 +78,4 @@ Each milestone should be considered complete only after its issue checklist is s
 
 ## Next implementation
 
-**Start with [v2.4 — Living Law](https://github.com/nuentoter/dust-and-debt/issues/8).** Suggested work order: surrender state → restrained-NPC integration → jail intake and persistent registry → deputy patrols → law/witness responses → regression coverage.
+**Next: [v2.5 — Working Frontier](https://github.com/nuentoter/dust-and-debt/issues/9).** Planned work order: functioning merchants and daily stock → repeatable lawful employment → costs of travel and horse care → local prices and reputation → economy-balancing tests.
