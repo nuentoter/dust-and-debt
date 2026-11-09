@@ -81,6 +81,8 @@ def main():
   assert starter.stage==1 and starter.dialog is not None
   # Outnumbered bandits surrender without a gunshot when two patrollers arrive.
   surrounded=game.Game(root);surrounded.new_game();surrounded.dialog=None
+  # Remove unrelated random bandits so another surrender cannot fill the one-prisoner slot.
+  surrounded.actors=[a for a in surrounded.actors if a.kind!='bandit']
   fugitive=game.Actor(2130,865,'bandit','Drifter',70,70,75)
   surrounded.actors.append(fugitive)
   guards=[a for a in surrounded.actors if a.kind=='law_patrol'][:2]
