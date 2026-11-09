@@ -700,6 +700,60 @@ class Game:
   else:self.notify('ROAD RUMOR: '+text,5)
   return text
 
+ def chapter_node(self):
+  if not self.chapter_active:return None
+  chapter=CHAPTER_BY_ID.get(self.chapter_active.get('id'))
+  if not chapter:return None
+  return node_for(chapter,self.chapter_active.get('step',0))
+
+ def chapter_target(self):
+  node=self.chapter_node()
+  if not node:return None
+  # Nodes are in real named towns. Use nearest safe sidewalk if the center is occupied.
+  return self.safe_enemy_spawn(node['x'],node['y'])
+
+ def progress_regional_chapter(self):
+  if self.mounted or self.interior or self.dialog or self.choice_dialog:
+   self.notify('Dismount and finish conversations before investigating.',3);return False
+  if not self.chapter_active:
+   chapter=available_chapter(self.x,self.y,self.chapter_completed)
+   if not chapter:
+    self.notify('Regional stories begin in Galloway or Roan Creek. Visit their town squares.',4)
+    return False
+   self.chapter_active={'id':chapter['id'],'step':1}
+   node=node_for(chapter,1)
+   self.waypoint=list(self.safe_enemy_spawn(node['x'],node['y']))
+   self.say('FRONTIER DISPATCH',[chapter['dialogue'][0],node['description']])
+   self.notify('STORY BEGINS: '+chapter['title']+' — '+node['town_name'],5)
+   self.save();return True
+  chapter=CHAPTER_BY_ID.get(self.chapter_active.get('id'))
+  if not chapter:
+   self.chapter_active=None;return False
+  step=int(self.chapter_active.get('step',1))
+  if step<1 or step>=len(chapter['steps']):return False
+  node=node_for(chapter,step)
+  tx,ty=self.safe_enemy_spawn(node['x'],node['y'])
+  if math.hypot(self.x-tx,self.y-ty)>330:
+   self.notify('Next lead: '+node['town_name']+'. Follow the white map marker.',4)
+   return False
+  if step==len(chapter['steps'])-1:
+   self.chapter_completed.append(chapter['id'])
+   self.chapter_active=None
+   self.money+=chapter['reward'];self.chapter_earnings+=chapter['reward']
+   self.change_honor(chapter['honor'],'Finished '+chapter['title'])
+   region=region_at(self.x,self.y)
+   self.regional_standing[region]=min(100,self.regional_standing.get(region,0)+6)
+   self.waypoint=None
+   self.say('FRONTIER DISPATCH',[chapter['dialogue'][step],
+      'Received $'+str(chapter['reward'])+' for '+chapter['title']+'.'])
+   self.audio.cue('bounty_complete');self.save();return True
+  self.chapter_active['step']=step+1
+  next_node=node_for(chapter,step+1)
+  self.waypoint=list(self.safe_enemy_spawn(next_node['x'],next_node['y']))
+  self.say('FRONTIER DISPATCH',[chapter['dialogue'][step],next_node['description']])
+  self.notify(chapter['title']+' — '+next_node['town_name'],5)
+  self.audio.cue('job_complete');self.save();return True
+
  def offer_frontier_job(self,guide):
   town=nearby_settlement(guide.x,guide.y)
   if not town:return
@@ -904,6 +958,7 @@ class Game:
   elif key=='p' and not self.map_open and not self.journal_open:self.offer_work()
   elif key=='n' and not self.map_open and not self.journal_open:self.offer_road_contract()
   elif key=='u' and not self.map_open and not self.journal_open:self.regional_rumor()
+  elif key=='y' and not self.map_open and not self.journal_open:self.progress_regional_chapter()
   elif key=='i':self.work_ledger_open=not self.work_ledger_open;self.map_open=False;self.journal_open=False
   elif key=='f':self.gather_resource()
   elif key=='t':self.rest_at_frontier_camp()
