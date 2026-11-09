@@ -111,6 +111,14 @@ class Game:
   self.titleimg=tk.PhotoImage(file=os.path.join(ASSETS,'title.png'))
   self.mapimg=tk.PhotoImage(file=os.path.join(ASSETS,'map.png'))
   self.mapthumb=self.mapimg.subsample(4,4)
+  # Optional authentic illustrated atlas. Vector atlas still works without it.
+  self.austellia_image=None
+  try:
+   source=os.path.join(ASSETS,'new_austellia_map.png')
+   if os.path.isfile(source):
+    atlas=tk.PhotoImage(file=source)
+    if (atlas.width(),atlas.height())==MAP_RECT[2:]:self.austellia_image=atlas
+  except (OSError,tk.TclError):pass
   self.audio=AudioDirector(bell=root.bell,assets_path=os.path.join(ASSETS,'audio'))
   self.keys=set();self.mouse=(VW//2,VH//2);self.mouse_down=False
   self.screen='title';self.fullscreen=False
@@ -2223,12 +2231,16 @@ class Game:
   self.draw_text(838,548,'1–3 CHOOSE  •  ESC LEAVE',10,'#e2b477',True,anchor='e')
 
  def draw_map(self):
-  self.panel(120,48,720,506,'#26211b')
-  self.draw_text(145,66,'THE GREAT TERRITORY',23,'#ebca95',True)
+  self.panel(106,37,748,547,'#26211b')
+  self.draw_text(145,59,'NEW AUSTELLIA — 1898',21,'#ebca95',True)
   mode='REGIONAL' if self.map_zoom else 'WHOLE TERRITORY'
   self.draw_text(805,78,mode,11,'#e4c797',True,anchor='e')
   view=self.current_map_view()
-  draw_map_background(self.canvas,view)
+  if not self.map_zoom and self.austellia_image:
+   x,y,w,h=MAP_RECT
+   self.canvas.create_image(x,y,image=self.austellia_image,anchor='nw')
+   self.canvas.create_rectangle(x,y,x+w,y+h,outline='#6d5136',width=3)
+  else:draw_map_background(self.canvas,view)
   def mark(wx,wy):
    return point_on_map(wx,wy,view)
   for key,name,cx,cy,*_ in SETTLEMENTS:
@@ -2302,7 +2314,7 @@ class Game:
     self.canvas.create_line(sx,sy-9,sx,sy+9,fill='#157661',width=3)
   p=mark(self.x,self.y)
   if p:self.canvas.create_oval(p[0]-6,p[1]-6,p[0]+6,p[1]+6,fill='#d94530',outline='#fff8d7',width=2)
-  self.draw_text(480,519,'CLICK SET PIN  •  Z ZOOM  •  WASD PAN  •  M CLOSE  •  ORANGE: LANDMARK',10,'#e2c397',anchor='center')
+  self.draw_text(480,570,'CLICK TO PIN  •  Z ZOOM  •  WASD PAN  •  M CLOSE',10,'#e2c397',anchor='center')
 
  def draw_journal(self):
   self.panel(132,59,700,485)
