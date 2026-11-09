@@ -892,7 +892,11 @@ class Game:
    self.notify('DEAD EYE '+('ENGAGED' if self.deadeye_active else 'DISENGAGED'),1.0)
    return
   if key=='f8' and self.screen in ('playing','paused'):
-   self.settings_open=not self.settings_open;self.keys.discard(key);return
+   self.settings_open=not self.settings_open
+   if self.settings_open:
+    self.map_open=False;self.journal_open=False;self.work_ledger_open=False
+    self.show_help=False;self.deadeye_active=False;self.keys.clear()
+   self.keys.discard(key);return
   if self.settings_open and self.screen in ('playing','paused'):
    if key=='1':self.graphics_quality='low' if self.graphics_quality=='normal' else 'normal'
    elif key=='2':self.weather_enabled=not self.weather_enabled
@@ -2537,19 +2541,19 @@ class Game:
    self.draw_interior()
    if self.shop_open:self.draw_shop()
    if self.show_help:self.draw_help()
-   if self.settings_open:self.draw_settings()
    self.draw_dialog()
    self.draw_choice_dialogue()
+   if self.settings_open:self.draw_settings()
    return
   self.draw_world();self.draw_hud()
   if self.screen=='paused':self.draw_pause()
-  if self.settings_open:self.draw_settings()
   if self.map_open:self.draw_map()
   if self.journal_open:self.draw_journal()
   if self.work_ledger_open:self.draw_work_ledger()
   if self.show_help:self.draw_help()
   self.draw_dialog()
   self.draw_choice_dialogue()
+  if self.settings_open:self.draw_settings()
 
  def quit(self):
   if self.screen in ('playing','paused','ending'):self.save()
