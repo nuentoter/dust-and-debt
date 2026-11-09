@@ -36,9 +36,9 @@ The coordinates of these destinations have been traced from the atlas rather tha
 
 The illustrated railroad is a branched network through **Galloway, Saint's Hollow, Roan Creek, Blackwater Crossing, Larkfield, Harper's Landing, Valleyford, Dustwell, Riversend and Saint Brigid's Port**. Secondary wagon roads link mining camps, forts and trading posts. The original old-world approach road is retained only in its limited starting province so legacy opening missions still work.
 
-The named rivers and lakes visibly exist in the top-down world and act as geographical obstacles; mapped road/rail crossings allow movement across them. The Gulf has a traced coastline and is rendered as coastal water, not unexplained traversable desert. Towns and docks have walkable platforms.
+The named rivers and lakes visibly exist in the top-down world and act as geographical obstacles. **Crossings now use actual intersections between the traced river channels and railway/wagon-road segments**, rather than making every road that touches water an unrestricted ford. Planked bridge decks and timber guard rails are drawn at these sites. The Gulf has a traced coastline, beach trim, and nearby visible islands. Port locations have raised docks; open water remains impassable. The original Cinder Creek map edge now has a lightweight dust-feather transition.
 
-Routes and boundaries are approximations of the illustration, not survey-grade hydrology. Bridge behavior is based on proximity to the mapped road/rail line; sophisticated ferry and boat navigation remain future work.
+Routes and boundaries are approximations of the illustration, not survey-grade hydrology. Bridge behavior is determined by explicit route/river segment intersections; specialized ferry and boat navigation remain future work.
 
 ## Relocated existing gameplay settlements
 
