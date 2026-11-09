@@ -546,7 +546,16 @@ class Game:
    angle=random.random()*math.tau;distance=random.randint(270,380)
    x=self.x+math.cos(angle)*distance;y=self.y+math.sin(angle)*distance
    if not self.can_move(x,y,20) or self.in_safe_settlement(x,y):continue
-   incident=random.choice(('traveler','road_wagon','road_cache'))
+   incident=random.choice(('traveler','traveler','road_wagon','road_wagon','road_cache','road_cache','ambush'))
+   if incident=='ambush':
+    spawned=0
+    for sx,sy in ((x,y),(x+75,y-35)):
+     if self.can_move(sx,sy,20) and not self.in_safe_settlement(sx,sy):
+      self.actors.append(Actor(sx,sy,'bandit','Road Ambusher',75,75,80));spawned+=1
+    if spawned:
+     self.notify('AMBUSH! Armed riders are closing in along the road.',5)
+     return True
+    continue
    names={'traveler':'Stranded Traveler','road_wagon':'Broken Wagon','road_cache':'Forgotten Supply Crate'}
    self.actors.append(Actor(x,y,incident,names[incident],100,100,0))
    self.notify({'traveler':'Someone needs help along the road.',
@@ -1925,6 +1934,18 @@ class Game:
       c.create_oval(sx-7,sy-23,sx+7,sy-9,fill='#4caaa2',outline='#244e4a',width=2)
       self.draw_text(sx,sy-41,'SIDE JOB CLUE',10,'#a8e3d8',True,anchor='center')
 
+ def draw_road_contract_marker(self):
+  job=self.road_contract
+  if not job:return
+  wx,wy=job['target_pos'] if job['status']=='outbound' else job['origin_pos']
+  sx,sy=self.pos(wx,wy)
+  if not(-55<sx<VW+55 and -55<sy<VH+55):return
+  self.canvas.create_oval(sx-28,sy-13,sx+28,sy+12,outline='#c7d9a8',width=3)
+  self.canvas.create_rectangle(sx-12,sy-13,sx+12,sy+6,fill='#8b7252',outline='#463b2a',width=3)
+  self.canvas.create_line(sx-9,sy-8,sx+10,sy+3,fill='#d1bd92',width=2)
+  label='ROAD JOB: E' if job['status']=='outbound' else 'RETURN: N'
+  self.draw_text(sx,sy-36,label,11,'#e4f1c3',True,anchor='center')
+
  def draw_work_marker(self):
   if not self.work_active:return
   job=self.work_active
@@ -1945,6 +1966,7 @@ class Game:
   draw_waystations(self.canvas,self.camx,self.camy,VW,VH)
   self.draw_expansion_markers()
   self.draw_work_marker()
+  self.draw_road_contract_marker()
   self.draw_scattered_props()
   visible=(a for a in self.actors if self.camx-45<=a.x<=self.camx+VW+45 and self.camy-50<=a.y<=self.camy+VH+50)
   for a in sorted(visible,key=lambda a:a.y):self.draw_actor(a)
