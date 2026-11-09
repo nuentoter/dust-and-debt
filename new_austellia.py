@@ -174,9 +174,10 @@ def is_water(x,y):
  if ford_at(x,y):return False
  return coastal_water(x,y) or bool(lake_at(x,y)) or bool(river_at(x,y))
 
+SETTLEMENT_KINDS=frozenset(('city','town','port','post','settlement','fort','ranch','mine','camp','ruin','tower'))
 def near_atlas_town(x,y,radius=420):
  for key,name,tx,ty,kind in TOWNS:
-  if math.hypot(tx-x,ty-y)<radius:return key
+  if kind in SETTLEMENT_KINDS and math.hypot(tx-x,ty-y)<radius:return key
  return None
 
 def draw_local_geography(canvas,camx,camy,width,height):
