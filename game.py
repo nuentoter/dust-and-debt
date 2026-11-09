@@ -119,7 +119,7 @@ class Game:
   self.actors=[];self.bullets=[];self.effects=[];self.dialog=None;self.choice_dialog=None;self.dialog_from='';self.toast=[]
   self.camx=0;self.camy=0;self.map_open=False;self.journal_open=False;self.show_help=False
   self.waypoint=None;self.sound_on=False;self.last_bell=0.;self.autosave_timer=90.;self.loaded_backup=False
-  self.interior=None;self.indoor_x=480.;self.indoor_y=465.;self.shop_open=False
+  self.interior=None;self.indoor_x=480.;self.indoor_y=465.;self.shop_open=False;self.show_jail=False
   self.npc_schedule_tick=0;self.npc_home={}
   for a in self.actors:
    if a.kind=='civilian':self.npc_home[a.name]=(a.x,a.y)
@@ -584,7 +584,9 @@ class Game:
    elif key in ('1','2','3','4'):self.buy_item(int(key)-1)
    return
   if self.interior:
-   if key=='b' and self.indoor_y<380:self.use_counter()
+   if key=='k' and self.interior=='Sheriff':self.show_jail=not self.show_jail
+   elif self.show_jail and key in ('escape','e','k'):self.show_jail=False
+   elif key=='b' and self.indoor_y<380:self.use_counter()
    elif key=='e':
     if self.indoor_y>475:self.leave_interior()
     elif self.indoor_y<360:self.use_counter()
@@ -650,7 +652,7 @@ class Game:
    self.jail_roster=list(s.get('jail_roster',[]))
    self.law_reputation=int(s.get('law_reputation',0))
    self.field_prisoner=s.get('field_prisoner')
-   if self.field_prisoner and self.field_prisoner.get('status') in ('roped','hogtied'):
+   if self.field_prisoner and self.field_prisoner.get('status') in ('roped','hogtied','surrendered'):
     px,py=self.field_prisoner['position']
     px,py=self.safe_enemy_spawn(px,py)
     self.field_prisoner['position']=[px,py]
@@ -842,13 +844,13 @@ class Game:
 
  def enter_interior(self,name):
   self.deadeye_active=False
-  self.interior=name;self.indoor_x=480.;self.indoor_y=465.;self.shop_open=False
+  self.interior=name;self.indoor_x=480.;self.indoor_y=465.;self.shop_open=False;self.show_jail=False
   self.keys.clear();self.notify('Entered '+name+' — E at counter; E at south door to leave.',4)
 
  def leave_interior(self):
   if not self.interior:return
   name=self.interior
-  self.interior=None;self.shop_open=False;self.keys.clear()
+  self.interior=None;self.shop_open=False;self.show_jail=False;self.keys.clear()
   self.notify('Back outside '+name+'.',1.7)
 
  def update_indoor(self,dt):
@@ -1042,17 +1044,46 @@ class Game:
   elif kind=='chapel':
    c.create_line(480,239,480,296,fill='#eed8a7',width=8);c.create_line(458,257,502,257,fill='#eed8a7',width=8)
   self.draw_interior_details(kind)
+  if self.interior=='Sheriff':self.draw_jail_cells()
   c.create_oval(self.indoor_x-10,self.indoor_y+8,self.indoor_x+11,self.indoor_y+15,fill='#49372e',outline='')
   c.create_rectangle(self.indoor_x-9,self.indoor_y-9,self.indoor_x+9,self.indoor_y+10,fill='#35565b',outline='#172a2e',width=2)
   c.create_oval(self.indoor_x-8,self.indoor_y-20,self.indoor_x+8,self.indoor_y-7,fill='#d0a078',outline='')
   c.create_rectangle(self.indoor_x-14,self.indoor_y-20,self.indoor_x+14,self.indoor_y-16,fill='#5f3d2c',outline='')
   self.panel(200,18,560,70)
   self.draw_text(480,30,self.interior.upper(),21,'#f2d7a0',True,anchor='center')
-  self.draw_text(480,60,'WASD: WALK   E: INTERACT   ESC: OUTSIDE',11,'#debd86',anchor='center')
+  self.draw_text(480,60,'WASD WALK   E INTERACT   ESC EXIT'+('   K JAIL ROSTER' if self.interior=='Sheriff' else ''),11,'#debd86',anchor='center')
   if self.indoor_y<365:self.draw_text(480,330,'[ E ]  COUNTER',14,'#ffe5ac',True,anchor='center')
   if self.indoor_y>475:self.draw_text(480,550,'[ E ]  EXIT TO STREET',13,'#f3d79e',True,anchor='center')
   self.draw_text(18,562,f'HEALTH {int(self.hp)}   $ {self.money}   TONICS {self.tonics}   AMMO {self.ammo}/{self.reserve}',12,'#ecd0a0',True)
   for i,(msg,remaining) in enumerate(self.toast[-2:]):self.draw_text(480,104+i*23,msg,12,'#fff0c4',True,anchor='center')
+  if self.show_jail and self.interior=='Sheriff':self.draw_jail_roster()
+
+ def draw_jail_cells(self):
+  # Visible cell occupants mirror the latest arrests; the full roster is on K.
+  c=self.canvas
+  occupants=self.jail_roster[-3:]
+  for i in range(3):
+   x=234+i*174;y=350
+   c.create_rectangle(x,y,x+135,y+91,fill='#423f3c',outline='#27282b',width=4)
+   if i<len(occupants):
+    c.create_oval(x+58,y+25,x+76,y+45,fill='#b88a6b',outline='')
+    c.create_rectangle(x+55,y+45,x+79,y+70,fill='#7b5946',outline='')
+   for bar in range(5):
+    bx=x+8+bar*29
+    c.create_line(bx,y+4,bx,y+87,fill='#a49c86',width=5)
+   c.create_text(x+68,y-13,text='CELL '+str(i+1),fill='#f1d9a8',font=(self.font,10,'bold'))
+
+ def draw_jail_roster(self):
+  self.panel(230,115,505,405,fill='#26231e')
+  self.draw_text(480,132,'CINDER CREEK JAIL REGISTER',19,'#f0d39b',True,anchor='center')
+  self.draw_text(254,175,'PRISONERS BOOKED: '+str(len(self.jail_roster))+
+                 '     LAW REPUTATION: '+str(self.law_reputation),12,'#d9c293',True)
+  latest=list(reversed(self.jail_roster[-10:]))
+  if not latest:self.draw_text(480,280,'All cells are empty.',15,'#d5bd9a',anchor='center')
+  for i,entry in enumerate(latest):
+   label=entry.get('name','Unknown')+'   •   '+entry.get('case','Arrest')
+   self.draw_text(253,212+i*24,label[:65],11,'#f3d8b1')
+  self.draw_text(480,494,'K / E / ESC — CLOSE REGISTER',11,'#c7b393',True,anchor='center')
 
  def draw_interior_details(self,kind):
   c=self.canvas
