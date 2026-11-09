@@ -16,7 +16,7 @@ VW,VH=960,600
 OLD_WW,OLD_WH=4800,3200
 WW,WH=19200,12800  # 16x original area, drawn incrementally
 FPS=33
-VERSION='2.3 — Frontier Justice'
+VERSION='2.4 — Living Law'
 # Interiors are lightweight procedural rooms: no extra graphics libraries or image files.
 INTERIOR_TYPES={
  'Sheriff':'office','Sheriff Annex':'office','Saloon':'saloon','Sagebrush Saloon':'saloon',
@@ -92,7 +92,7 @@ class Actor:
 
 class Game:
  def __init__(self,root):
-  self.root=root;root.title('DUST & DEBT | Frontier Justice v2.3')
+  self.root=root;root.title('DUST & DEBT | Living Law v2.4')
   root.resizable(False,False)
   self.canvas=tk.Canvas(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
@@ -130,9 +130,11 @@ class Game:
   self.contract=None;self.bounties_done=0;self.encounter_cooldown=35.
   self.lasso_cooldown=0.;self.lasso_visual=None
   self.field_prisoner=None;self.field_arrests=0
+  self.jail_roster=[];self.law_reputation=0;self.patrol_alert_timer=0.
   self.side_job=None;self.side_completed=[];self.gathered_nodes=[];self.camps_used=[]
   self.visited_settlements=[];self.settlement_news_timer=0.
   self.spawn_roamers()
+  self.spawn_law_patrols()
   self.update_npc_schedules()
   self.safe_timer=50.
   self.last_save_ok=False;self.save_error='';self.last_save_time=''
@@ -150,6 +152,25 @@ class Game:
    x=random.randint(120,WW-150);y=random.randint(100,WH-120)
    if self.in_safe_settlement(x,y):continue
    self.actors.append(Actor(x,y,'animal',random.choice(['Coyote','Jackrabbit']),24,24,85))
+
+ def spawn_law_patrols(self):
+  # Permanent, non-hostile lawmen circle town edges. Only pursue when wanted.
+  routes=[
+   ((1180,700),(1260,720),(1300,830),(1180,900)),
+   ((3250,1640),(3860,1660),(3910,2230),(3220,2200)),
+   ((6000,3890),(6380,4260),(6000,4680),(5620,4300)),
+   ((10200,3880),(10560,4300),(10200,4660),(9840,4300)),
+   ((14400,3910),(14790,4320),(14400,4680),(14020,4320)),
+   ((6000,7500),(6400,7910),(6000,8300),(5600,7910)),
+   ((10200,7510),(10610,7920),(10200,8290),(9790,7900)),
+   ((14400,7500),(14810,7900),(14400,8300),(13990,7900)),
+  ]
+  for i,route in enumerate(routes):
+   x,y=self.safe_enemy_spawn(*route[0])
+   a=Actor(x,y,'law_patrol','Deputy Patrol '+str(i+1),95,95,63)
+   a.route=tuple(self.safe_enemy_spawn(*pt) for pt in route)
+   a.route_index=1
+   self.actors.append(a)
 
  def in_town(self,x,y):return 245<x<1150 and 230<y<960
  def solid(self,x,y,r=11):
@@ -209,6 +230,12 @@ class Game:
   if self.mounted or self.interior:return False
   return any(a.kind=='sheriff' and not a.dead and math.hypot(a.x-self.x,a.y-self.y)<105 for a in self.actors)
 
+ def record_jail_intake(self,name,offense):
+  self.jail_roster.append({'name':name,'case':offense,'hour':round(self.clock,2),
+                           'town':'Cinder Creek'})
+  self.jail_roster=self.jail_roster[-40:]
+  self.law_reputation=min(100,self.law_reputation+(5 if offense=='named bounty' else 2))
+
  def field_actor(self):
   return next((a for a in self.actors if a.kind=='field_prisoner' and not a.dead),None)
 
@@ -217,6 +244,7 @@ class Game:
 
  def deliver_field_prisoner(self):
   if self.field_status()!='carried' or self.mounted or not self.near_bounty_board():return False
+  self.record_jail_intake('Drifter','field arrest')
   self.field_prisoner=None;self.field_arrests+=1
   self.money+=24;self.change_honor(2,'Bandit arrested alive')
   self.notify('DRIFTER DELIVERED ALIVE: +$24',5)
@@ -270,6 +298,7 @@ class Game:
   if target:target.dead=True
   name=self.contract['name']
   if alive and self.waypoint==[418,463]:self.waypoint=None
+  if alive:self.record_jail_intake(name,'named bounty')
   self.money+=reward;self.bounties_done+=1;self.contract=None
   self.change_honor(5 if alive else 2,'Bounty delivered alive' if alive else 'Bounty brought to justice')
   self.notify(name+(' DELIVERED ALIVE' if alive else ' DEAD')+': +$'+str(reward),5)
@@ -591,6 +620,8 @@ class Game:
    self.camps_used=list(s.get('camps_used',[]))
    self.visited_settlements=list(s.get('visited_settlements',[]))
    self.field_arrests=int(s.get('field_arrests',0))
+   self.jail_roster=list(s.get('jail_roster',[]))
+   self.law_reputation=int(s.get('law_reputation',0))
    self.field_prisoner=s.get('field_prisoner')
    if self.field_prisoner and self.field_prisoner.get('status') in ('roped','hogtied'):
     px,py=self.field_prisoner['position']
@@ -638,6 +669,7 @@ class Game:
   d['mission_activated']=list(self.mission_activated)
   d['contract']=self.contract;d['bounties_done']=self.bounties_done
   d['field_prisoner']=self.field_prisoner;d['field_arrests']=self.field_arrests
+  d['jail_roster']=self.jail_roster;d['law_reputation']=self.law_reputation
   d['waypoint']=self.waypoint;d['sound_on']=self.sound_on
   d['side_job']=self.side_job;d['side_completed']=self.side_completed
   d['gathered_nodes']=self.gathered_nodes;d['camps_used']=self.camps_used
