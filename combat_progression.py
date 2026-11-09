@@ -38,3 +38,20 @@ def aim_vector(dx,dy,actors,x,y,assist=False,range_limit=430):
         score=(1-dot)*3+dist/2500
         if best is None or score<best[0]:best=(score,vx/dist,vy/dist)
     return (best[1],best[2]) if best else (ux,uy)
+
+def earned_perks(arrests=0,work=0,kills=0):
+    """Automatic, permanent-by-achievement perks; counters already persist."""
+    perks=[]
+    if arrests>=3:perks.append("steady_nerve")
+    if work>=6:perks.append("trail_grit")
+    if kills>=12:perks.append("quick_hands")
+    return tuple(perks)
+
+def perk_reload_multiplier(perks):
+    return .90 if "quick_hands" in perks else 1.0
+
+def perk_incoming_multiplier(perks):
+    return .90 if "steady_nerve" in perks else 1.0
+
+def perk_deadeye_regen(perks):
+    return 14. if "trail_grit" in perks else 11.
