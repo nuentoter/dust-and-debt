@@ -55,3 +55,6 @@ jobs:
 
       - name: Combat progression v2.8 regression
         run: xvfb-run -a python3 tests/combat_progression_test.py
+
+      - name: Rivers Ridges and Stone natural terrain
+        run: xvfb-run -a python3 tests/natural_terrain_test.py
