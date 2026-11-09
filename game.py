@@ -680,7 +680,7 @@ class Game:
   if gap<75:return
   dx=(self.x-passenger.x)/gap;dy=(self.y-passenger.y)/gap
   original=(passenger.x,passenger.y)
-  speed=165 if self.mounted else 133
+  speed=(455 if self.horse_motion.get('speed',0)>370 else 305) if self.mounted else 133
   self.move_actor(passenger,dx*speed*dt,dy*speed*dt)
   if math.hypot(passenger.x-original[0],passenger.y-original[1])<.1:
    job['stuck_time']=job.get('stuck_time',0.)+dt
@@ -1549,10 +1549,12 @@ class Game:
 
  def toggle_horse(self):
   if self.mounted:
-   self.mounted=False;self.horse_x=self.x+28;self.horse_y=self.y+10;self.notify('Dismounted Whiskey.')
+   self.mounted=False;self.horse_motion['speed']=0.
+   self.horse_x=self.x+28;self.horse_y=self.y+10;self.notify('Dismounted Whiskey.')
   elif math.hypot(self.x-self.horse_x,self.y-self.horse_y)<75:
    self.deadeye_active=False
-   self.mounted=True;self.notify('Mounted Whiskey. Hold Shift to gallop.')
+   self.mounted=True;self.horse_motion['speed']=0.
+   self.notify('Mounted Whiskey. Hold Shift to gallop; stamina recovers at a trot.')
   else:self.notify('Get closer to Whiskey to mount (H).')
  def tonic(self):
   if self.tonics<=0:self.notify('No tonics left.');return
@@ -1632,15 +1634,29 @@ class Game:
   self.effects=[a for a in self.effects if a[2]>0]
   vx=(int('d' in self.keys or 'right' in self.keys)-int('a' in self.keys or 'left' in self.keys))
   vy=(int('s' in self.keys or 'down' in self.keys)-int('w' in self.keys or 'up' in self.keys))
-  if vx or vy:
+  wants_gallop='shift_l' in self.keys or 'shift_r' in self.keys
+  if self.mounted:
+   horse_vx,horse_vy,galloping=step_motion(self.horse_motion,vx,vy,dt,wants_gallop,self.horse_hp)
+   distance=math.hypot(horse_vx,horse_vy)*dt
+   slices=max(1,int(math.ceil(distance/10.)))
+   # Substep the fast gallop so the horse cannot skip through buildings or rivers.
+   for _ in range(slices):
+    dx=horse_vx*dt/slices;dy=horse_vy*dt/slices
+    moved=False
+    if abs(dx)>.0001 and self.can_move(self.x+dx,self.y,16):self.x+=dx;moved=True
+    if abs(dy)>.0001 and self.can_move(self.x,self.y+dy,16):self.y+=dy;moved=True
+    if not moved and abs(dx)+abs(dy)>.01:
+     self.horse_motion['speed']=0.
+     break
+   if vx or vy:self.facing=(horse_vx,horse_vy)
+   self.horse_hp=max(0.,self.horse_hp-dt*.025)
+  elif vx or vy:
    mag=math.hypot(vx,vy);vx/=mag;vy/=mag
-   speed=(260 if 'shift_l' in self.keys or 'shift_r' in self.keys else 205) if self.mounted else (175 if 'shift_l' in self.keys or 'shift_r' in self.keys else 125)
-   if (self.bounty_state()=='carried' or self.field_status()=='carried') and not self.mounted:speed*=.75
-   if self.mounted and self.horse_hp<20:speed*=.70
-   if self.can_move(self.x+vx*speed*dt,self.y,16 if self.mounted else 10):self.x+=vx*speed*dt
-   if self.can_move(self.x,self.y+vy*speed*dt,16 if self.mounted else 10):self.y+=vy*speed*dt
+   speed=175 if wants_gallop else 125
+   if self.bounty_state()=='carried' or self.field_status()=='carried':speed*=.75
+   if self.can_move(self.x+vx*speed*dt,self.y,10):self.x+=vx*speed*dt
+   if self.can_move(self.x,self.y+vy*speed*dt,10):self.y+=vy*speed*dt
    self.facing=(vx,vy)
-  if self.mounted:self.horse_hp=max(0.,self.horse_hp-dt*.025)
   if self.frame%60==0:self.update_npc_schedules()
   self.encounter_cooldown=max(0.,self.encounter_cooldown-dt)
   if self.road_contract:self.update_road_escort(world_dt)
