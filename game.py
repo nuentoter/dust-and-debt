@@ -143,7 +143,7 @@ class Game:
   self.facing=(0.,-1.);self.shot_timer=0;self.reload_timer=0;self.invuln=0;self.hit_marker=0.;self.combat_warning=0.
   self.actors=[];self.bullets=[];self.effects=[];self.dialog=None;self.choice_dialog=None;self.dialog_from='';self.toast=[]
   self.camx=0;self.camy=0;self.map_open=False;self.journal_open=False;self.show_help=False
-  self.map_zoom=False;self.map_center=[self.x,self.y];self.landmarks_found=[]
+  self.map_zoom=False;self.map_center=[self.x,self.y];self.landmarks_found=[];self.map_destination_index=0
   self.waypoint=None;self.sound_on=False;self.audio.enabled=False;self.audio.music_enabled=False;self.audio.set_music_state('silence');self.last_bell=0.;self.autosave_timer=90.;self.loaded_backup=False
   self.economy_day=0;self.shop_stock={};self.work_active=None;self.work_records={};self.work_finished=0;self.work_income=0;self.work_expenses=0;self.store_id=None;self.work_ledger_open=False
   self.interior=None;self.indoor_x=480.;self.indoor_y=465.;self.shop_open=False;self.show_jail=False
@@ -929,9 +929,13 @@ class Game:
   if key=='escape' and self.work_ledger_open:self.work_ledger_open=False;return
   if key=='escape':self.screen='playing' if self.screen=='paused' else 'paused';self.deadeye_active=False;return
   if self.screen=='paused':return
-  if self.map_open and key in ('z','up','down','left','right','w','a','s','d','escape'):
+  if self.map_open and key in ('z','up','down','left','right','w','a','s','d','escape','tab','return'):
    if key=='z':self.map_zoom=not self.map_zoom;self.map_center=[self.x,self.y]
    elif key=='escape':self.map_open=False
+   elif key=='tab':self.map_destination_index=(self.map_destination_index+1)%len(MAP_DESTINATIONS)
+   elif key=='return':
+    _,name,tx,ty=MAP_DESTINATIONS[self.map_destination_index]
+    self.waypoint=[tx,ty];self.notify('DESTINATION: '+name+' marked on the map.',3)
    else:
     dx=int(key in ('right','d'))-int(key in ('left','a'))
     dy=int(key in ('down','s'))-int(key in ('up','w'))
@@ -2152,6 +2156,9 @@ class Game:
   if self.road_contract:
    job=self.road_contract
    self.draw_text(571,495,'ROAD: '+job['title'][:19]+' ('+job['status']+')',10,'#c1d9a0',True)
+  if self.chapter_active:
+   chapter=CHAPTER_BY_ID[self.chapter_active['id']];node=self.chapter_node()
+   self.draw_text(571,479,'STORY: '+chapter['title'][:17]+' → '+node['town_name'][:13],10,'#efe3c5',True)
   if self.waypoint:
    dx=self.waypoint[0]-self.x;dy=self.waypoint[1]-self.y
    self.draw_text(572,558,f'PIN {int(math.hypot(dx,dy))} m / {self.cardinal(math.atan2(dy,dx))}',11,'#f6d68d',True)
@@ -2195,6 +2202,11 @@ class Game:
    if job and int(self.side_job['step'])<len(job[4]):
     tx,ty=job[4][int(self.side_job['step'])]
     if math.hypot(self.x-tx,self.y-ty)<85:self.draw_text(480,400,'[ E ]  COLLECT QUEST CLUE',13,'#f9e2a5',True,anchor='center')
+  chapter_node=self.chapter_node()
+  if chapter_node and math.hypot(self.x-chapter_node['x'],self.y-chapter_node['y'])<320:
+   self.draw_text(480,345,'[ Y ] INVESTIGATE '+chapter_node['town_name'].upper(),12,'#f7e7c0',True,anchor='center')
+  elif not self.chapter_active and available_chapter(self.x,self.y,self.chapter_completed):
+   self.draw_text(480,345,'[ Y ] BEGIN REGIONAL STORY',12,'#f7e7c0',True,anchor='center')
   if nearby_settlement(self.x,self.y,220) or near_waystation(self.x,self.y,220):
    self.draw_text(480,380,'[ T ] REST AT CAMP',12,'#f0d39b',True,anchor='center')
   for _id,nx,ny,label,kind in RESOURCE_NODES:
@@ -2349,6 +2361,11 @@ class Game:
    job=self.work_active
    p=mark(*(job['destination'] if job['status']=='outbound' else job['giver_pos']))
    if p:self.canvas.create_oval(p[0]-6,p[1]-6,p[0]+6,p[1]+6,outline='#3288aa',width=3)
+  if self.chapter_active:
+   target=self.chapter_target()
+   p=mark(*target) if target else None
+   if p:
+    self.canvas.create_oval(p[0]-8,p[1]-8,p[0]+8,p[1]+8,outline='#eee7d4',width=3)
   if self.road_contract:
    job=self.road_contract
    marker=job['target_pos'] if job['status']=='outbound' else job['origin_pos']
@@ -2376,7 +2393,9 @@ class Game:
     self.canvas.create_line(sx,sy-9,sx,sy+9,fill='#157661',width=3)
   p=mark(self.x,self.y)
   if p:self.canvas.create_oval(p[0]-6,p[1]-6,p[0]+6,p[1]+6,fill='#d94530',outline='#fff8d7',width=2)
-  self.draw_text(480,570,'CLICK TO PIN  •  Z ZOOM  •  WASD PAN  •  M CLOSE',10,'#e2c397',anchor='center')
+  _key,_name,_px,_py=MAP_DESTINATIONS[self.map_destination_index]
+  self.draw_text(184,88,'TAB: '+_name[:42]+'  •  ENTER: PIN',10,'#e4d6a9',True)
+  self.draw_text(480,570,'CLICK PIN • Z ZOOM • WASD PAN • TAB DESTINATIONS • M CLOSE',10,'#e2c397',anchor='center')
 
  def draw_journal(self):
   self.panel(132,59,700,485)
@@ -2400,14 +2419,18 @@ class Game:
    job=get_job(self.side_job['id'])
    if job:self.draw_text(160,499,'SIDE JOB: '+job[2]+f' ({int(self.side_job["step"])+1}/{len(job[4])})',10,'#b2dbce',True)
   else:self.draw_text(160,499,f'Side jobs: {len(self.side_completed)}/{len(SIDE_JOBS)}    Towns found: {len(self.visited_settlements)}/{len(SETTLEMENTS)}',10,'#b2dbce',True)
-  self.draw_text(480,516,'J CLOSE   •   I WORK LEDGER',11,'#e2bb7e',True,anchor='center')
+  if self.chapter_active:
+   chapter=CHAPTER_BY_ID[self.chapter_active['id']];node=self.chapter_node()
+   self.draw_text(160,520,'REGIONAL: '+chapter['title']+' — '+node['town_name'],10,'#f0d6ad',True)
+  else:self.draw_text(160,520,'REGIONAL STORIES: '+str(len(self.chapter_completed))+'/'+str(len(CHAPTERS))+' COMPLETE',10,'#f0d6ad')
+  self.draw_text(480,536,'J CLOSE   •   I WORK LEDGER',11,'#e2bb7e',True,anchor='center')
 
  def draw_work_ledger(self):
   self.panel(130,70,700,465,fill='#24201b')
   self.draw_text(480,98,'WORKING FRONTIER — LEDGER',24,'#efcc94',True,anchor='center')
   self.draw_text(158,152,'Day '+str(self.economy_day+1)+'   Jobs finished: '+str(self.work_finished),15,'#ead6b3',True)
   self.draw_text(158,193,'Wages earned: $'+str(self.work_income)+'    Purchases and services: $'+str(self.work_expenses),14,'#e2c5a1')
-  self.draw_text(158,230,'Whiskey condition: '+str(int(self.horse_hp))+'/100     Law reputation: '+str(self.law_reputation),13,'#d9bca0')
+  self.draw_text(158,230,'Whiskey condition: '+str(int(self.horse_hp))+'/100   Gallop stamina: '+str(int(self.horse_motion['stamina']))+'   Law reputation: '+str(self.law_reputation),12,'#d9bca0')
   self.draw_text(158,255,'Road jobs: '+str(self.road_contracts_done)+'   Road wages: $'+str(self.road_income)+'   Region standing: '+str(self.regional_standing.get(region_at(self.x,self.y),0)),12,'#c7d8ae')
   if self.work_active:
    job=self.work_active
