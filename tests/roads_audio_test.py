@@ -52,7 +52,15 @@ def main():
   game.SAVE=os.path.join(tmp,'save.json')
   root=tk.Tk();root.withdraw()
   g=game.Game(root);g.new_game();g.dialog=None
+  agents=[a for a in g.actors if a.kind=='station_agent']
+  outer_bandits=[a for a in g.actors if a.kind=='bandit' and a.x>20000]
+  assert len(agents)==len(WAYSTATIONS) and len(outer_bandits)>=20
   assert game.VERSION.startswith('2.6')
+  # An ambush can appear on open roads, never in protected waystations.
+  g.x,g.y=21800,18800;g.safe_timer=0
+  with patch('game.random.choice',return_value='ambush'):
+   assert g.spawn_road_encounter()
+  assert any(a.name=='Road Ambusher' and not a.dead for a in g.actors)
   # Four contracts from four adjacent waystations, each completed only once.
   for idx,kind in enumerate(EVENT_TYPES):
    station=WAYSTATIONS[idx]
