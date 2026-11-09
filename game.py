@@ -231,6 +231,83 @@ class Game:
   speaker=choice['speaker'];self.choice_dialog=None
   self.say(speaker,response)
 
+ def advance_clock(self,hours):
+  previous=self.clock
+  self.clock=(self.clock+hours)%24
+  if hours>=0:self.economy_day+=int((previous+hours)//24)
+
+ def active_shop(self):
+  kind=INTERIOR_TYPES.get(self.interior,'home')
+  return (self.interior,kind,SHOP_GOODS.get(kind,[]))
+
+ def shop_inventory(self):
+  name,kind,goods=self.active_shop()
+  if not name or not goods:return []
+  current=self.shop_stock.get(name)
+  if not current or current.get('day')!=self.economy_day or len(current.get('remaining',[]))!=len(goods):
+   current={'day':self.economy_day,'remaining':daily_stock(kind,goods)}
+   self.shop_stock[name]=current
+  return current['remaining']
+
+ def shop_cost(self,index):
+  name,kind,goods=self.active_shop()
+  if index<0 or index>=len(goods):return None
+  if goods[index][2]=='bounty':return int(math.ceil(self.wanted*28))
+  town=nearby_settlement(self.x,self.y,600) or ''
+  return shop_prices(kind,goods,self.honor,town)[index]
+
+ def work_provider(self):
+  nearest=None;best=95.
+  for actor in self.actors:
+   if actor.dead:continue
+   offer=work_offer(actor.name,actor.x,actor.y,SETTLEMENTS)
+   if not offer:continue
+   d=math.hypot(self.x-actor.x,self.y-actor.y)
+   if d<best:nearest=actor;best=d
+  return nearest
+
+ def offer_work(self):
+  if self.mounted or self.interior or self.dialog or self.choice_dialog:return False
+  giver=self.work_provider()
+  if not giver:
+   self.notify('Work is available from station agents, miners, ranchers and town workers.',4)
+   return False
+  if self.work_active:
+   task=self.work_active
+   if task['giver']==giver.name and task['status']=='return':
+    amount=int(task['reward'])
+    self.money+=amount;self.work_income+=amount;self.work_finished+=1
+    self.work_records[giver.name]=self.economy_day
+    self.change_honor(1,'Honest work')
+    self.work_active=None;self.waypoint=None
+    self.notify('WORK FINISHED: +$'+str(amount)+' • '+giver.name,5)
+    self.audio.cue('job_complete');self.save()
+    return True
+   self.notify('Finish the current job: '+task['title']+'.',4);return False
+  if self.work_records.get(giver.name)==self.economy_day:
+   self.notify('This employer has no more work today. Try another or return tomorrow.',4)
+   return False
+  offer=work_offer(giver.name,giver.x,giver.y,SETTLEMENTS)
+  if not offer:return False
+  kind,title,destination,reward=offer
+  destination=self.safe_enemy_spawn(*destination)
+  self.work_active={'giver':giver.name,'giver_pos':[giver.x,giver.y],
+                    'kind':kind,'title':title,'destination':list(destination),
+                    'reward':reward,'status':'outbound'}
+  self.waypoint=list(destination)
+  self.notify('WORK ACCEPTED: '+title+' • $'+str(reward)+' upon return.',5)
+  self.audio.cue('job_accept');self.save();return True
+
+ def complete_work_step(self):
+  job=self.work_active
+  if not job or job.get('status')!='outbound' or self.mounted:return False
+  tx,ty=job['destination']
+  if math.hypot(self.x-tx,self.y-ty)>90:return False
+  job['status']='return'
+  self.waypoint=list(job['giver_pos'])
+  self.notify('WORK DONE: Return to '+job['giver']+' and press P for pay.',5)
+  self.audio.cue('job_complete');self.save();return True
+
  def near_bounty_board(self):
   if self.mounted or self.interior:return False
   return any(a.kind=='sheriff' and not a.dead and math.hypot(a.x-self.x,a.y-self.y)<105 for a in self.actors)
@@ -615,6 +692,7 @@ class Game:
     else:self.notify('Stand at a building entrance, then press Shift+E.',2)
    else:self.interact()
   elif key=='b' and self.near_bounty_board():self.begin_bounty()
+  elif key=='p':self.offer_work()
   elif key=='f':self.gather_resource()
   elif key=='t':self.rest_at_frontier_camp()
   elif key=='l':self.throw_lasso()
@@ -793,6 +871,7 @@ class Game:
    if captive and math.hypot(captive.x-self.x,captive.y-self.y)<80:
     self.notify('Dismount (H) before picking up the prisoner.',2);return
   if self.pick_up_bounty():return
+  if self.complete_work_step():return
   if self.advance_side_job():return
   nearest=None;best=64
   for a in self.actors:
