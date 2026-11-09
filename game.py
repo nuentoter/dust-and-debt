@@ -10,6 +10,8 @@ from working_frontier import work_offer, shop_prices, daily_stock
 from audio_system import AudioDirector
 from natural_terrain import draw_ground,draw_landforms,landform_solid,hash32,noise
 from combat_progression import WEAPONS, DIFFICULTIES, available_weapons, normal_weapon, normal_difficulty, incoming_damage, aim_vector
+from enemy_tactics import ARCHETYPES, archetype, morale, should_surrender, movement, cover_goal
+from natural_terrain import ROCKS
 from horse_riding import step_motion, TROT_SPEED, GALLOP_SPEED
 from frontier_chapters import CHAPTERS,CHAPTER_BY_ID,node_for,available_chapter
 import deadwood_pulp as pulp
@@ -498,12 +500,13 @@ class Game:
   if a.dead or a.kind not in ('bandit','bounty_target'):return False
   if self.field_prisoner and a.kind=='bandit':return False
   if a.hp<=0:return False
-  wounded=a.hp<=a.maxhp*.35
   # Local patrols and player have the outlaw surrounded.
   deputies=sum(not p.dead and p.kind=='law_patrol' and
               math.hypot(p.x-a.x,p.y-a.y)<225 for p in self.actors)
   outnumbered=deputies>=2 and math.hypot(a.x-self.x,a.y-self.y)<200
-  if wounded or outnumbered:return self.surrender_outlaw(a)
+  allies=sum(not p.dead and p is not a and p.kind in ('bandit','bounty_target') and
+             math.hypot(p.x-a.x,p.y-a.y)<230 for p in self.actors)
+  if should_surrender(a,allies,outnumbered):return self.surrender_outlaw(a)
   return False
 
  def hogtie_bounty(self):
@@ -1779,6 +1782,14 @@ class Game:
    if dist>1200:continue
    a.shoot=max(0,a.shoot-dt);a.wander-=dt
    if a.kind=='law_patrol':self.update_patrol(a,dt);continue
+   if getattr(a,'aim_timer',0)>0:
+    a.aim_timer=max(0.,a.aim_timer-dt)
+    if a.aim_timer==0:
+     profile=ARCHETYPES[archetype(a)]
+     if (a.kind!='deputy' or self.law_status=='WANTED') and math.hypot(a.x-self.x,a.y-self.y)<profile['range'] and self.line_of_fire(a.x,a.y,self.x,self.y):
+      angle=math.atan2(self.y-a.y,self.x-a.x)+random.uniform(-profile['spread'],profile['spread'])
+      self.bullets.append([a.x,a.y,math.cos(angle)*330,math.sin(angle)*330,1.3,False])
+    continue
    if a.kind in ('bandit','bounty_target') and dist<370 and self.check_surrender(a):continue
    ishostile=a.kind in ('bandit','deputy','bounty_target') or a.kind.startswith('mission_')
    if a.kind=='civilian':
@@ -1796,22 +1807,28 @@ class Game:
      if a.wander<0:a.wander=random.uniform(1,3);a.dx=random.uniform(-1,1);a.dy=random.uniform(-1,1)
      dx,dy=a.dx,a.dy
     mag=max(1,math.hypot(dx,dy));self.move_actor(a,dx/mag*a.speed*dt,dy/mag*a.speed*dt)
-   elif ishostile and dist<(620 if a.kind=='deputy' else 335):
+   elif ishostile and dist<(620 if a.kind=='deputy' else 415):
     if a.kind=='bandit' and (self.safe_timer>0 or self.in_safe_settlement(self.x,self.y)):continue
     if a.kind=='deputy' and self.law_status!='WANTED':a.dead=True;continue
-    dx=self.x-a.x;dy=self.y-a.y;mag=max(.001,dist)
-    # Approach, then strafe while maintaining a shooting distance.
-    if dist>205:self.move_actor(a,dx/mag*a.speed*dt,dy/mag*a.speed*dt)
-    elif dist<120:self.move_actor(a,-dx/mag*a.speed*dt*.6,-dy/mag*a.speed*dt*.6)
-    else:
-     direction=1 if (sum(map(ord,a.name))+int(a.x//45))%2 else -1
-     self.move_actor(a,-dy/mag*a.speed*dt*.40*direction,dx/mag*a.speed*dt*.40*direction)
-    if dist<340 and a.shoot<=0 and self.line_of_fire(a.x,a.y,self.x,self.y):
-     a.shoot=random.uniform(1.7,2.9) if a.name!='Crow' else .9
-     scatter=random.uniform(-.19,.19)
-     angle=math.atan2(dy,dx)+scatter
-     self.combat_warning=.7
-     self.bullets.append([a.x,a.y,math.cos(angle)*330,math.sin(angle)*330,1.3,False])
+    profile=ARCHETYPES[archetype(a)]
+    dx=self.x-a.x;dy=self.y-a.y
+    step_x,step_y=movement(a,dx,dy,dist)
+    # Seek natural boulder cover only periodically, not on every frame.
+    if a.kind in ('bandit','bounty_target') and dist<360 and self.frame%30==0:
+     goal=cover_goal(a,self.x,self.y,ROCKS)
+     a.cover_goal=goal if goal and self.can_move(*goal,11) else None
+    goal=getattr(a,'cover_goal',None)
+    if goal and dist<360:
+     gx,gy=goal[0]-a.x,goal[1]-a.y
+     glen=math.hypot(gx,gy)
+     if glen>25:step_x,step_y=gx/glen,gy/glen
+     else:a.cover_goal=None
+    if dist>45:self.move_actor(a,step_x*a.speed*dt,step_y*a.speed*dt)
+    if dist<profile['range'] and a.shoot<=0 and self.line_of_fire(a.x,a.y,self.x,self.y):
+     a.shoot=profile['cooldown']
+     a.aim_timer=profile['windup']
+     self.combat_warning=max(self.combat_warning,profile['windup'])
+
   if self.law_status=='WANTED':
    deputies=sum(not a.dead and a.kind in ('deputy','law_patrol') and math.hypot(a.x-self.x,a.y-self.y)<720 for a in self.actors)
    self.law_spawn_timer=max(0.,self.law_spawn_timer-dt)
@@ -1898,6 +1915,11 @@ class Game:
   pulp.person(self.canvas,sx,sy,clothes,
               '#342824' if villain else '#684732',
               sheriff=a.kind in ('sheriff','law_patrol'))
+  if villain and getattr(a,'aim_timer',0)>0:
+   self.canvas.create_line(sx,sy-22,sx,sy-38,fill='#f2a36b',width=3)
+   self.draw_text(sx,sy-51,'AIMING',9,'#f4ad78',True,anchor='center')
+  if a.kind in ('bandit','bounty_target') and a.hp<a.maxhp:
+   self.draw_text(sx,sy-41,'MORALE '+str(morale(a)),8,'#dbc39a',anchor='center')
   if a.name=='Crow':
    self.canvas.create_rectangle(sx-11,sy-10,sx+11,sy+8,outline='#b44538',width=2)
   if villain and a.hp<a.maxhp:
