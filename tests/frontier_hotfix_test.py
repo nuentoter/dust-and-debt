@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regression tests for fair bandit spawns, 16x world, streaming, and saves.
+"""Regression tests for fair bandit spawns, streamed 10x expansion, streaming, and saves.
 Usage: xvfb-run -a python3 tests/frontier_hotfix_test.py
 """
 import json
@@ -12,8 +12,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 import game
 
 def main():
-    assert (game.WW, game.WH) == (19200, 12800)
-    assert game.WW * game.WH == 16 * game.OLD_WW * game.OLD_WH
+    assert (game.WW, game.WH) == (60000, 40960)
+    assert game.WW * game.WH == 160 * game.OLD_WW * game.OLD_WH
     with tempfile.TemporaryDirectory() as temp:
         game.SAVE = os.path.join(temp, "save.json")
         root = tk.Tk()
