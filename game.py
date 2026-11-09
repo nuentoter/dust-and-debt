@@ -8,6 +8,7 @@ import os, math, random, json, time, textwrap, sys, shutil
 from dataclasses import dataclass
 from working_frontier import work_offer, shop_prices, daily_stock
 from audio_system import AudioDirector
+from combat_progression import WEAPONS, DIFFICULTIES, available_weapons, normal_weapon, normal_difficulty, incoming_damage, aim_vector
 from horse_riding import step_motion, TROT_SPEED, GALLOP_SPEED
 from frontier_chapters import CHAPTERS,CHAPTER_BY_ID,node_for,available_chapter
 import deadwood_pulp as pulp
@@ -30,7 +31,7 @@ VW,VH=960,600
 OLD_WW,OLD_WH=4800,3200
 WW,WH=WORLD_WIDTH,WORLD_HEIGHT  # Exactly 10x v2.5 world area; camera-local terrain
 FPS=33
-VERSION='2.7 — Handcrafted Frontier'
+VERSION='2.8-dev — Combat & Character Progression'
 # Interiors are lightweight procedural rooms: no extra graphics libraries or image files.
 INTERIOR_TYPES={
  'Sheriff':'office','Sheriff Annex':'office','Saloon':'saloon','Sagebrush Saloon':'saloon',
@@ -109,7 +110,7 @@ class Actor:
 
 class Game:
  def __init__(self,root):
-  self.root=root;root.title('DUST & DEBT | Handcrafted Frontier v2.7')
+  self.root=root;root.title('DUST & DEBT | Combat Progression v2.8')
   root.resizable(False,False)
   self.canvas=tk.Canvas(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
@@ -144,6 +145,7 @@ class Game:
   self.horse_x,self.horse_y=764.,646.;self.horse_hp=100
   self.horse_motion={'stamina':100.,'speed':0.,'heading_x':0.,'heading_y':-1.,'exhausted':False}
   self.facing=(0.,-1.);self.shot_timer=0;self.reload_timer=0;self.invuln=0;self.hit_marker=0.;self.combat_warning=0.
+  self.weapon='peacemaker';self.difficulty='standard';self.aim_assist=False
   self.actors=[];self.bullets=[];self.effects=[];self.dialog=None;self.choice_dialog=None;self.dialog_from='';self.toast=[]
   self.camx=0;self.camy=0;self.map_open=False;self.journal_open=False;self.show_help=False
   self.map_zoom=False;self.map_center=[self.x,self.y];self.landmarks_found=[];self.map_destination_index=0
@@ -882,6 +884,11 @@ class Game:
    self.deadeye_active=not self.deadeye_active and self.deadeye>0
    self.notify('DEAD EYE '+('ENGAGED' if self.deadeye_active else 'DISENGAGED'),1.0)
    return
+  if key=='f6' and self.screen in ('playing','paused'):
+   levels=list(DIFFICULTIES);self.difficulty=levels[(levels.index(self.difficulty)+1)%len(levels)]
+   self.notify('COMBAT DIFFICULTY: '+self.difficulty.upper(),2);return
+  if key=='f7' and self.screen in ('playing','paused'):
+   self.aim_assist=not self.aim_assist;self.notify('AIM ASSIST '+('ON' if self.aim_assist else 'OFF'),2);return
   if key=='f5' and self.screen in ('playing','paused'):
    self.save(manual=True);return
   if key=='v' and self.screen in ('title','playing','paused'):
@@ -972,6 +979,7 @@ class Game:
   elif key=='l':self.throw_lasso()
   elif key=='g':self.hogtie_bounty()
   elif key=='h':self.toggle_horse()
+  elif key=='2':self.switch_weapon()
   elif key=='r':self.reload()
   elif key=='1':self.tonic()
   elif key=='space':self.fire()
@@ -1029,6 +1037,10 @@ class Game:
    self.road_offer_day=dict(s.get('road_offer_day',{}))
    self.regional_standing=dict(s.get('regional_standing',{}))
    self.field_arrests=int(s.get('field_arrests',0))
+   self.weapon=normal_weapon(s.get('weapon','peacemaker'),self.field_arrests,self.work_finished,self.kills)
+   self.difficulty=normal_difficulty(s.get('difficulty','standard'))
+   self.aim_assist=bool(s.get('aim_assist',False))
+   self.ammo=max(0,min(int(self.ammo),WEAPONS[self.weapon]['capacity']))
    self.jail_roster=list(s.get('jail_roster',[]))
    self.law_reputation=int(s.get('law_reputation',0))
    self.field_prisoner=s.get('field_prisoner')
@@ -1096,6 +1108,7 @@ class Game:
   d['road_contract']=self.road_contract;d['road_contracts_done']=self.road_contracts_done
   d['road_income']=self.road_income;d['road_offer_day']=self.road_offer_day
   d['regional_standing']=self.regional_standing
+  d['weapon']=self.weapon;d['difficulty']=self.difficulty;d['aim_assist']=self.aim_assist
   d['save_version']=VERSION
   tag={1:'hollow',4:'blackspur',6:'crow'}.get(self.stage)
   if tag:d['stage_kills']=sum(a.dead for a in self.actors if a.kind=='mission_'+tag)
@@ -1571,19 +1584,29 @@ class Game:
   if self.tonics<=0:self.notify('No tonics left.');return
   if self.hp>=100:self.notify('Already at full health.');return
   self.tonics-=1;self.hp=min(100,self.hp+55);self.notify('Used a tonic: +55 health.');self.save()
+ def switch_weapon(self):
+  options=available_weapons(self.field_arrests,self.work_finished,self.kills)
+  if len(options)<2:
+   self.notify("Marshal's Iron unlocks with 2 arrests, 4 jobs or 10 outlaw defeats.",3);return
+  if self.reload_timer>0:self.notify('Finish reloading before swapping revolvers.',2);return
+  self.weapon='marshal' if self.weapon=='peacemaker' else 'peacemaker'
+  self.ammo=min(self.ammo,WEAPONS[self.weapon]['capacity'])
+  self.notify('EQUIPPED: '+WEAPONS[self.weapon]['label'],2)
+
  def reload(self):
-  if self.reload_timer>0 or self.ammo==6:return
+  if self.reload_timer>0 or self.ammo>=WEAPONS[self.weapon]['capacity']:return
   if self.reserve<=0:self.notify('Out of ammunition. Visit the general store.');return
-  self.reload_timer=1.15;self.notify('Reloading...',1.2);self.audio.cue('reload')
+  self.reload_timer=WEAPONS[self.weapon]['reload'];self.notify('Reloading...',1.2);self.audio.cue('reload')
  def fire(self):
   if self.screen!='playing' or self.dialog or self.shot_timer>0 or self.reload_timer>0 or self.map_open or self.journal_open:return
   if self.ammo<=0:self.reload();return
-  self.ammo-=1;self.shot_timer=.17 if self.deadeye_active else .25
+  config=WEAPONS[self.weapon]
+  self.ammo-=1;self.shot_timer=.17 if self.deadeye_active else config['cooldown']
   mx,my=self.mouse;dx=(mx+self.camx)-self.x;dy=(my+self.camy)-self.y
   if abs(dx)+abs(dy)<15:dx,dy=self.facing
-  mag=max(.001,math.hypot(dx,dy));dx/=mag;dy/=mag
+  dx,dy=aim_vector(dx,dy,self.actors,self.x,self.y,self.aim_assist)
   self.facing=(dx,dy)
-  self.bullets.append([self.x+dx*19,self.y+dy*19,dx*710,dy*710,1.0,True])
+  self.bullets.append([self.x+dx*19,self.y+dy*19,dx*config['velocity'],dy*config['velocity'],1.0,True])
   self.effects.append([self.x+dx*22,self.y+dy*22,.14,'flash'])
   self.sound_cue('gunshot')
   self.combat_warning=max(self.combat_warning,.16)
@@ -1636,7 +1659,7 @@ class Game:
   if self.reload_timer>0:
    self.reload_timer-=dt
    if self.reload_timer<=0:
-    n=min(6-self.ammo,self.reserve);self.ammo+=n;self.reserve-=n;self.notify('Revolver reloaded.',1.1)
+    n=min(WEAPONS[self.weapon]['capacity']-self.ammo,self.reserve);self.ammo+=n;self.reserve-=n;self.notify('Revolver reloaded.',1.1)
   for toast in self.toast:toast[1]-=dt
   self.toast=[t for t in self.toast if t[1]>0]
   for trail in self.shot_trails:trail[4]-=dt
@@ -1711,7 +1734,8 @@ class Game:
 
  def combat_damage(self,a):
   # Dead Eye shots are more accurate and slightly more damaging.
-  return 64 if self.deadeye_active and (a.kind=='bandit' or a.kind.startswith('mission_')) else 52
+  damage=WEAPONS[self.weapon]['damage']
+  return int(round(damage*64/52)) if self.deadeye_active and (a.kind=='bandit' or a.kind.startswith('mission_')) else damage
 
  def update_patrol(self,a,dt):
   # Patrols follow bounded routes. They pursue only genuinely wanted players.
@@ -1832,7 +1856,7 @@ class Game:
      if math.hypot(self.x-px,self.y-py)<(17 if self.mounted else 11):
       collided=True
       if self.invuln<=0:
-       self.hp-=random.randrange(7,15);self.invuln=.50;self.effects.append([px,py,.35,'hit']);self.effects.append([px,py,.5,'spark'])
+       self.hp-=incoming_damage(self.difficulty,random.randrange(7,15));self.invuln=.50;self.effects.append([px,py,.35,'hit']);self.effects.append([px,py,.5,'spark'])
       break
     if collided:break
    if not collided and b[4]>0:kept.append(b)
@@ -2128,12 +2152,13 @@ class Game:
   self.draw_text(218,50,f'{max(0,int(self.hp))} HP',11,'#e7d3b5',True)
   self.draw_text(26,73,f'$ {self.money}   HONOR {self.honor}   TONICS {self.tonics}',10,'#edc995',True)
   self.panel(333,13,285,86)
-  self.draw_text(345,21,'COLT PEACEMAKER',11,'#e3c18c',True)
+  self.draw_text(345,21,WEAPONS[self.weapon]['label'],11,'#e3c18c',True)
   self.draw_text(345,42,f'{self.ammo} / {self.reserve}',22,'#f2e0bd',True)
   if self.reload_timer>0:self.draw_text(445,46,'RELOADING',12,'#e9a268',True)
   self.canvas.create_rectangle(346,75,596,83,fill='#4d3827',outline='#8b7550')
   self.canvas.create_rectangle(347,76,347+248*self.deadeye/100,82,fill='#e3c078',outline='')
   self.draw_text(505,60,'Q: DEAD EYE' if not self.deadeye_active else 'DEAD EYE ACTIVE',10,'#e9d5a4',True)
+  self.draw_text(346,88,'2: WEAPON  F6: '+self.difficulty.upper()+'  F7: AIM '+('ON' if self.aim_assist else 'OFF'),9,'#c9b49a')
   self.panel(631,13,315,86)
   hours=int(self.clock);mins=int((self.clock-hours)*60)
   self.draw_text(642,20,f'{hours%12 or 12}:{mins:02d} {"AM" if hours<12 else "PM"}  |  {self.region_name(self.x,self.y).upper()}',11,'#e2c48f',True)
@@ -2465,7 +2490,7 @@ class Game:
  def draw_help(self):
   self.panel(190,52,580,506)
   self.draw_text(216,110,'HOW TO SURVIVE THE FRONTIER',20,'#efc58a',True)
-  controls=[('WASD / ARROWS','Move'),('SHIFT','Sprint / gallop'),('MOUSE CLICK','Aim and shoot'),('SPACE / R','Fire / reload'),('Q','Dead Eye'),('E / SHIFT+E','Interact / enter buildings'),('H','Mount / dismount Whiskey'),('B','Accept bounty near sheriff'),('L','Lasso wanted targets or bandits'),('G','Hogtie roped outlaw (on foot)'),('E BY TIED TARGET','Pick up captive'),('E BY SHERIFF','Deliver prisoner alive (on foot)'),('1','Health tonic'),('M / J','Map / journal (TAB and Enter choose map towns)'),('F / T','Gather / camp'),('P','Take or collect paid work'),('N / U','Waystation road jobs / rumors'),('Y','Regional stories at Galloway / Roan Creek'),('I','Work ledger and horse condition'),('V / O','Sound effects / ambient music'),('F5','Save game'),('F11','Fullscreen'),('ESC / F1','Pause / help')]
+  controls=[('WASD / ARROWS','Move'),('SHIFT','Sprint / gallop'),('MOUSE CLICK','Aim and shoot'),('SPACE / R','Fire / reload'),('Q','Dead Eye'),('2 / F6 / F7','Weapon / difficulty / aim assist'),('E / SHIFT+E','Interact / enter buildings'),('H','Mount / dismount Whiskey'),('B','Accept bounty near sheriff'),('L','Lasso wanted targets or bandits'),('G','Hogtie roped outlaw (on foot)'),('E BY TIED TARGET','Pick up captive'),('E BY SHERIFF','Deliver prisoner alive (on foot)'),('1','Health tonic'),('M / J','Map / journal (TAB and Enter choose map towns)'),('F / T','Gather / camp'),('P','Take or collect paid work'),('N / U','Waystation road jobs / rumors'),('Y','Regional stories at Galloway / Roan Creek'),('I','Work ledger and horse condition'),('V / O','Sound effects / ambient music'),('F5','Save game'),('F11','Fullscreen'),('ESC / F1','Pause / help')]
   for i,(k,v) in enumerate(controls):
    yy=139+i*17
    self.draw_text(218,yy,k,11,'#f4d59e',True)
