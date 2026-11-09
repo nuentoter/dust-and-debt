@@ -307,7 +307,7 @@ class Game:
 
  def throw_lasso(self):
   if self.screen!='playing' or self.dialog or self.interior or self.map_open or self.journal_open or self.lasso_cooldown>0:return False
-  if self.field_prisoner or self.bounty_state() in ('roped','hogtied','carried'):
+  if self.field_prisoner or self.bounty_state() in ('roped','hogtied','carried','surrendered'):
    self.notify('Secure or deliver your current prisoner first.',3);return False
   self.lasso_cooldown=1.2
   mx,my=self.mouse;ax=mx+self.camx-self.x;ay=my+self.camy-self.y
@@ -340,9 +340,36 @@ class Game:
   self.notify('Lasso missed. Aim at an outlaw within range.',2)
   return False
 
+ def surrender_outlaw(self,a):
+  # Surrender is never applied to scripted mission enemies or deputies.
+  if a.dead or a.kind not in ('bandit','bounty_target'):return False
+  if a.kind=='bounty_target':
+   if not self.contract or self.bounty_state()!='hunting':return False
+   self.contract['status']='surrendered'
+   self.contract['captive_pos']=[a.x,a.y]
+  else:
+   if self.field_prisoner:return False
+   a.kind='field_prisoner';a.shoot=0.
+   self.field_prisoner={'status':'surrendered','position':[a.x,a.y]}
+  a.shoot=0.;a.speed=0.
+  self.notify(a.name.upper()+' SURRENDERS! Dismount and press G to hogtie.',5)
+  return True
+
+ def check_surrender(self,a):
+  if a.dead or a.kind not in ('bandit','bounty_target'):return False
+  if self.field_prisoner and a.kind=='bandit':return False
+  if a.hp<=0:return False
+  wounded=a.hp<=a.maxhp*.35
+  # Local patrols and player have the outlaw surrounded.
+  deputies=sum(not p.dead and p.kind=='law_patrol' and
+              math.hypot(p.x-a.x,p.y-a.y)<225 for p in self.actors)
+  outnumbered=deputies>=2 and math.hypot(a.x-self.x,a.y-self.y)<200
+  if wounded or outnumbered:return self.surrender_outlaw(a)
+  return False
+
  def hogtie_bounty(self):
-  field=self.field_status()=='roped'
-  if not field and self.bounty_state()!='roped':return False
+  field=self.field_status() in ('roped','surrendered')
+  if not field and self.bounty_state() not in ('roped','surrendered'):return False
   if self.mounted:
    self.notify('Dismount Whiskey (H) before hogtying.',2);return False
   a=self.field_actor() if field else self.bounty_actor()
@@ -1207,7 +1234,7 @@ class Game:
   for a in self.actors:
    if a.dead:continue
    if a.kind=='field_prisoner':continue
-   if a.kind=='bounty_target' and self.bounty_state() in ('roped','hogtied','carried'):continue
+   if a.kind=='bounty_target' and self.bounty_state() in ('roped','hogtied','carried','surrendered'):continue
    if a.kind in ('sheriff','store','doctor','stable','saloon','station','traveler'):continue
    dist=math.hypot(a.x-self.x,a.y-self.y)
    # Dormant distant actors avoid unnecessary pathfinding and collision checks.
@@ -1273,6 +1300,7 @@ class Game:
        elif a.kind=='civilian':
         self.report_crime(2,'Assault on a citizen');self.change_honor(-8,'Assault');a.hp-=55
        else:a.hp-=self.combat_damage(a)
+       if a.hp>0:self.check_surrender(a)
        self.effects.append([px,py,.30,'hit']);self.effects.append([px,py,.52,'spark']);self.hit_marker=.20;collided=True
        if a.hp<=0:
         a.dead=True
@@ -1332,13 +1360,13 @@ class Game:
   if villain and a.hp<a.maxhp:
    self.canvas.create_rectangle(sx-16,sy-34,sx+16,sy-30,fill='#3d201c',outline='')
    self.canvas.create_rectangle(sx-16,sy-34,sx-16+32*max(0,a.hp)/a.maxhp,sy-30,fill='#b84f40',outline='')
-  if (a.kind=='bounty_target' and self.bounty_state() in ('roped','hogtied')) or (a.kind=='field_prisoner' and self.field_status() in ('roped','hogtied')):
+  if (a.kind=='bounty_target' and self.bounty_state() in ('roped','hogtied','surrendered')) or (a.kind=='field_prisoner' and self.field_status() in ('roped','hogtied','surrendered')):
    self.canvas.create_oval(sx-14,sy-13,sx+14,sy+14,outline='#e5cb94',width=3)
    self.canvas.create_line(sx-12,sy+5,sx+12,sy+5,fill='#e5cb94',width=3)
    bound=self.field_status() if a.kind=='field_prisoner' else self.bounty_state()
    if bound=='hogtied':
     self.canvas.create_line(sx-11,sy+12,sx+12,sy-6,fill='#e5cb94',width=4)
-   self.draw_text(sx,sy-47,'HOGTIED' if bound=='hogtied' else 'ROPED — G',10,'#f7deb0',True,anchor='center')
+   self.draw_text(sx,sy-47,'HOGTIED' if bound=='hogtied' else 'SURRENDERED — G' if bound=='surrendered' else 'ROPED — G',10,'#f7deb0',True,anchor='center')
   if math.hypot(a.x-self.x,a.y-self.y)<125 and not villain:
    self.draw_text(sx,sy-43,a.name,11,'#f3db9e',True,anchor='center')
    if a.kind=='civilian':self.draw_text(sx,sy-56,self.npc_activity(a),9,'#d3c49e',anchor='center')
@@ -1597,7 +1625,7 @@ class Game:
   if self.contract or self.field_prisoner:
    captive=self.field_actor() if self.field_prisoner else self.bounty_actor()
    state=self.field_status() if self.field_prisoner else self.bounty_state()
-   if state=='roped' and captive and math.hypot(self.x-captive.x,self.y-captive.y)<120:
+   if state in ('roped','surrendered') and captive and math.hypot(self.x-captive.x,self.y-captive.y)<120:
     self.draw_text(480,406,'[ G ] HOGTIE OUTLAW',12,'#ffe3ae',True,anchor='center')
    elif state=='hogtied' and captive and math.hypot(self.x-captive.x,self.y-captive.y)<110:
     self.draw_text(480,406,'[ E ] PICK UP PRISONER',12,'#ffe3ae',True,anchor='center')
