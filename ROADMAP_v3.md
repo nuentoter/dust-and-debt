@@ -63,7 +63,7 @@ v3.0 Living Frontier Release        #14
 
 ## Non-negotiable engineering rules
 
-1. **Preserve player progress.** Maintain backward compatibility with v2.0+ saves wherever feasible; add explicit migration logic when modifying save schemas. Keep corrupt-save backup recovery.
+1. **Preserve player progress.** Save compatibility with earlier builds is **not required** during active development. Save formats may reset between milestones; document intentional resets and keep current-version save validation, corruption detection, and backups.
 2. **Protect the original storyline.** Sheriff Bell, original main missions and their triggers must remain playable. New surrender/lasso systems must not softlock mission targets.
 3. **Keep performance suitable for older Intel graphics and low-RAM Linux systems.** Tkinter, X11 and the current low-dependency Python architecture remain the baseline unless explicitly agreed otherwise.
 4. **Never spawn mission enemies inside solid objects.** Extend tests to include patrol positions, arrest delivery, escort paths and scripted encounters.
@@ -74,7 +74,7 @@ v3.0 Living Frontier Release        #14
 
 ## Release gates
 
-Each milestone should be considered complete only after its issue checklist is satisfied, feature-specific regression tests are added, all existing automated tests pass, and any known limitations are documented. For **v3.0**, additionally require a full deterministic main-campaign/side-job completion check, a save-migration audit, documented performance observations when hardware is available, release notes, and a verified source archive. Do not advertise binary packaging until a runnable binary actually exists.
+Each milestone should be considered complete only after its issue checklist is satisfied, feature-specific regression tests are added, all existing automated tests pass, and any known limitations are documented. For **v3.0**, additionally require a full deterministic main-campaign/side-job completion check, a current-version save integrity audit, documented performance observations when hardware is available, release notes, and a verified source archive. Do not advertise binary packaging until a runnable binary actually exists.
 
 ## Next implementation
 
