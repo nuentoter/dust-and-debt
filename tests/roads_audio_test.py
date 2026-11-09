@@ -55,7 +55,7 @@ def main():
   agents=[a for a in g.actors if a.kind=='station_agent']
   outer_bandits=[a for a in g.actors if a.kind=='bandit' and a.x>20000]
   assert len(agents)==len(WAYSTATIONS) and len(outer_bandits)>=20
-  assert game.VERSION.startswith('2.6')
+  assert hasattr(g,'road_contract') and hasattr(g,'road_contracts_done')
   # An ambush can appear on open roads, never in protected waystations.
   g.x,g.y=21800,18800;g.safe_timer=0
   with patch('game.random.choice',return_value='ambush'):
