@@ -121,7 +121,7 @@ class Game:
   self.facing=(0.,-1.);self.shot_timer=0;self.reload_timer=0;self.invuln=0;self.hit_marker=0.;self.combat_warning=0.
   self.actors=[];self.bullets=[];self.effects=[];self.dialog=None;self.choice_dialog=None;self.dialog_from='';self.toast=[]
   self.camx=0;self.camy=0;self.map_open=False;self.journal_open=False;self.show_help=False
-  self.waypoint=None;self.sound_on=False;self.last_bell=0.;self.autosave_timer=90.;self.loaded_backup=False
+  self.waypoint=None;self.sound_on=False;self.audio.enabled=False;self.audio.music_enabled=False;self.audio.set_music_state('silence');self.last_bell=0.;self.autosave_timer=90.;self.loaded_backup=False
   self.economy_day=0;self.shop_stock={};self.work_active=None;self.work_records={};self.work_finished=0;self.work_income=0;self.work_expenses=0;self.store_id=None;self.work_ledger_open=False
   self.interior=None;self.indoor_x=480.;self.indoor_y=465.;self.shop_open=False;self.show_jail=False
   self.npc_schedule_tick=0;self.npc_home={}
