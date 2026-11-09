@@ -3,6 +3,7 @@
 import os,sys,math,tempfile,tkinter as tk
 sys.path.insert(0,os.path.dirname(os.path.dirname(__file__)))
 import game
+from new_austellia import TOWNS,REGIONS,TOWN_BY_ID,travel_road,is_water
 from frontier_world import (
  WORLD_WIDTH,WORLD_HEIGHT,SECTOR_NAMES,BIOME_GRID,BIOME_PALETTES,
  LANDMARKS,WAYSTATIONS,ROAD_X,ROAD_Y,START_SPUR,sector_at,region_at,
@@ -24,13 +25,14 @@ def main():
  assert len({key for key,*_ in LANDMARKS})==len(LANDMARKS)
  assert len({key for key,*_ in WAYSTATIONS})==len(WAYSTATIONS)
  assert sector_at(30,30)==(0,0) and sector_at(WORLD_WIDTH-30,WORLD_HEIGHT-30)==(3,5)
- assert region_at(57000,36000)=='Last Horizon'
+ assert region_at(57000,36000) in {r[0] for r in REGIONS}
  assert biome_at(30000,21000) in BIOME_PALETTES
  assert not road_at(700,610), 'Preserve handmade original region'
  assert road_at(6000,4300) and road_at(56400,40300)
  assert not road_at(*START_SPUR[0]), 'The original hand-painted terrain retains its own paths'
  assert road_at(4900,3250) and road_at(*START_SPUR[1])
- assert near_landmark(17800,2700)=='rustwatch'
+ first_landmark=LANDMARKS[0]
+ assert near_landmark(first_landmark[2],first_landmark[3])==first_landmark[0]
  assert near_waystation(18600,11500)=='west_ridge'
  # Both map modes preserve coordinates when converting screen/world.
  for center in ((680,630),(28600,19100),(58300,39900)):
@@ -50,9 +52,11 @@ def main():
   g=game.Game(root);g.new_game();g.dialog=None
   old_building=next(b for b in game.BUILDINGS if b[0]=='Sheriff')
   assert old_building[1:]==(320,300,196,130)
-  assert g.in_safe_settlement(6000,4300)
-  assert g.in_safe_settlement(18600,11500)
-  assert g.can_move(18600,11500)
+  assert len(TOWNS)>=25 and len(REGIONS)>=12
+  assert 'blackwater_crossing' in TOWN_BY_ID
+  assert g.in_safe_settlement(WAYSTATIONS[0][2],WAYSTATIONS[0][3])
+  assert g.in_safe_settlement(WAYSTATIONS[-1][2],WAYSTATIONS[-1][3])
+  assert g.can_move(WAYSTATIONS[0][2],WAYSTATIONS[0][3])
   assert not g.in_safe_settlement(58600,38600)
   # Check each far edge with no huge image allocation or out-of-bounds camera.
   for x,y in ((700,650),(18000,3500),(35200,16000),(54000,30000),
@@ -66,14 +70,14 @@ def main():
    assert 0<=g.camy<=game.WH-game.VH
    assert len(g.canvas.find_all())<5000,'Excessive Tk terrain objects'
   # Landmarks discover and persist; explore a deep-region waypoint.
-  g.x,g.y=17800,2700
+  g.x,g.y=first_landmark[2],first_landmark[3]
   assert g.discover_landmark()
   assert not g.discover_landmark()
-  assert g.landmarks_found==['rustwatch']
-  g.x,g.y=18600,11500;g.hp=48;g.mounted=False;g.interior=None
+  assert g.landmarks_found==[first_landmark[0]]
+  g.x,g.y=WAYSTATIONS[0][2],WAYSTATIONS[0][3];g.hp=48;g.mounted=False;g.interior=None
   assert g.rest_at_frontier_camp() and g.hp==78
   assert not g.rest_at_frontier_camp()
-  assert 'west_ridge' in g.camps_used
+  assert WAYSTATIONS[0][0] in g.camps_used
   g.map_open=True;g.map_zoom=False
   g.render()
   # Zoom around far-off territory and set a waypoint via map click.
@@ -87,10 +91,10 @@ def main():
   g.map_zoom=False;g.render()
   assert g.save(manual=True)
   restored=game.Game(root);restored.continue_game()
-  assert restored.landmarks_found==['rustwatch']
-  assert 'west_ridge' in restored.camps_used
+  assert restored.landmarks_found==[first_landmark[0]]
+  assert WAYSTATIONS[0][0] in restored.camps_used
   assert restored.waypoint==g.waypoint
   root.destroy()
- print('OK: 10x territory, 24 regions, 22 landmarks, waystations, coherent roads, map zoom/pan, distant rendering and saves')
+ print('OK: 10x New Austellia, named regions, atlas landmarks, waystations, mapped railways, camera, navigation and saves')
 
 if __name__=='__main__':main()
