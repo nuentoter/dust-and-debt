@@ -1907,29 +1907,52 @@ class Game:
 
  def cardinal(self,a):return ['E','SE','S','SW','W','NW','N','NE'][round((a%(2*math.pi))/(math.pi/4))%8]
  def draw_minimap(self,x,y,w,h):
+  # Local radar scale instead of compressing a 60,000x40,960 world to 187 pixels.
   self.panel(x,y,w,h,'#3d3328','#987b54')
-  self.draw_text(x+12,y+8,'FRONTIER OVERVIEW',11,'#edd3a5',True)
-  sx=(w-20)/WW;sy=(h-37)/WH
+  self.draw_text(x+12,y+8,'LOCAL TRAIL MAP',11,'#edd3a5',True)
+  window_w=6400.;window_h=5600.
+  ox=max(0.,min(WW-window_w,self.x-window_w/2))
+  oy=max(0.,min(WH-window_h,self.y-window_h/2))
+  left=x+10;top=y+27;mw=w-20;mh=h-38
+  sx=mw/window_w;sy=mh/window_h
+  def mp(wx,wy):
+   if not(ox<=wx<=ox+window_w and oy<=wy<=oy+window_h):return None
+   return (left+(wx-ox)*sx,top+(wy-oy)*sy)
+  for gx in ROAD_X:
+   if ox<=gx<=ox+window_w:
+    xx=left+(gx-ox)*sx
+    self.canvas.create_line(xx,top,xx,top+mh,fill='#ad976c',width=2)
+  for gy in ROAD_Y:
+   if oy<=gy<=oy+window_h:
+    yy=top+(gy-oy)*sy
+    self.canvas.create_line(left,yy,left+mw,yy,fill='#ad976c',width=2)
   for n,bx,by,bw,bh in BUILDINGS:
-   self.canvas.create_rectangle(x+10+bx*sx,y+27+by*sy,x+10+(bx+bw)*sx,y+27+(by+bh)*sy,fill='#a28a62',outline='')
+   p=mp(bx+bw/2,by+bh/2)
+   if p:self.canvas.create_rectangle(p[0]-2,p[1]-2,p[0]+2,p[1]+2,fill='#bba77e',outline='')
   for key,name,cx,cy,*_ in SETTLEMENTS:
-   mx=x+10+cx*sx;my=y+27+cy*sy
-   self.canvas.create_oval(mx-3,my-3,mx+3,my+3,fill='#b7c894',outline='#44563a')
+   p=mp(cx,cy)
+   if p:self.canvas.create_oval(p[0]-4,p[1]-4,p[0]+4,p[1]+4,fill='#b7c894',outline='#44563a')
+  for key,name,cx,cy in WAYSTATIONS:
+   p=mp(cx,cy)
+   if p:self.canvas.create_rectangle(p[0]-4,p[1]-4,p[0]+4,p[1]+4,fill='#70b3a1',outline='')
+  for key,name,cx,cy,kind in LANDMARKS:
+   p=mp(cx,cy)
+   if p:self.canvas.create_oval(p[0]-3,p[1]-3,p[0]+3,p[1]+3,fill='#b67c4d' if key in self.landmarks_found else '#71695c',outline='')
   for a in self.actors:
    if not a.dead and (a.kind=='bandit' or a.kind.startswith('mission_')):
-    ax=x+10+a.x*sx;ay=y+27+a.y*sy
-    self.canvas.create_oval(ax-2,ay-2,ax+2,ay+2,fill='#d77b56',outline='')
+    p=mp(a.x,a.y)
+    if p:self.canvas.create_oval(p[0]-2,p[1]-2,p[0]+2,p[1]+2,fill='#d77b56',outline='')
   target=self.quest_target()
   if target:
-   tx=x+10+target[0]*sx;ty=y+27+target[1]*sy
-   self.canvas.create_oval(tx-5,ty-5,tx+5,ty+5,outline='#f5df91',width=2)
+   p=mp(*target)
+   if p:self.canvas.create_oval(p[0]-5,p[1]-5,p[0]+5,p[1]+5,outline='#f5df91',width=2)
   if self.waypoint:
-   wx=x+10+self.waypoint[0]*sx;wy=y+27+self.waypoint[1]*sy
-   self.canvas.create_line(wx-5,wy,wx+5,wy,fill='#8ce0c4',width=2)
-   self.canvas.create_line(wx,wy-5,wx,wy+5,fill='#8ce0c4',width=2)
-  px=x+10+self.x*sx;py=y+27+self.y*sy
-  self.canvas.create_oval(px-4,py-4,px+4,py+4,fill='#f1e8c6',outline='#2d322b')
-
+   p=mp(*self.waypoint)
+   if p:
+    self.canvas.create_line(p[0]-5,p[1],p[0]+5,p[1],fill='#8ce0c4',width=2)
+    self.canvas.create_line(p[0],p[1]-5,p[0],p[1]+5,fill='#8ce0c4',width=2)
+  p=mp(self.x,self.y)
+  if p:self.canvas.create_oval(p[0]-4,p[1]-4,p[0]+4,p[1]+4,fill='#f1e8c6',outline='#2d322b')
  def draw_dialog(self):
   if not self.dialog:return
   self.panel(91,397,778,173,'#241d18','#c8a06a')
