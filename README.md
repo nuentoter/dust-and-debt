@@ -1,3 +1,31 @@
+## v2.7 Handcrafted Frontier — faster Whiskey and regional stories (November 2026)
+
+### Horse riding upgrade
+
+- **Whiskey's normal trot is now 308 world units/second** (1.5× the previous 205). Hold **Shift while mounted** to gallop up to **650 units/second** (2.5× the previous 260 mounted sprint).
+- Speed and heading change smoothly rather than jumping instantly; high-speed movement uses small collision steps to prevent skipping through buildings and riverbanks.
+- **Galloping consumes stamina**, displayed in the HUD while mounted. Trotting and stopping recover stamina automatically; after exhaustion, Whiskey must recover before galloping again. This stamina is independent of long-term horse condition.
+- Low long-term condition still slows the horse, so the existing stable care and economy remain meaningful. Mounted escorts follow at a higher speed to avoid automatic failure.
+
+### Handcrafted settlement identities
+
+Each of the six existing New Austellia frontier settlements has a distinctive top-down local landmark: **Galloway's railway gantry, Iron Mesa's mining derrick, Dustwell's windpump, Roan Creek's landing, Larkfield's market bell, and Riversend's water gauge**. These are camera-local vector props, not new image dependencies or impassable mission obstacles.
+
+Town trading posts, clinics, and boarding houses keep functional interiors and display local place names on entering. **E** remains talk/interact; **Shift+E** enters nearby buildings.
+
+### Two regional investigation chapters
+
+- **The Iron Rail Covenant:** begin in **Galloway**, investigate railway records in **Larkfield**, follow the evidence to **Riversend**, and return to Galloway for the hearing. Reward: **$165**.
+- **Oath of the Blackwater:** begin in **Roan Creek**, investigate river rights in **Dustwell**, find mine records at **Iron Mesa**, and return to Roan Creek. Reward: **$180**.
+
+Dismount and press **Y** in the town square to begin or advance an investigation. These stories use named places on the illustrated New Austellia map, give step-by-step dialogue, set destination waypoints, award money/honor/regional standing, and save progress. They do not replace Sheriff Bell's original story or existing side jobs.
+
+### Atlas and controls
+
+On the **M** map, press **Tab** to cycle through named New Austellia destinations, then **Enter** to set a waypoint. Zoom with **Z**, pan with WASD/arrows, or click directly to place a waypoint. The **J** journal shows regional chapter status.
+
+No old-save compatibility guarantee is required during development, but current-version saves and regression tests remain supported. The v2.7-specific Linux test is `tests/handcrafted_frontier_test.py` and runs in the full Actions suite. Actual performance on the user's older Archcraft laptop remains a local verification task.
+
 ## v2.6 Roads and Consequences — regional activities and optional real audio (November 2026)
 
 The Great Territory now has interactive activity beyond the original map:
