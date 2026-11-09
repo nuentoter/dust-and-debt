@@ -48,3 +48,5 @@ jobs:
         run: xvfb-run -a python3 tests/great_territory_test.py
       - name: Roads and Consequences regional encounters and real audio regression
         run: xvfb-run -a python3 tests/roads_audio_test.py
+      - name: Illustrated New Austellia atlas and geographical collision regression
+        run: xvfb-run -a python3 tests/new_austellia_test.py
