@@ -21,7 +21,7 @@ See [assets/audio/README.md](assets/audio/README.md) for full instructions. The 
 
 The playable territory is now **60,000 × 40,960 world units**, exactly **10 times the area** of the previous 19,200 × 12,800 map. Its existing towns, missions, buildings, and six newer settlements remain at their original coordinates. The surrounding terrain extends through **24 named geographic regions** with a variety of deserts, forests, grasslands, canyons, salt flats, mountains, mesas, and lake country. **22 discoverable wilderness landmarks** and **13 protected rest waystations** add fixed places to explore in the new territory.
 
-The large map is still **camera-local**: it draws only visible terrain rather than allocating a huge texture. The original hand-painted 4,800 × 3,200 area is kept intact. The user-provided Dust Hollow screenshot remains a visual art reference, not a source terrain texture (the screenshot contains the game HUD and desktop interface). This implementation establishes the **stable world layout**; the entire outer world is **not** yet filled with unique buildings or narrative content.
+The large map is still **camera-local**: it draws only visible terrain rather than allocating a huge texture. The original hand-painted 4,800 × 3,200 area is kept intact. The user-provided illustrated **Frontier Lands of New Austellia** atlas is the intended world-map reference. **Its exact geography and artwork have not yet been integrated** into this procedural terrain implementation; [map-alignment issue #17](https://github.com/nuentoter/dust-and-debt/issues/17) tracks that high-priority correction. This implementation establishes the **stable world layout**; the entire outer world is **not** yet filled with unique buildings or narrative content.
 
 ### New world navigation
 
@@ -34,7 +34,7 @@ See [WORLD_ATLAS.md](WORLD_ATLAS.md) for region geography, named landmark and wa
 
 ## Development roadmap: v2.4–v3.0
 
-The post-v2.3 plan is tracked in [ROADMAP_v3.md](ROADMAP_v3.md). **v2.4 Living Law, v2.5 Working Frontier and the 10× Great Territory map foundation are implemented.** **v2.6 Roads and Consequences is implemented**, with real optional synthesized audio playback. The production soundtrack, recorded SFX, and full v2.7–v3.0 milestones remain planned; see the [Audio Sprint](https://github.com/nuentoter/dust-and-debt/issues/15). Save-format compatibility between development milestones is no longer guaranteed, at the owner's request; make a backup before upgrading if progress matters.
+The post-v2.3 plan is tracked in [ROADMAP_v3.md](ROADMAP_v3.md). **v2.4 Living Law, v2.5 Working Frontier and the 10× Great Territory map foundation are implemented.** **v2.6 Roads and Consequences is implemented**, with real optional synthesized audio playback. Before v2.7's handcrafted quest expansion, [issue #17](https://github.com/nuentoter/dust-and-debt/issues/17) will align the functional 10× world with the user-supplied New Austellia atlas. The production soundtrack, recorded SFX, and full v2.7–v3.0 milestones remain planned; see the [Audio Sprint](https://github.com/nuentoter/dust-and-debt/issues/15). Save-format compatibility between development milestones is no longer guaranteed, at the owner's request; make a backup before upgrading if progress matters.
 
 # DUST & DEBT
 ### A complete, original top-down Western adventure for Linux
