@@ -149,6 +149,7 @@ class Game:
   self.road_contract=None;self.road_contracts_done=0;self.road_income=0
   self.road_offer_day={};self.regional_standing={};self.road_event_cooldown=65.
   self.spawn_roamers()
+  self.spawn_outer_frontier()
   self.spawn_law_patrols()
   self.update_npc_schedules()
   self.safe_timer=50.
@@ -168,6 +169,23 @@ class Game:
    x=random.randint(120,WW-150);y=random.randint(100,WH-120)
    if self.in_safe_settlement(x,y):continue
    self.actors.append(Actor(x,y,'animal',random.choice(['Coyote','Jackrabbit']),24,24,85))
+
+ def spawn_outer_frontier(self):
+  # Lightweight standing agents and outer-sector threats make remote regions live.
+  for key,name,x,y in WAYSTATIONS:
+   pos=safe_event_position(x+77,y+62,self.can_move)
+   if pos:self.actors.append(Actor(*pos,'station_agent',name+' Dispatcher',100,100,0))
+  for row in range(4):
+   for col in range(6):
+    if row==0 and col<2:continue
+    center_x=col*SECTOR_W+SECTOR_W//2
+    center_y=row*SECTOR_H+SECTOR_H//2
+    for n in range(2):
+     ox=(n*913+row*307+col*1103)%2300-1150
+     oy=(n*431+row*797+col*601)%2000-1000
+     point=safe_event_position(center_x+ox,center_y+oy,self.can_move)
+     if not point or self.in_safe_settlement(*point):continue
+     self.actors.append(Actor(*point,'bandit','Roadside Outlaw',80,80,78))
 
  def spawn_law_patrols(self):
   # Permanent, non-hostile lawmen circle town edges. Only pursue when wanted.
@@ -1059,6 +1077,10 @@ class Game:
    return
   k=nearest.kind
   if k=='guide':self.offer_frontier_job(nearest);return
+  if k=='station_agent':
+   text=dispatch_rumor(nearest.x,nearest.y,self.economy_day)
+   self.say('DISPATCHER',[text,'Press N at this outpost for a paid road assignment.','Bring passengers safely or recover lost cargo; your standing will improve.'])
+   return
   if k in ('road_wagon','road_cache'):
    self.actors.remove(nearest)
    if k=='road_wagon':
@@ -1720,7 +1742,7 @@ class Game:
    self.canvas.create_oval(sx+7,sy-9,sx+16,sy,fill=co,outline='#65523e')
    return
   villain=a.kind in ('bandit','deputy','bounty_target') or a.kind.startswith('mission_')
-  clothes=('#3e4b59' if a.kind=='deputy' else '#694332') if villain else {'law_patrol':'#3f5361','sheriff':'#384a4f','saloon':'#973f50','store':'#747143','doctor':'#e0d0a4','stable':'#55644a','station':'#526783'}.get(a.kind,'#73654f')
+  clothes=('#3e4b59' if a.kind=='deputy' else '#694332') if villain else {'station_agent':'#596c60','escort':'#9a7a5a','law_patrol':'#3f5361','sheriff':'#384a4f','saloon':'#973f50','store':'#747143','doctor':'#e0d0a4','stable':'#55644a','station':'#526783'}.get(a.kind,'#73654f')
   # Lower shadow, boots, poncho, head and hat: tiny expressive pixel figure.
   self.canvas.create_oval(sx-13,sy+8,sx+15,sy+15,fill='#6d563f',outline='')
   self.canvas.create_rectangle(sx-9,sy+4,sx-2,sy+13,fill='#312c2a',outline='')
