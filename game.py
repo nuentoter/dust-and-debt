@@ -87,6 +87,9 @@ for _name,_x,_y,_w,_h,_kind in extra_buildings():
  INTERIOR_TYPES[_name]=_kind
 NPCS.extend(extra_npcs())
 RESOURCE_NODES=resource_nodes()
+MAP_DESTINATIONS=(('cinder_creek','Cinder Creek',660,600),)+tuple(
+ (key,name,x,y) for key,name,x,y,kind in TOWNS
+ if kind in ('city','town','port','settlement','post','fort','ranch','mine'))
 
 @dataclass
 class Actor:
@@ -1469,6 +1472,10 @@ class Game:
   self.panel(200,18,560,70)
   self.draw_text(480,30,self.interior.upper(),21,'#f2d7a0',True,anchor='center')
   self.draw_text(480,60,'WASD WALK   E INTERACT   ESC EXIT'+('   K JAIL ROSTER' if self.interior=='Sheriff' else ''),11,'#debd86',anchor='center')
+  if any(self.interior.startswith(name+' ') for _,name,*_ in SETTLEMENTS):
+   town=next(name for _,name,*_ in SETTLEMENTS if self.interior.startswith(name+' '))
+   self.canvas.create_rectangle(330,160,630,194,fill='#564332',outline='#d6b48a',width=3)
+   self.draw_text(480,170,'WELCOME TO '+town.upper(),12,'#f0d4a4',True,anchor='center')
   if self.indoor_y<365:self.draw_text(480,330,'[ E ]  COUNTER',14,'#ffe5ac',True,anchor='center')
   if self.indoor_y>475:self.draw_text(480,550,'[ E ]  EXIT TO STREET',13,'#f3d79e',True,anchor='center')
   self.draw_text(18,562,f'HEALTH {int(self.hp)}   $ {self.money}   TONICS {self.tonics}   AMMO {self.ammo}/{self.reserve}',12,'#ecd0a0',True)
@@ -2133,7 +2140,10 @@ class Game:
   stars='★'*min(5,math.ceil(self.wanted))
   self.draw_text(642,43,self.law_status+' '+(stars if stars else '—'),15,'#e7a16b' if stars else '#b9a78b',True)
   self.draw_text(642,69,'H: HORSE   L: LASSO   G: TIE',10,'#e9d6b2')
-  self.draw_text(642,84,'WEATHER: '+self.weather_kind().upper()+'   F5: SAVE',9,'#ead9b1')
+  if self.mounted:
+   label='GALLOP' if 'shift_l' in self.keys or 'shift_r' in self.keys else 'TROT'
+   self.draw_text(642,84,'WHISKEY '+label+' • STAMINA '+str(int(self.horse_motion['stamina']))+'%',9,'#d3e8b0')
+  else:self.draw_text(642,84,'WEATHER: '+self.weather_kind().upper()+'   F5: SAVE',9,'#ead9b1')
   self.panel(13,505,550,83)
   self.draw_text(25,514,'CHAPTER '+ ('EPILOGUE' if self.stage==8 else str(1+self.stage//2))+'  ·  '+MISSIONS[self.stage][0].upper(),12,'#e6bc79',True)
   self.draw_text(25,539,MISSIONS[self.stage][1],12,'#f4e5ce',width=510)
@@ -2448,9 +2458,9 @@ class Game:
  def draw_help(self):
   self.panel(190,52,580,506)
   self.draw_text(216,110,'HOW TO SURVIVE THE FRONTIER',20,'#efc58a',True)
-  controls=[('WASD / ARROWS','Move'),('SHIFT','Sprint / gallop'),('MOUSE CLICK','Aim and shoot'),('SPACE / R','Fire / reload'),('Q','Dead Eye'),('E / SHIFT+E','Interact / enter buildings'),('H','Mount / dismount Whiskey'),('B','Accept bounty near sheriff'),('L','Lasso wanted targets or bandits'),('G','Hogtie roped outlaw (on foot)'),('E BY TIED TARGET','Pick up captive'),('E BY SHERIFF','Deliver prisoner alive (on foot)'),('1','Health tonic'),('M / J','World map / journal'),('F / T','Gather / camp'),('P','Take or collect paid work'),('N / U','Waystation road jobs / rumors'),('I','Work ledger and horse condition'),('V / O','Sound effects / ambient music'),('F5','Save game'),('F11','Fullscreen'),('ESC / F1','Pause / help')]
+  controls=[('WASD / ARROWS','Move'),('SHIFT','Sprint / gallop'),('MOUSE CLICK','Aim and shoot'),('SPACE / R','Fire / reload'),('Q','Dead Eye'),('E / SHIFT+E','Interact / enter buildings'),('H','Mount / dismount Whiskey'),('B','Accept bounty near sheriff'),('L','Lasso wanted targets or bandits'),('G','Hogtie roped outlaw (on foot)'),('E BY TIED TARGET','Pick up captive'),('E BY SHERIFF','Deliver prisoner alive (on foot)'),('1','Health tonic'),('M / J','Map / journal (TAB and Enter choose map towns)'),('F / T','Gather / camp'),('P','Take or collect paid work'),('N / U','Waystation road jobs / rumors'),('Y','Regional stories at Galloway / Roan Creek'),('I','Work ledger and horse condition'),('V / O','Sound effects / ambient music'),('F5','Save game'),('F11','Fullscreen'),('ESC / F1','Pause / help')]
   for i,(k,v) in enumerate(controls):
-   yy=143+i*18
+   yy=139+i*17
    self.draw_text(218,yy,k,11,'#f4d59e',True)
    self.draw_text(445,yy,v,11,'#e3d2b8')
 
