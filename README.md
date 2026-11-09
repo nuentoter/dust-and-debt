@@ -1,3 +1,11 @@
+## v2.8 development preview — Combat & Character Progression (November 2026)
+
+The first v2.8 gameplay slice is implemented. Press **2** to switch between the starting **Colt Peacemaker** (six rounds, faster firing/reload, 52 damage) and the five-shot **Marshal's Iron** (slower firing/reload, 68 damage). Marshal's Iron unlocks after **two field arrests**, **four completed paid jobs**, or **ten outlaw defeats**; all three are existing gameplay accomplishments. A weapon swap keeps only the rounds that fit the selected cylinder. This is not yet the full v2.8 milestone: new enemy archetypes, cover/morale AI, and balancing remain outstanding.
+
+**F6** cycles **Trail / Standard / Hard** incoming firearm damage. **F7** toggles mild optional aim assist on nearby hostile targets. These settings and the selected revolver are saved. The lasso, surrender, Dead Eye and dead-or-alive bounty mechanics are retained. This is a lightweight Tkinter-only update, without additional third-party libraries. Legacy save data defaults to the standard Peacemaker setup.
+
+**Test:** `xvfb-run -a python3 tests/combat_progression_test.py` (also registered in Linux Actions). Real-world playtesting on Archcraft is still needed.
+
 ## v2.7 Handcrafted Frontier — faster Whiskey and regional stories (November 2026)
 
 ### Horse riding upgrade
