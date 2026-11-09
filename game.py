@@ -8,6 +8,7 @@ import os, math, random, json, time, textwrap, sys, shutil
 from dataclasses import dataclass
 from working_frontier import work_offer, shop_prices, daily_stock
 from audio_system import AudioDirector
+from save_schema import SAVE_SCHEMA,validate_save,migrate_save
 from natural_terrain import draw_ground,draw_landforms,landform_solid,hash32,noise
 from combat_progression import WEAPONS, DIFFICULTIES, available_weapons, normal_weapon, normal_difficulty, incoming_damage, aim_vector, earned_perks, perk_reload_multiplier, perk_incoming_multiplier, perk_deadeye_regen
 from enemy_tactics import ARCHETYPES, archetype, morale, should_surrender, movement, cover_goal
@@ -34,7 +35,7 @@ VW,VH=960,600
 OLD_WW,OLD_WH=4800,3200
 WW,WH=WORLD_WIDTH,WORLD_HEIGHT  # Exactly 10x v2.5 world area; camera-local terrain
 FPS=33
-VERSION='2.8-dev — Combat & Character Progression'
+VERSION='2.9-dev — Presentation & Reliability'
 # Interiors are lightweight procedural rooms: no extra graphics libraries or image files.
 INTERIOR_TYPES={
  'Sheriff':'office','Sheriff Annex':'office','Saloon':'saloon','Sagebrush Saloon':'saloon',
@@ -113,7 +114,7 @@ class Actor:
 
 class Game:
  def __init__(self,root):
-  self.root=root;root.title('DUST & DEBT | Combat Progression v2.8')
+  self.root=root;root.title('DUST & DEBT | Presentation & Reliability v2.9')
   root.resizable(False,False)
   self.canvas=tk.Canvas(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
@@ -143,6 +144,7 @@ class Game:
  def reset(self):
   self.audio.stop()
   self.x,self.y=698.,610.;self.hp=100.;self.maxhp=100;self.money=35;self.ammo=6;self.reserve=42;self.tonics=2
+  self.settings_open=False;self.graphics_quality='normal';self.weather_enabled=True;self.context_hints=True
   self.stage=0;self.kills=0;self.wanted=0.;self.law_timer=0.;self.clock=8.0;self.mounted=False
   self.honor=50;self.crimes=0;self.law_status='PEACE';self.deadeye=100.;self.deadeye_active=False;self.deadeye_regen_delay=0.;self.witness_timer=0.;self.law_spawn_timer=0.;self.shot_trails=[]
   self.horse_x,self.horse_y=764.,646.;self.horse_hp=100
@@ -889,6 +891,18 @@ class Game:
    self.deadeye_active=not self.deadeye_active and self.deadeye>0
    self.notify('DEAD EYE '+('ENGAGED' if self.deadeye_active else 'DISENGAGED'),1.0)
    return
+  if key=='f8' and self.screen in ('playing','paused'):
+   self.settings_open=not self.settings_open;self.keys.discard(key);return
+  if self.settings_open and self.screen in ('playing','paused'):
+   if key=='1':self.graphics_quality='low' if self.graphics_quality=='normal' else 'normal'
+   elif key=='2':self.weather_enabled=not self.weather_enabled
+   elif key=='3':self.context_hints=not self.context_hints
+   elif key=='4':
+    self.sound_on=not self.sound_on;self.audio.enabled=self.sound_on
+   elif key=='5':self.audio.set_music_enabled(not self.audio.music_enabled)
+   elif key=='escape':self.settings_open=False
+   elif key=='f5':self.save(manual=True)
+   self.keys.discard(key);return
   if key=='f6' and self.screen in ('playing','paused'):
    levels=list(DIFFICULTIES);self.difficulty=levels[(levels.index(self.difficulty)+1)%len(levels)]
    self.notify('COMBAT DIFFICULTY: '+self.difficulty.upper(),2);return
@@ -1046,6 +1060,10 @@ class Game:
    self.difficulty=normal_difficulty(s.get('difficulty','standard'))
    self.aim_assist=bool(s.get('aim_assist',False))
    self.ammo=max(0,min(int(self.ammo),WEAPONS[self.weapon]['capacity']))
+   options=s.get('settings',{})
+   self.graphics_quality=options.get('graphics','normal')
+   self.weather_enabled=options.get('weather',True)
+   self.context_hints=options.get('hints',True)
    self.jail_roster=list(s.get('jail_roster',[]))
    self.law_reputation=int(s.get('law_reputation',0))
    self.field_prisoner=s.get('field_prisoner')
@@ -1079,14 +1097,9 @@ class Game:
   for path in (SAVE,SAVE+'.bak'):
    try:
     with open(path,encoding='utf-8') as file:data=json.load(file)
-    if not isinstance(data,dict):raise ValueError('save is not an object')
-    for key in ('x','y','stage'):
-     if key not in data:raise ValueError('save lacks '+key)
-    if not (0<=int(data['stage'])<len(MISSIONS)):raise ValueError('invalid story stage')
-    if not (23<=float(data['x'])<=WW-23 and 23<=float(data['y'])<=WH-23):
-     raise ValueError('coordinates outside territory')
+    validate_save(data,WW,WH,len(MISSIONS))
     self.loaded_backup=(path!=SAVE)
-    return data
+    return migrate_save(data)
    except (OSError,ValueError,TypeError,KeyError) as ex:errors.append(str(ex))
   raise ValueError('primary and backup unusable: '+'; '.join(errors))
 
@@ -1114,10 +1127,12 @@ class Game:
   d['road_income']=self.road_income;d['road_offer_day']=self.road_offer_day
   d['regional_standing']=self.regional_standing
   d['weapon']=self.weapon;d['difficulty']=self.difficulty;d['aim_assist']=self.aim_assist
-  d['save_version']=VERSION
+  d['save_version']=VERSION;d['schema']=SAVE_SCHEMA
+  d['settings']={'graphics':self.graphics_quality,'weather':self.weather_enabled,'hints':self.context_hints}
   tag={1:'hollow',4:'blackspur',6:'crow'}.get(self.stage)
   if tag:d['stage_kills']=sum(a.dead for a in self.actors if a.kind=='mission_'+tag)
   try:
+   validate_save(d,WW,WH,len(MISSIONS))
    os.makedirs(os.path.dirname(SAVE),exist_ok=True)
    tmp=SAVE+'.tmp'
    with open(tmp,'w') as f:
@@ -1127,8 +1142,8 @@ class Game:
     try:
      with open(SAVE,encoding='utf-8') as old:
       old_data=json.load(old)
-     if isinstance(old_data,dict) and all(k in old_data for k in ('x','y','stage')):
-      shutil.copy2(SAVE,SAVE+'.bak')
+     validate_save(old_data,WW,WH,len(MISSIONS))
+     shutil.copy2(SAVE,SAVE+'.bak')
     except (OSError,ValueError,TypeError):pass
    os.replace(tmp,SAVE)
    self.loaded_backup=False
@@ -1632,7 +1647,7 @@ class Game:
  def loop(self):
   now=time.monotonic();dt=min(.06,now-self.last);self.last=now
   try:
-   if self.screen=='playing' and not self.dialog and not self.choice_dialog:
+   if self.screen=='playing' and not self.dialog and not self.choice_dialog and not self.settings_open:
     self.update(dt)
    self.render()
   except Exception as ex:
@@ -2049,7 +2064,7 @@ class Game:
   self.draw_expansion_markers()
   self.draw_work_marker()
   self.draw_road_contract_marker()
-  self.draw_scattered_props()
+  if self.graphics_quality=='normal':self.draw_scattered_props()
   visible=(a for a in self.actors if self.camx-45<=a.x<=self.camx+VW+45 and self.camy-50<=a.y<=self.camy+VH+50)
   for a in sorted(visible,key=lambda a:a.y):self.draw_actor(a)
   if self.stage==4 and self.enemies_remaining('blackspur')==0 and not self.ledger:
@@ -2090,6 +2105,7 @@ class Game:
    self.canvas.create_rectangle(0,0,VW,VH,fill='#342e37',stipple='gray75',outline='')
 
  def draw_weather(self):
+  if not self.weather_enabled:return
   kind=self.weather_kind()
   if kind=='clear':return
   c=self.canvas
@@ -2450,10 +2466,10 @@ class Game:
 
  def draw_help(self):
   self.panel(190,52,580,506)
-  self.draw_text(216,110,'HOW TO SURVIVE THE FRONTIER',20,'#efc58a',True)
-  controls=[('WASD / ARROWS','Move'),('SHIFT','Sprint / gallop'),('MOUSE CLICK','Aim and shoot'),('SPACE / R','Fire / reload'),('Q','Dead Eye'),('2 / F6 / F7','Weapon / difficulty / aim assist'),('E / SHIFT+E','Interact / enter buildings'),('H','Mount / dismount Whiskey'),('B','Accept bounty near sheriff'),('L','Lasso wanted targets or bandits'),('G','Hogtie roped outlaw (on foot)'),('E BY TIED TARGET','Pick up captive'),('E BY SHERIFF','Deliver prisoner alive (on foot)'),('1','Health tonic'),('M / J','Map / journal (TAB and Enter choose map towns)'),('F / T','Gather / camp'),('P','Take or collect paid work'),('N / U','Waystation road jobs / rumors'),('Y','Regional stories at Galloway / Roan Creek'),('I','Work ledger and horse condition'),('V / O','Sound effects / ambient music'),('F5','Save game'),('F11','Fullscreen'),('ESC / F1','Pause / help')]
+  self.draw_text(216,95,'HOW TO SURVIVE THE FRONTIER',19,'#efc58a',True)
+  controls=[('WASD / ARROWS','Move'),('SHIFT','Sprint / gallop'),('MOUSE CLICK','Aim and shoot'),('SPACE / R','Fire / reload'),('Q','Dead Eye'),('2 / F6 / F7','Weapon / difficulty / aim assist'),('E / SHIFT+E','Interact / enter buildings'),('H','Mount / dismount Whiskey'),('B','Accept bounty near sheriff'),('L','Lasso wanted targets or bandits'),('G','Hogtie roped outlaw (on foot)'),('E BY TIED TARGET','Pick up captive'),('E BY SHERIFF','Deliver prisoner alive (on foot)'),('1','Health tonic'),('M / J','Map / journal (TAB and Enter choose map towns)'),('F / T','Gather / camp'),('P','Take or collect paid work'),('N / U','Waystation road jobs / rumors'),('Y','Regional stories at Galloway / Roan Creek'),('I','Work ledger and horse condition'),('V / O','Sound effects / ambient music'),('F5','Save game'),('F8','Graphics / sound settings'),('F11','Fullscreen'),('ESC / F1','Pause / help')]
   for i,(k,v) in enumerate(controls):
-   yy=139+i*17
+   yy=127+i*16
    self.draw_text(218,yy,k,11,'#f4d59e',True)
    self.draw_text(445,yy,v,11,'#e3d2b8')
 
@@ -2468,12 +2484,26 @@ class Game:
   else:self.draw_text(480,473,'NO SAVED GAME YET',13,'#8c806e',anchor='center')
   self.draw_text(480,554,VERSION+'  •  Linux  •  Python + Tkinter',11,'#d6b38e',anchor='center')
 
+ def draw_settings(self):
+  self.panel(235,135,490,330,'#201b18','#d2a56c')
+  self.draw_text(480,166,'FRONTIER SETTINGS',25,'#f4d2a0',True,anchor='center')
+  lines=[('1','Graphics detail',self.graphics_quality.upper()),
+         ('2','Weather effects','ON' if self.weather_enabled else 'OFF'),
+         ('3','Context hints','ON' if self.context_hints else 'OFF'),
+         ('4','Sound effects','ON' if self.sound_on else 'OFF'),
+         ('5','Ambient music','ON' if self.audio.music_enabled else 'OFF')]
+  for i,(key,name,value) in enumerate(lines):
+   y=225+i*40
+   self.draw_text(267,y,key+'  '+name,14,'#e5ceac',True)
+   self.draw_text(680,y,value,14,'#f7d392',True,anchor='e')
+  self.draw_text(480,440,'F8 / ESC: CLOSE   •   F5: SAVE',12,'#d5b896',True,anchor='center')
+
  def draw_pause(self):
   self.canvas.create_rectangle(0,0,VW,VH,fill='#17130f',stipple='gray50',outline='')
   self.panel(277,180,406,242)
   self.draw_text(480,215,'PAUSED',38,'#efcf9d',True,anchor='center')
   self.draw_text(480,282,'ESC  —  RESUME',17,'#f0d3a5',True,anchor='center')
-  self.draw_text(480,330,'F5  —  SAVE GAME',15,'#e5be86',anchor='center')
+  self.draw_text(480,330,'F5 SAVE   •   F8 SETTINGS   •   F1 HELP',13,'#e5be86',anchor='center')
   self.draw_text(480,366,'LAST SAVE: '+(self.last_save_time if self.last_save_ok else ('FAILED' if self.save_error else 'NOT YET')),12,'#e8d2ab',anchor='center')
   self.draw_text(480,390,'Close window to quit (autosaves).',11,'#d4b995',anchor='center')
 
@@ -2509,6 +2539,7 @@ class Game:
    return
   self.draw_world();self.draw_hud()
   if self.screen=='paused':self.draw_pause()
+  if self.settings_open:self.draw_settings()
   if self.map_open:self.draw_map()
   if self.journal_open:self.draw_journal()
   if self.work_ledger_open:self.draw_work_ledger()
@@ -2527,7 +2558,7 @@ def main():
   assert len(MISSIONS)==9 and len(BUILDINGS)>=25 and (WW,WH)==(60000,40960)
   assert all(t in INTERIOR_TYPES for t in ('Saloon','General Store','Hotel','Sheriff'))
   assert len(SHOP_GOODS)>=6
-  assert VERSION.startswith('2.7')
+  assert VERSION.startswith('2.9')
   assert os.path.exists(os.path.join(ASSETS,'world.png'))
   assert os.path.exists(os.path.join(ASSETS,'title.png'))
   print('Self-test OK: story, buildings, and artwork present.')
