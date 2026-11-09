@@ -532,6 +532,118 @@ class Game:
    return True
   return False
 
+ def road_escort(self):
+  return next((a for a in self.actors if a.kind=='escort' and not a.dead),None)
+
+ def restore_road_escort(self):
+  job=self.road_contract
+  if not job or job['type']!='escort' or job.get('status')!='outbound':return
+  if self.road_escort():return
+  pos=job.get('escort_pos',job['origin_pos'])
+  position=safe_event_position(*pos,self.can_move)
+  if position:
+   a=Actor(*position,'escort','Wagon Passenger',65,65,112)
+   self.actors.append(a)
+  else:self.notify('Escort route blocked. Return to the waystation.',4)
+
+ def offer_road_contract(self):
+  if self.mounted or self.interior or self.dialog or self.choice_dialog:return False
+  station=nearby_station(self.x,self.y,220)
+  if not station:
+   self.notify('Road jobs are posted at named waystations. Approach a signpost.',4);return False
+  if self.road_contract:
+   job=self.road_contract
+   if job['origin']==station[0] and job['status']=='return':
+    return self.complete_road_contract()
+   self.notify('ACTIVE ROAD JOB: '+job['title']+'. Finish the current assignment.',4)
+   return False
+  if self.road_offer_day.get(station[0])==self.economy_day:
+   self.notify('No more dispatches here today. Try another station or return tomorrow.',4)
+   return False
+  job=offer_for_day(station[0],self.economy_day)
+  if not job:return False
+  if job['type'] in ('survey','salvage'):
+   pos=safe_event_position(*job['target_pos'],self.can_move)
+   if pos:job['target_pos']=list(pos)
+  self.road_contract=job
+  self.road_offer_day[station[0]]=self.economy_day
+  self.waypoint=list(job['target_pos'])
+  if job['type']=='escort':
+   self.restore_road_escort()
+  self.notify('ROAD JOB: '+job['title']+' to '+job['destination']+' • $'+str(job['reward']),6)
+  self.audio.cue('job_accept')
+  self.save()
+  return True
+
+ def complete_road_contract(self):
+  job=self.road_contract
+  if not job:return False
+  if job['type']=='escort':
+   follower=self.road_escort()
+   if follower:self.actors.remove(follower)
+  amount=int(job['reward'])
+  self.money+=amount;self.road_income+=amount;self.road_contracts_done+=1
+  region=region_at(*job['target_pos'])
+  self.regional_standing[region]=min(100,self.regional_standing.get(region,0)+3)
+  self.change_honor(2 if job['type']=='escort' else 1,'Frontier road service')
+  self.road_contract=None
+  self.waypoint=None
+  self.notify('ROAD JOB COMPLETE: +$'+str(amount)+' • '+region,6)
+  self.audio.cue('job_complete');self.save()
+  return True
+
+ def progress_road_contract(self):
+  job=self.road_contract
+  if not job or self.mounted or job['status']!='outbound':return False
+  tx,ty=job['target_pos']
+  if math.hypot(self.x-tx,self.y-ty)>145:return False
+  if job['type']=='escort':
+   follower=self.road_escort()
+   if not follower or math.hypot(follower.x-tx,follower.y-ty)>240:
+    self.notify('Wait for your passenger to reach the destination.',3);return False
+   return self.complete_road_contract()
+  if job['type']=='courier':
+   return self.complete_road_contract()
+  job['status']='return'
+  self.waypoint=list(job['origin_pos'])
+  self.notify('Evidence secured. Return to '+job['origin_name']+' and press N.',5)
+  self.audio.cue('job_complete');self.save()
+  return True
+
+ def update_road_escort(self,dt):
+  job=self.road_contract
+  if not job or job['type']!='escort' or job['status']!='outbound':return
+  passenger=self.road_escort()
+  if not passenger:
+   self.notify('Your passenger is lost. The escort contract failed.',4)
+   self.road_contract=None;self.waypoint=None;return
+  gap=math.hypot(self.x-passenger.x,self.y-passenger.y)
+  if gap>1250:
+   job['lost_time']=job.get('lost_time',0.)+dt
+   if job['lost_time']>18:
+    self.actors.remove(passenger);self.road_contract=None;self.waypoint=None
+    self.notify('ESCORT FAILED: You left your passenger too far behind.',5);self.save()
+   return
+  job['lost_time']=0.
+  if gap<75:return
+  dx=(self.x-passenger.x)/gap;dy=(self.y-passenger.y)/gap
+  original=(passenger.x,passenger.y)
+  speed=165 if self.mounted else 133
+  self.move_actor(passenger,dx*speed*dt,dy*speed*dt)
+  if math.hypot(passenger.x-original[0],passenger.y-original[1])<.1:
+   job['stuck_time']=job.get('stuck_time',0.)+dt
+   if job['stuck_time']>3 and gap<450:
+    new_pos=safe_event_position(self.x-dx*78,self.y-dy*78,self.can_move)
+    if new_pos:passenger.x,passenger.y=new_pos
+    job['stuck_time']=0.
+  else:job['stuck_time']=0.
+  job['escort_pos']=[passenger.x,passenger.y]
+
+ def regional_rumor(self):
+  text=dispatch_rumor(self.x,self.y,self.economy_day)
+  self.notify('ROAD RUMOR: '+text,5)
+  return text
+
  def offer_frontier_job(self,guide):
   town=nearby_settlement(guide.x,guide.y)
   if not town:return
