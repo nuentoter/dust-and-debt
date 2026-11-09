@@ -1789,7 +1789,7 @@ class Game:
     a.aim_timer=max(0.,a.aim_timer-dt)
     if a.aim_timer==0:
      profile=ARCHETYPES[archetype(a)]
-     if (a.kind!='deputy' or self.law_status=='WANTED') and math.hypot(a.x-self.x,a.y-self.y)<profile['range'] and self.line_of_fire(a.x,a.y,self.x,self.y):
+     if (a.kind!='deputy' or self.law_status=='WANTED') and not (a.kind=='bandit' and (self.safe_timer>0 or self.in_safe_settlement(self.x,self.y))) and math.hypot(a.x-self.x,a.y-self.y)<profile['range'] and self.line_of_fire(a.x,a.y,self.x,self.y):
       angle=math.atan2(self.y-a.y,self.x-a.x)+random.uniform(-profile['spread'],profile['spread'])
       self.bullets.append([a.x,a.y,math.cos(angle)*330,math.sin(angle)*330,1.3,False])
     continue
