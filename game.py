@@ -697,8 +697,21 @@ class Game:
   if key=='escape' and self.work_ledger_open:self.work_ledger_open=False;return
   if key=='escape':self.screen='playing' if self.screen=='paused' else 'paused';self.deadeye_active=False;return
   if self.screen=='paused':return
+  if self.map_open and key in ('z','up','down','left','right','w','a','s','d','escape'):
+   if key=='z':self.map_zoom=not self.map_zoom;self.map_center=[self.x,self.y]
+   elif key=='escape':self.map_open=False
+   else:
+    dx=int(key in ('right','d'))-int(key in ('left','a'))
+    dy=int(key in ('down','s'))-int(key in ('up','w'))
+    stride=2400 if self.map_zoom else 7500
+    self.map_center=[max(0,min(WW,self.map_center[0]+dx*stride)),
+                     max(0,min(WH,self.map_center[1]+dy*stride))]
+    self.map_zoom=True
+   self.keys.discard(key);return
   if key=='f1':self.show_help=not self.show_help
-  elif key=='m':self.map_open=not self.map_open;self.journal_open=False;self.work_ledger_open=False;self.deadeye_active=False
+  elif key=='m':
+   self.map_open=not self.map_open;self.journal_open=False;self.work_ledger_open=False;self.deadeye_active=False
+   if self.map_open:self.map_center=[self.x,self.y];self.keys.clear()
   elif key=='j':self.journal_open=not self.journal_open;self.map_open=False;self.work_ledger_open=False;self.deadeye_active=False
   elif key=='c' and self.waypoint is not None:self.waypoint=None;self.notify('Waypoint cleared.',2)
   elif key=='e':
@@ -845,11 +858,13 @@ class Game:
    self.notify('SAVE FAILED: '+str(ex),6)
    return False
 
+ def current_map_view(self):
+  return map_view(self.map_zoom,*self.map_center)
+
  def set_waypoint_from_map(self,px,py):
-  x,y,w,h=150,110,658,394
-  if not (x<=px<=x+w and y<=py<=y+h):return False
-  wx=min(WW-25,max(25,int((px-x)/w*WW)))
-  wy=min(WH-25,max(25,int((py-y)/h*WH)))
+  location=world_from_map(px,py,self.current_map_view())
+  if location is None:return False
+  wx,wy=int(location[0]),int(location[1])
   self.waypoint=[wx,wy]
   self.notify('Waypoint set: '+self.region_name(wx,wy),3)
   return True
@@ -1930,63 +1945,72 @@ class Game:
 
  def draw_map(self):
   self.panel(120,48,720,506,'#26211b')
-  self.draw_text(145,66,'TERRITORY MAP',24,'#ebca95',True)
-  x,y,w,h=150,110,658,394
-  # marker
-  self.canvas.create_rectangle(x,y,x+w,y+h,fill='#ac946e',outline='')
-  for row in range(4):
-   for col in range(4):
-    x1=x+col*w/4;y1=y+row*h/4
-    self.canvas.create_rectangle(x1,y1,x1+w/4,y1+h/4,fill=('#bba079' if (row+col)%2 else '#a58e68'),outline='#907a60')
-  self.canvas.create_image(x,y,image=self.mapthumb,anchor='nw')
-  for row in range(4):
-   for col in range(4):
-    if row==0 and col==0:continue
-    cx=x+(col+.5)*w/4;cy=y+(row+.5)*h/4
-    label=self.region_name((col+.5)*4800,(row+.5)*3200)
-    self.draw_text(cx,cy,label.upper(),8,'#55422d',True,anchor='center')
-  self.canvas.create_rectangle(x,y,x+w,y+h,outline='#ca9b61',width=3)
-  for n,bx,by,bw,bh in BUILDINGS:
-   rx=x+(bx/WW)*w;ry=y+(by/WH)*h
-   self.canvas.create_rectangle(rx,ry,rx+bw/WW*w,ry+bh/WH*h,fill='#685b43',outline='#362d25')
-  for name,tx,ty in [('CINDER CREEK',660,240),('DUST HOLLOW',1840,580),('BLACKSPUR',2020,1120),('RANCH',1490,850),('STATION',1210,1310),('SAGEBRUSH',3330,1560),('SILVERWATER',1530,2850),('COPPER RIDGE',4020,2350),('THE MESA',3880,750),('SOUTH RANCH',660,1900),('GHOST MISSION',2900,2550)]:
-   self.draw_text(x+tx/WW*w,y+ty/WH*h,name,9,'#241a14',True)
+  self.draw_text(145,66,'THE GREAT TERRITORY',23,'#ebca95',True)
+  mode='REGIONAL' if self.map_zoom else 'WHOLE TERRITORY'
+  self.draw_text(805,78,mode,11,'#e4c797',True,anchor='e')
+  view=self.current_map_view()
+  draw_map_background(self.canvas,view)
+  def mark(wx,wy):
+   return point_on_map(wx,wy,view)
   for key,name,cx,cy,*_ in SETTLEMENTS:
-   sx=x+cx/WW*w;sy=y+cy/WH*h
-   self.canvas.create_rectangle(sx-5,sy-5,sx+5,sy+5,fill='#64815b',outline='#25452b',width=2)
-   self.draw_text(sx+9,sy-8,name.upper(),9,'#322a1f',True)
-  for identifier,wx,wy,label,kind in RESOURCE_NODES:
-   if identifier not in self.gathered_nodes:
-    rx=x+wx/WW*w;ry=y+wy/WH*h
-    self.canvas.create_oval(rx-2,ry-2,rx+2,ry+2,fill='#4e8f4c',outline='')
+   p=mark(cx,cy)
+   if not p:continue
+   sx,sy=p
+   self.canvas.create_rectangle(sx-4,sy-4,sx+4,sy+4,fill='#516f4e',outline='#dddeab')
+   if self.map_zoom:self.draw_text(sx+7,sy-9,name.upper(),8,'#322a1f',True)
+  for name,tx,ty in (('CINDER CREEK',660,600),('SAGEBRUSH',3340,1920)):
+   p=mark(tx,ty)
+   if p:
+    sx,sy=p
+    self.canvas.create_rectangle(sx-4,sy-4,sx+4,sy+4,fill='#4e7060',outline='#f7dfaa')
+    if self.map_zoom:self.draw_text(sx+7,sy,name,8,'#342a20',True)
+  for key,name,tx,ty,kind in LANDMARKS:
+   p=mark(tx,ty)
+   if not p:continue
+   sx,sy=p
+   found=key in self.landmarks_found
+   self.canvas.create_oval(sx-3,sy-3,sx+3,sy+3,fill='#b16c3f' if found else '#756b5a',outline='#f5ddaf' if found else '')
+   if found and self.map_zoom:self.draw_text(sx+7,sy-12,name.upper(),8,'#3f3025',True)
+  if self.map_zoom:
+   for n,bx,by,bw,bh in BUILDINGS:
+    p=mark(bx+bw/2,by+bh/2)
+    if p:self.canvas.create_rectangle(p[0]-2,p[1]-2,p[0]+2,p[1]+2,fill='#69543e',outline='')
+   for node_id,nx,ny,label,kind in RESOURCE_NODES:
+    if node_id not in self.gathered_nodes:
+     p=mark(nx,ny)
+     if p:self.canvas.create_oval(p[0]-2,p[1]-2,p[0]+2,p[1]+2,fill='#37804b',outline='')
   if self.side_job:
    job=get_job(self.side_job['id'])
    if job:
     step=int(self.side_job['step'])
     if 0<=step<len(job[4]):
-     jx,jy=job[4][step];sx=x+jx/WW*w;sy=y+jy/WH*h
-     self.canvas.create_oval(sx-6,sy-6,sx+6,sy+6,outline='#287873',width=3)
+     p=mark(*job[4][step])
+     if p:self.canvas.create_oval(p[0]-6,p[1]-6,p[0]+6,p[1]+6,outline='#178982',width=3)
+  if self.work_active:
+   job=self.work_active
+   p=mark(*(job['destination'] if job['status']=='outbound' else job['giver_pos']))
+   if p:self.canvas.create_oval(p[0]-6,p[1]-6,p[0]+6,p[1]+6,outline='#3288aa',width=3)
   target=self.quest_target()
   if target:
-   tx=x+target[0]/WW*w;ty=y+target[1]/WH*h
-   self.canvas.create_oval(tx-8,ty-8,tx+8,ty+8,outline='#fff2ac',width=3)
+   p=mark(*target)
+   if p:self.canvas.create_oval(p[0]-6,p[1]-6,p[0]+6,p[1]+6,outline='#fff0a3',width=3)
   if self.contract or self.field_prisoner:
-   if self.bounty_state()=='carried' or self.field_status()=='carried':
-    bx=x+418/WW*w;by=y+463/WH*h
-    self.canvas.create_oval(bx-7,by-7,bx+7,by+7,outline='#ddc79b',width=3)
+   if self.bounty_state()=='carried' or self.field_status()=='carried':target=(418,463)
    else:
-    target=self.field_actor() if self.field_prisoner else self.bounty_actor()
-    fallback=(self.field_prisoner['position'] if self.field_prisoner else self.contract['location'])
-    bx=x+(target.x if target else fallback[0])/WW*w
-    by=y+(target.y if target else fallback[1])/WH*h
-    self.canvas.create_oval(bx-6,by-6,bx+6,by+6,fill='#9d3d34',outline='#2d211e',width=2)
+    actor=self.field_actor() if self.field_prisoner else self.bounty_actor()
+    fallback=self.field_prisoner['position'] if self.field_prisoner else self.contract['location']
+    target=(actor.x,actor.y) if actor else fallback
+   p=mark(*target)
+   if p:self.canvas.create_oval(p[0]-6,p[1]-6,p[0]+6,p[1]+6,fill='#9d3d34',outline='#f3dbc0',width=2)
   if self.waypoint:
-   wx=x+self.waypoint[0]/WW*w;wy=y+self.waypoint[1]/WH*h
-   self.canvas.create_line(wx-9,wy,wx+9,wy,fill='#157661',width=3)
-   self.canvas.create_line(wx,wy-9,wx,wy+9,fill='#157661',width=3)
-  px=x+self.x/WW*w;py=y+self.y/WH*h
-  self.canvas.create_oval(px-7,py-7,px+7,py+7,fill='#d94530',outline='#fff8d7',width=2)
-  self.draw_text(480,520,'CLICK: PIN • GREEN: TOWNS • TEAL: SIDE JOB • GOLD: STORY',11,'#e2c397',anchor='center')
+   p=mark(*self.waypoint)
+   if p:
+    sx,sy=p
+    self.canvas.create_line(sx-9,sy,sx+9,sy,fill='#157661',width=3)
+    self.canvas.create_line(sx,sy-9,sx,sy+9,fill='#157661',width=3)
+  p=mark(self.x,self.y)
+  if p:self.canvas.create_oval(p[0]-6,p[1]-6,p[0]+6,p[1]+6,fill='#d94530',outline='#fff8d7',width=2)
+  self.draw_text(480,519,'CLICK SET PIN  •  Z ZOOM  •  WASD PAN  •  M CLOSE  •  ORANGE: LANDMARK',10,'#e2c397',anchor='center')
 
  def draw_journal(self):
   self.panel(132,59,700,485)
