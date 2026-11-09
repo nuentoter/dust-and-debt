@@ -112,3 +112,43 @@ def draw_frontier_towns(canvas,camx,camy,width,height):
   for ox in (-195,190):
    canvas.create_line(sx+ox,sy+62,sx+ox,sy+116,fill="#493b30",width=5)
    canvas.create_oval(sx+ox-7,sy+56,sx+ox+7,sy+74,fill="#e0b96b",outline="#4c3827",width=2)
+  # Distinct regional monuments anchored to the actual illustrated city centers.
+  # None are solid; gameplay collision stays bounded to authored buildings.
+  if key=='drybone':  # Galloway railway gantry and signal
+   canvas.create_line(sx+225,sy-100,sx+225,sy-195,fill='#6a5647',width=9)
+   canvas.create_line(sx+225,sy-175,sx+330,sy-175,fill='#6a5647',width=8)
+   canvas.create_oval(sx+316,sy-187,sx+344,sy-161,fill='#ca8d5a',outline='#4f3c2d',width=3)
+   caption='RAILWAY DISPATCH'
+  elif key=='ironwell':  # Iron Mesa derrick
+   canvas.create_polygon(sx+245,sy-48,sx+292,sy-185,sx+333,sy-48,
+                         fill='#8c694d',outline='#513d34',width=4)
+   for height in (-80,-112,-144):
+    canvas.create_line(sx+260,sy+height,sx+321,sy+height,fill='#d1a879',width=4)
+   caption='IRON MESA SHAFT'
+  elif key=='painted':  # Dustwell windpump
+   canvas.create_line(sx+287,sy-50,sx+287,sy-179,fill='#6c624e',width=7)
+   for i in range(8):
+    import math
+    angle=i*math.tau/8
+    canvas.create_line(sx+287,sy-169,sx+287+math.cos(angle)*45,
+                       sy-169+math.sin(angle)*45,fill='#b4a388',width=5)
+   caption='DUSTWELL PUMP'
+  elif key=='saltwater':  # Roan Creek skiff
+   canvas.create_polygon(sx+223,sy+195,sx+333,sy+195,sx+310,sy+224,
+                         sx+243,sy+224,fill='#74543a',outline='#473b30',width=4)
+   canvas.create_line(sx+278,sy+197,sx+278,sy+142,fill='#71563d',width=5)
+   canvas.create_polygon(sx+279,sy+142,sx+310,sy+185,sx+279,sy+185,fill='#ddd1aa')
+   caption='CREEK LANDING'
+  elif key=='ember':  # Larkfield market bell
+   canvas.create_line(sx+275,sy-60,sx+275,sy-172,fill='#755743',width=9)
+   canvas.create_polygon(sx+246,sy-150,sx+303,sy-150,sx+294,sy-117,
+                         sx+253,sy-117,fill='#c8a15d',outline='#58432f',width=3)
+   caption='LARKFIELD MARKET'
+  else:  # Riversend river gauge
+   for height in range(6):
+    canvas.create_rectangle(sx+249,sy-146+height*17,sx+309,sy-130+height*17,
+                            fill='#8b9c95' if height%2 else '#c8ad7a',
+                            outline='#5e5846',width=2)
+   caption='RIVERSEND GAUGE'
+  canvas.create_text(sx+280,sy-207,text=caption,fill='#50382b',
+                     font=('DejaVu Sans',9,'bold'))
