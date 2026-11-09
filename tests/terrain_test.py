@@ -7,7 +7,7 @@ def main():
  with tempfile.TemporaryDirectory() as tmp:
   game.SAVE=os.path.join(tmp,'save.json')
   root=tk.Tk();root.withdraw();g=game.Game(root);g.new_game();g.dialog=None
-  assert game.WW==19200 and game.WH==12800
+  assert game.WW==60000 and game.WH==40960
   assert not g.is_frontier_road(700,610)
   assert g.is_frontier_road(6000,4300)
   assert g.terrain_obstacle(700,610) is None
