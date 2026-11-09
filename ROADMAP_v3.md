@@ -39,7 +39,11 @@ v2.7 Handcrafted Frontier (IMPLEMENTED) #11
   unique town landmarks • interiors • 2 regional stories • faster horse
        │
        ▼
-v2.8 Combat & Character Progression #12
+v2.8-map Rivers, Ridges & Stone (PLANNED) #19
+  flowing biomes • plateaus • tributaries • clustered boulders
+       │
+       ▼
+v2.8 Combat & Character Progression #12 (FIRST SLICE IMPLEMENTED)
   weapons • morale • upgrades
        │
        ▼
@@ -61,6 +65,7 @@ v3.0 Living Frontier Release        #14
 | 2.6 | Roads and Consequences — implemented | Four rotating road contracts, escorts, varied incidents, regional reputation and optional generated audio; [soundtrack sprint still open #15](https://github.com/nuentoter/dust-and-debt/issues/15) | [#10](https://github.com/nuentoter/dust-and-debt/issues/10) |
 | 2.6-atlas | New Austellia alignment — geography implemented | 15 named illustrated regions, 30+ sites, railways, rivers, coastline and relocated frontier quests; source artwork packaging remains | [#17](https://github.com/nuentoter/dust-and-debt/issues/17) |
 | 2.7 | Handcrafted Frontier — implemented | Distinct town landmarks, regional interiors, two multi-stop quests, atlas selector, 1.5× trot/2.5× gallop and stamina | [#11](https://github.com/nuentoter/dust-and-debt/issues/11) |
+| 2.8-map | Rivers, Ridges & Stone — planned | Organic biome transitions, atlas-aligned ridges, tributaries and boulder clusters; no grid seams | [#19](https://github.com/nuentoter/dust-and-debt/issues/19) · [Technical design](NATURAL_TERRAIN_MILESTONE.md) |
 | 2.8 | Combat and Character Progression | Weapon depth, enemy morale, earned upgrades, difficulty options | [#12](https://github.com/nuentoter/dust-and-debt/issues/12) |
 | 2.9 | Presentation and Reliability | Settings, polish, accessibility, profiling, current-version save reliability | [#13](https://github.com/nuentoter/dust-and-debt/issues/13) |
 | 3.0 | Living Frontier Release | Integrated testing, documentation and a verified source release | [#14](https://github.com/nuentoter/dust-and-debt/issues/14) |
@@ -90,4 +95,4 @@ Each milestone should be considered complete only after its issue checklist is s
 
 ## Next implementation
 
-**In progress: [v2.8 Combat & Character Progression](https://github.com/nuentoter/dust-and-debt/issues/12).** The first v2.8 slice (two weapon profiles, earned unlock, damage difficulty and aim assistance) is implemented; enemy archetypes, cover/morale AI and full balancing remain open. New Austellia geography and v2.7 story routes are implemented. Finish the remaining illustrated map packaging/art polish in [#17](https://github.com/nuentoter/dust-and-debt/issues/17), and investigate silent audio on the owner's Archcraft computer under [Audio Sprint #15](https://github.com/nuentoter/dust-and-debt/issues/15).
+**Next build priority: [v2.8-map Rivers, Ridges & Stone](https://github.com/nuentoter/dust-and-debt/issues/19)**, planned and specified in [NATURAL_TERRAIN_MILESTONE.md](NATURAL_TERRAIN_MILESTONE.md), not yet implemented. Resume [v2.8 Combat & Character Progression](https://github.com/nuentoter/dust-and-debt/issues/12) after the terrain pass. The first v2.8 slice (two weapon profiles, earned unlock, damage difficulty and aim assistance) is implemented; enemy archetypes, cover/morale AI and full balancing remain open. New Austellia geography and v2.7 story routes are implemented. Finish the remaining illustrated map packaging/art polish in [#17](https://github.com/nuentoter/dust-and-debt/issues/17), and investigate silent audio on the owner's Archcraft computer under [Audio Sprint #15](https://github.com/nuentoter/dust-and-debt/issues/15).
