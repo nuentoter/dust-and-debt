@@ -45,7 +45,7 @@ LANDMARKS = tuple((key,name,x,y,{'mine':'mine','fort':'ruin','ranch':'camp',
 ROAD_X = tuple(range(6000,WORLD_WIDTH,4200))
 ROAD_Y = tuple(range(4300,WORLD_HEIGHT,3600))
 START_SPUR=((4650,2980),(6000,4300))
-MAP_RECT=(150,110,658,394)
+MAP_RECT=(175,99,610,457)  # preserve supplied 1448x1086 atlas aspect ratio
 
 def sector_at(x,y):
  col=max(0,min(5,int(x//SECTOR_W)))
