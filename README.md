@@ -1,3 +1,7 @@
+## Development roadmap: v2.4–v3.0
+
+The next seven planned milestones are tracked in [ROADMAP_v3.md](ROADMAP_v3.md), with individual GitHub issues for surrender, patrols and jails; a working economy; road encounters; deeper settlements; combat progression; reliability; and the v3.0 release. These features are **planned, not implemented**. Start with [v2.4 Living Law](https://github.com/nuentoter/dust-and-debt/issues/8).
+
 # DUST & DEBT
 ### A complete, original top-down Western adventure for Linux
 
