@@ -9,7 +9,7 @@ def main():
   game.SAVE=os.path.join(tmp,'save.json')
   root=tk.Tk();root.withdraw()
   g=game.Game(root);g.new_game();g.dialog=None
-  assert game.VERSION.startswith('2.4')
+  assert hasattr(g,'jail_roster') and hasattr(g,'check_surrender')
   patrols=[a for a in g.actors if a.kind=='law_patrol']
   assert len(patrols)==8 and all(g.can_move(a.x,a.y,20) for a in patrols)
   patrol=patrols[0]
