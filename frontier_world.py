@@ -4,6 +4,8 @@ The original 4,800x3,200 hand-painted area and all existing buildings stay at
 their original coordinates. This module adds no large image or runtime packages.
 """
 import math
+from new_austellia import (TOWNS,TOWN_BY_ID,REGIONS,region_at as atlas_region,
+ biome_at as atlas_biome,travel_road,draw_atlas)
 
 WORLD_WIDTH = 60000
 WORLD_HEIGHT = 40960
@@ -34,30 +36,11 @@ BIOME_PALETTES = {
  "mountain":("#8d867c","#968e83","#a49b8b"),
 }
 # ID, label, position, category. Sites are spaced throughout the new territory.
-LANDMARKS = (
- ("rustwatch","Rustwatch Tower",17800,2700,"tower"),
- ("white_stag","White Stag Grove",27000,3800,"forest"),
- ("black_spire","Black Spire",36600,3300,"mesa"),
- ("salt_bells","Salt Bell Flats",47300,3900,"salt"),
- ("north_pass","North Pass",56100,3700,"pass"),
- ("dry_mill","Deadman's Mill",8700,13000,"ruin"),
- ("oxhead","Oxhead Fossil",24100,14900,"bones"),
- ("stillwater","Stillwater Falls",34800,14200,"water"),
- ("broken_dam","Broken Dam",43000,15000,"ruin"),
- ("lantern_post","Last Lantern Post",53800,14200,"tower"),
- ("mirage","Mirage Well",5200,24400,"water"),
- ("twin_pines","Twin Pines",15500,23700,"forest"),
- ("copper_gate","Copper Gate",25400,23900,"mine"),
- ("devils_stair","Devil's Stair",33800,25100,"canyon"),
- ("blueglass","Blueglass Shore",46800,24100,"water"),
- ("far_station","Far Station",55500,25100,"ruin"),
- ("coyote_cross","Coyote Crossing",6700,35500,"camp"),
- ("three_forks","Three Forks",17400,35000,"water"),
- ("timberfall","Timberfall",27000,35400,"forest"),
- ("red_obelisk","Red Obelisk",37000,35500,"mesa"),
- ("ash_garden","Ash Garden",48000,35100,"desert"),
- ("horizon_gates","Horizon Gates",57300,36400,"ruin"),
-)
+# Named discoveries now come directly from the illustrated New Austellia atlas.
+LANDMARKS = tuple((key,name,x,y,{'mine':'mine','fort':'ruin','ranch':'camp',
+  'island':'water','lake':'water','pass':'pass','waterfall':'water',
+  'ruin':'ruin','spring':'water','tower':'tower'}.get(kind,'camp'))
+  for key,name,x,y,kind in TOWNS if kind not in ('city','town','port','settlement'))
 # Roads are linked to the current six towns; the starting world has a spur.
 ROAD_X = tuple(range(6000,WORLD_WIDTH,4200))
 ROAD_Y = tuple(range(4300,WORLD_HEIGHT,3600))
@@ -70,12 +53,10 @@ def sector_at(x,y):
  return row,col
 
 def region_at(x,y):
- r,c=sector_at(x,y)
- return SECTOR_NAMES[r][c]
+ return atlas_region(x,y)
 
 def biome_at(x,y):
- r,c=sector_at(x,y)
- return BIOME_GRID[r][c]
+ return atlas_biome(x,y)
 
 def hash32(x,y):
  z=((int(x)*73856093)^(int(y)*19349663)^0xB16B00B5)&0xffffffff
@@ -93,8 +74,10 @@ def landmark_by_key(key):
 def road_at(x,y):
  # Preserve the hand-authored original region; don't paint roads across it.
  if x<4800 and y<3200:return False
- if any(abs(x-rx)<38 for rx in ROAD_X):return True
- if any(abs(y-ry)<39 for ry in ROAD_Y):return True
+ if x<17000 and y<10300:
+  if any(abs(x-rx)<38 for rx in ROAD_X):return True
+  if any(abs(y-ry)<39 for ry in ROAD_Y):return True
+ if travel_road(x,y):return True
  x1,y1=START_SPUR[0];x2,y2=START_SPUR[1]
  dx=x2-x1;dy=y2-y1
  t=max(0.,min(1.,((x-x1)*dx+(y-y1)*dy)/(dx*dx+dy*dy)))
@@ -147,60 +130,29 @@ def draw_landmark(canvas,camx,camy,width,height):
   canvas.create_text(sx,sy+38,text=name.upper(),fill='#f2d7a3',font=('DejaVu Sans',8,'bold'))
 
 def draw_map_background(canvas,view,rect=MAP_RECT):
- """Paint only the 24 low-resolution geographic sectors and visible roads."""
- ox,oy,vw,vh=view;x,y,w,h=rect
- canvas.create_rectangle(x,y,x+w,y+h,fill='#ae9776',outline='')
- for row in range(4):
-  for col in range(6):
-   x0=col*SECTOR_W;y0=row*SECTOR_H
-   x1=x0+SECTOR_W;y1=y0+SECTOR_H
-   if x1<ox or x0>ox+vw or y1<oy or y0>oy+vh:continue
-   ax=max(x,x+(x0-ox)*w/vw);ay=max(y,y+(y0-oy)*h/vh)
-   bx=min(x+w,x+(x1-ox)*w/vw);by=min(y+h,y+(y1-oy)*h/vh)
-   if bx<=ax or by<=ay:continue
-   kind=BIOME_GRID[row][col]
-   canvas.create_rectangle(ax,ay,bx,by,fill=BIOME_PALETTES[kind][0],outline='#99886f')
-   if bx-ax>105 and by-ay>60:
-    canvas.create_text((ax+bx)/2,(ay+by)/2,text=SECTOR_NAMES[row][col].upper(),
-                       fill='#514737',font=('DejaVu Sans',8,'bold'))
- def pt(px,py):return (x+(px-ox)*w/vw,y+(py-oy)*h/vh)
- for rx in ROAD_X:
-  if ox<=rx<=ox+vw:
-   xx,_=pt(rx,0);canvas.create_line(xx,y,xx,y+h,fill='#d8c291',width=2)
- for ry in ROAD_Y:
-  if oy<=ry<=oy+vh:
-   _,yy=pt(0,ry);canvas.create_line(x,yy,x+w,yy,fill='#d8c291',width=2)
- (sx,sy),(ex,ey)=START_SPUR
- # Only draw connector when its endpoints fall into a view that might show it.
- if not(ex<ox or sx>ox+vw or ey<oy or sy>oy+vh):
-  ax,ay=pt(sx,sy);bx,by=pt(ex,ey)
-  canvas.create_line(ax,ay,bx,by,fill='#d8c291',width=2)
- # Indicate the original hand-crafted area without trying to stretch its old bitmap.
- ax,ay=pt(0,0);bx,by=pt(4800,3200)
- ax=max(x,ax);ay=max(y,ay);bx=min(x+w,bx);by=min(y+h,by)
- if bx>ax and by>ay:
-  canvas.create_rectangle(ax,ay,bx,by,fill='#a88c62',outline='#5d4938',width=2)
-  if bx-ax>80:canvas.create_text((ax+bx)/2,(ay+by)/2,text='ORIGINAL FRONTIER',
-                              fill='#3c2e24',font=('DejaVu Sans',8,'bold'))
- canvas.create_rectangle(x,y,x+w,y+h,outline='#5e4830',width=3)
+ """Draw user-authored New Austellia geography, not a fabricated grid."""
+ draw_atlas(canvas,view,rect)
 
 # Safe, useful roadside stops make crossing 60,000 units practical.
 # Each is a small rest-and-water stop, not a fully simulated town.
-WAYSTATIONS = (
- ("west_ridge","West Ridge Post",18600,11500),
- ("juniper_gate","Juniper Gate",27000,7900),
- ("flintwater","Flintwater Depot",35400,11500),
- ("bitter_salt","Bitter Salt Wells",48000,11500),
- ("north_spur","Northern Spur",56400,7900),
- ("long_prairie","Long Prairie Camp",18600,22300),
- ("copper_relay","Copper Relay",31200,18700),
- ("hollowstone","Hollowstone Post",39600,22300),
- ("blueglass_ferry","Blueglass Ferry",52200,22300),
- ("three_forks_post","Three Forks Station",18600,33100),
- ("timber_lodge","Timber Lodge",31200,33100),
- ("ashfall_outpost","Ashfall Outpost",48000,33100),
- ("horizon_rest","Horizon Rest",56400,36700),
+# Authoritative waystations coincide with New Austellia transport hubs.
+_WAYSTATION_IDS=(
+ ('galloway_depot','Galloway Depot','galloway'),
+ ('saints_hollow_post','Saint Hollow Post','saints_hollow'),
+ ('roan_creek_post','Roan Creek Post','roan_creek'),
+ ('hollow_bend_post','Hollow Bend Post','hollow_bend'),
+ ('blackwater_station','Blackwater Station','blackwater_crossing'),
+ ('larkfield_depot','Larkfield Depot','larkfield'),
+ ('harpers_ferry','Harper Ferry Post','harpers_landing'),
+ ('valleyford_post','Valleyford Post','valleyford'),
+ ('dustwell_camp','Dustwell Camp','dustwell'),
+ ('riversend_post','Riversend Station','riversend'),
+ ('saint_brigids_post','Saint Brigid Port','saint_brigids'),
+ ('bayou_haven_post','Bayou Haven Post','bayou_haven'),
+ ('pineheart_post','Pineheart Trading Post','pineheart'),
 )
+WAYSTATIONS=tuple((key,name,TOWN_BY_ID[site][2],TOWN_BY_ID[site][3])
+                  for key,name,site in _WAYSTATION_IDS)
 
 def near_waystation(x,y,radius=340):
  for key,name,wx,wy in WAYSTATIONS:
