@@ -1,7 +1,7 @@
 # Dust & Debt — Development Roadmap: v2.4 → v3.0
 
 **Updated:** November 9, 2026  
-**Current playable source:** v2.7 — Handcrafted Frontier  
+**Current playable source:** v2.8 development preview — Combat Progression  
 **Release target:** v3.0 — Living Frontier  
 **Operating model:** GitHub-first development, one milestone at a time; user pulls the current main branch when desired.
 
@@ -90,4 +90,4 @@ Each milestone should be considered complete only after its issue checklist is s
 
 ## Next implementation
 
-**Next: [v2.8 Combat & Character Progression](https://github.com/nuentoter/dust-and-debt/issues/12).** New Austellia geography and v2.7 story routes are implemented. Finish the remaining illustrated map packaging/art polish in [#17](https://github.com/nuentoter/dust-and-debt/issues/17), and investigate silent audio on the owner's Archcraft computer under [Audio Sprint #15](https://github.com/nuentoter/dust-and-debt/issues/15).
+**In progress: [v2.8 Combat & Character Progression](https://github.com/nuentoter/dust-and-debt/issues/12).** The first v2.8 slice (two weapon profiles, earned unlock, damage difficulty and aim assistance) is implemented; enemy archetypes, cover/morale AI and full balancing remain open. New Austellia geography and v2.7 story routes are implemented. Finish the remaining illustrated map packaging/art polish in [#17](https://github.com/nuentoter/dust-and-debt/issues/17), and investigate silent audio on the owner's Archcraft computer under [Audio Sprint #15](https://github.com/nuentoter/dust-and-debt/issues/15).
