@@ -28,7 +28,9 @@ def main():
  assert region_at(57000,36000) in {r[0] for r in REGIONS}
  assert biome_at(30000,21000) in BIOME_PALETTES
  assert not road_at(700,610), 'Preserve handmade original region'
- assert road_at(6000,4300) and road_at(56400,40300)
+ assert road_at(6000,4300), 'Old frontier approach remains open'
+ assert road_at(*TOWN_BY_ID['galloway'][2:4]) and road_at(*TOWN_BY_ID['blackwater_crossing'][2:4]), 'Illustrated railway stations are connected'
+ assert not road_at(56400,40300), 'Fictional cross-map straight road grid was removed'
  assert not road_at(*START_SPUR[0]), 'The original hand-painted terrain retains its own paths'
  assert road_at(4900,3250) and road_at(*START_SPUR[1])
  first_landmark=LANDMARKS[0]
