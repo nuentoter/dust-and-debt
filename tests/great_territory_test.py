@@ -4,6 +4,7 @@ import os,sys,math,tempfile,tkinter as tk
 sys.path.insert(0,os.path.dirname(os.path.dirname(__file__)))
 import game
 from new_austellia import TOWNS,REGIONS,TOWN_BY_ID,travel_road,is_water
+from frontier_expansion import nearby_settlement
 from frontier_world import (
  WORLD_WIDTH,WORLD_HEIGHT,SECTOR_NAMES,BIOME_GRID,BIOME_PALETTES,
  LANDMARKS,WAYSTATIONS,ROAD_X,ROAD_Y,START_SPUR,sector_at,region_at,
@@ -79,7 +80,8 @@ def main():
   g.x,g.y=WAYSTATIONS[0][2],WAYSTATIONS[0][3];g.hp=48;g.mounted=False;g.interior=None
   assert g.rest_at_frontier_camp() and g.hp==78
   assert not g.rest_at_frontier_camp()
-  assert WAYSTATIONS[0][0] in g.camps_used
+  camp=nearby_settlement(g.x,g.y,225) or WAYSTATIONS[0][0]
+  assert camp in g.camps_used
   g.map_open=True;g.map_zoom=False
   g.render()
   # Zoom around far-off territory and set a waypoint via map click.
@@ -94,7 +96,7 @@ def main():
   assert g.save(manual=True)
   restored=game.Game(root);restored.continue_game()
   assert restored.landmarks_found==[first_landmark[0]]
-  assert WAYSTATIONS[0][0] in restored.camps_used
+  assert camp in restored.camps_used
   assert restored.waypoint==g.waypoint
   root.destroy()
  print('OK: 10x New Austellia, named regions, atlas landmarks, waystations, mapped railways, camera, navigation and saves')
