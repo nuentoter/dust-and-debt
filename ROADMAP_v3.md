@@ -5,7 +5,7 @@
 **Release target:** v3.0 — Living Frontier  
 **Operating model:** GitHub-first development, one milestone at a time; user pulls the current main branch when desired.
 
-**v2.4, v2.5, the 10× world map and v2.6 regional gameplay are implemented and Linux-CI tested.** Optional procedural WAV effects and background atmospheres work with ffplay/mpv. The user's actual title recording, production SFX, mixing and remaining v2.7–v3.0 features remain to be finished.
+**v2.4, v2.5, the 10× world map, v2.6 regional gameplay, and the New Austellia geography/transport alignment are implemented and Linux-CI tested.** Optional procedural WAV effects and background atmospheres work with ffplay/mpv. The user's actual title recording, production SFX, mixing and remaining v2.7–v3.0 features remain to be finished.
 
 ## Timeline / dependency map
 
@@ -21,8 +21,8 @@ v2.5 Working Frontier (IMPLEMENTED)  #9
   paid jobs • daily stock • ledgers • audio hooks
        │
        ▼
-v2.6-map The Great Territory (IMPLEMENTED) #16
-  60,000×40,960 • 24 sectors • landmarks • rest stops
+v2.6-map Great Territory (IMPLEMENTED) #16
+  60,000×40,960 • preliminary terrain • rest stops
        │
        ▼
 v2.6 Roads & Consequences (IMPLEMENTED) #10
@@ -30,8 +30,9 @@ v2.6 Roads & Consequences (IMPLEMENTED) #10
   + audio playback foundation (PROGRESS): SFX and ambient beds #15
        │
        ▼
-New Austellia Atlas Alignment (HIGH PRIORITY) #17
-  exact illustrated map • named cities • waterways • roads
+New Austellia Atlas Alignment (GEOGRAPHY IMPLEMENTED) #17
+  traced cities • routes • lakes • coastline • bridge collisions
+  image packaging and art polish remain open
        │
        ▼
 v2.7 Handcrafted Frontier           #11
@@ -56,8 +57,9 @@ v3.0 Living Frontier Release        #14
 |---|---|---|---|
 | 2.4 | Living Law — implemented | Outlaws surrender; law patrols roads; prisoners appear in jail | [#8](https://github.com/nuentoter/dust-and-debt/issues/8) |
 | 2.5 | Working Frontier — implemented | Repeatable lawful jobs, daily shop stock, accounting, horse care and audio architecture | [#9](https://github.com/nuentoter/dust-and-debt/issues/9) |
-| 2.6-map | Great Territory — implemented | 10× world area, 24 regions, 22 landmarks, 13 waystations, zoomable atlas, local radar | [#16](https://github.com/nuentoter/dust-and-debt/issues/16) |
+| 2.6-map | Great Territory — implemented | 10× world area, earlier provisional terrain, zoomable atlas, local radar | [#16](https://github.com/nuentoter/dust-and-debt/issues/16) |
 | 2.6 | Roads and Consequences — implemented | Four rotating road contracts, escorts, varied incidents, regional reputation and optional generated audio; [soundtrack sprint still open #15](https://github.com/nuentoter/dust-and-debt/issues/15) | [#10](https://github.com/nuentoter/dust-and-debt/issues/10) |
+| 2.6-atlas | New Austellia alignment — geography implemented | 15 named illustrated regions, 30+ sites, railways, rivers, coastline and relocated frontier quests; source artwork packaging remains | [#17](https://github.com/nuentoter/dust-and-debt/issues/17) |
 | 2.7 | Handcrafted Frontier | Landmark variety, improved interiors, regional quest arcs | [#11](https://github.com/nuentoter/dust-and-debt/issues/11) |
 | 2.8 | Combat and Character Progression | Weapon depth, enemy morale, earned upgrades, difficulty options | [#12](https://github.com/nuentoter/dust-and-debt/issues/12) |
 | 2.9 | Presentation and Reliability | Settings, polish, accessibility, profiling, current-version save reliability | [#13](https://github.com/nuentoter/dust-and-debt/issues/13) |
@@ -88,4 +90,4 @@ Each milestone should be considered complete only after its issue checklist is s
 
 ## Next implementation
 
-**Next, before v2.7: [issue #17 — faithfully map the illustrated New Austellia atlas](https://github.com/nuentoter/dust-and-debt/issues/17).** The current 10× procedural Great Territory is functional but not identical to the supplied illustrated geography. After aligning its named regions, river/rail/road network, settlement locations and full-map art, proceed with [v2.7 Handcrafted Frontier](https://github.com/nuentoter/dust-and-debt/issues/11). Continue [Audio Sprint #15](https://github.com/nuentoter/dust-and-debt/issues/15) for the intended opening theme and final sound design. Build varied encounters and escorts, select an optional playback backend, and add original SFX/music when correctly licensed and tested.
+**New Austellia's named geography, railways, rivers, coast, towns and gameplay settlements are now implemented** in [issue #17](https://github.com/nuentoter/dust-and-debt/issues/17); artwork binary packaging and visual polish remain open. Before creating many new region-specific quests, finish this packaging/art review. Then proceed to [v2.7 Handcrafted Frontier](https://github.com/nuentoter/dust-and-debt/issues/11). [Audio Sprint #15](https://github.com/nuentoter/dust-and-debt/issues/15) still needs actual sound troubleshooting and the intended opening theme. Build varied encounters and escorts, select an optional playback backend, and add original SFX/music when correctly licensed and tested.
