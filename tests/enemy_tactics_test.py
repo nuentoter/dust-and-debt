@@ -32,9 +32,9 @@ def main():
   assert g.bounty_state()=='surrendered'
   assert not g.check_surrender(boss)
   # A free-roam hostile warns and aims before creating a shot.
-  enemy=game.Actor(760,610,'bandit','Roadside Outlaw',100,100,72)
+  enemy=game.Actor(10150,6000,'bandit','Roadside Outlaw',100,100,72)
   g.actors.append(enemy)
-  g.x,g.y=610,610
+  g.x,g.y=10000,6000
   g.law_status='PEACE';g.safe_timer=0
   g.actors=[a for a in g.actors if a is enemy or a is hunter]
   g.actors.remove(hunter)
