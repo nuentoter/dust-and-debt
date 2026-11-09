@@ -32,7 +32,7 @@ def main():
   game.SAVE=os.path.join(temp,'save.json')
   root=tk.Tk();root.withdraw()
   g=game.Game(root);g.new_game();g.dialog=None
-  assert game.VERSION.startswith('2.7')
+  assert game.VERSION.startswith(('2.7','2.8'))
   assert 'horse_motion' in vars(g)
   g.mounted=True
   g.keys={'d','shift_l'}
