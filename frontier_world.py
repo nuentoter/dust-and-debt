@@ -183,3 +183,43 @@ def draw_map_background(canvas,view,rect=MAP_RECT):
   if bx-ax>80:canvas.create_text((ax+bx)/2,(ay+by)/2,text='ORIGINAL FRONTIER',
                               fill='#3c2e24',font=('DejaVu Sans',8,'bold'))
  canvas.create_rectangle(x,y,x+w,y+h,outline='#5e4830',width=3)
+
+# Safe, useful roadside stops make crossing 60,000 units practical.
+# Each is a small rest-and-water stop, not a fully simulated town.
+WAYSTATIONS = (
+ ("west_ridge","West Ridge Post",18600,11500),
+ ("juniper_gate","Juniper Gate",27000,7900),
+ ("flintwater","Flintwater Depot",35400,11500),
+ ("bitter_salt","Bitter Salt Wells",48000,11500),
+ ("north_spur","Northern Spur",56400,7900),
+ ("long_prairie","Long Prairie Camp",18600,22300),
+ ("copper_relay","Copper Relay",31200,18700),
+ ("hollowstone","Hollowstone Post",39600,22300),
+ ("blueglass_ferry","Blueglass Ferry",52200,22300),
+ ("three_forks_post","Three Forks Station",18600,33100),
+ ("timber_lodge","Timber Lodge",31200,33100),
+ ("ashfall_outpost","Ashfall Outpost",48000,33100),
+ ("horizon_rest","Horizon Rest",56400,36700),
+)
+
+def near_waystation(x,y,radius=340):
+ for key,name,wx,wy in WAYSTATIONS:
+  if (x-wx)**2+(y-wy)**2<radius*radius:return key
+ return None
+
+def waystation_by_key(key):
+ return next((item for item in WAYSTATIONS if item[0]==key),None)
+
+def draw_waystations(canvas,camx,camy,width,height):
+ for key,name,x,y in WAYSTATIONS:
+  sx,sy=x-camx,y-camy
+  if not(-220<sx<width+220 and -180<sy<height+180):continue
+  canvas.create_oval(sx-120,sy-83,sx+120,sy+75,fill='#bba37b',outline='#8e7455',width=3)
+  canvas.create_polygon(sx-68,sy+35,sx-10,sy-55,sx+42,sy+35,fill='#8b654c',outline='#4f3c33',width=3)
+  canvas.create_rectangle(sx+50,sy-6,sx+93,sy+20,fill='#7d9a9e',outline='#5d533f',width=3)
+  canvas.create_line(sx-84,sy+45,sx-84,sy-4,fill='#594731',width=5)
+  canvas.create_rectangle(sx-98,sy-35,sx+104,sy-7,fill='#5e4936',outline='#d9b985',width=2)
+  canvas.create_text(sx+3,sy-21,text=name.upper(),fill='#f7deb2',
+                     font=('DejaVu Sans',9,'bold'))
+  canvas.create_polygon(sx-12,sy+38,sx,sy+10,sx+12,sy+38,fill='#e5ad57',outline='#9d5631')
+  canvas.create_line(sx-16,sy+48,sx+16,sy+40,fill='#76513b',width=5)
