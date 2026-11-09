@@ -1,8 +1,8 @@
 # Rivers, Ridges & Stone — v2.8-map implementation design
 
-**Status: specification, not yet implemented.** Tracker: [#19](https://github.com/nuentoter/dust-and-debt/issues/19).
+**Status: initial implementation in progress; validation and additional polish pending.** Tracker: [#19](https://github.com/nuentoter/dust-and-debt/issues/19).
 
-## Design intent
+## Implementation snapshot (first pass)\n\nThe initial `natural_terrain.py` now contains 12 authored upland spines, 8 dry washes connected geographically to mapped river corridors, fixed rock fields, continuous coarse-value noise, biome blending, camera-local broad terrain swaths and conservative rock collision. `game.py` now renders this geometry instead of the rectangular 112-unit tile floor and delegates outer cover collision to the new module. The legacy rectangular crossroads painting was removed from the outer terrain renderer. Natural-terrain tests and Linux Actions coverage have been introduced; full green verification and remaining art polish are still required.\n\n## Design intent
 
 New Austellia's existing 60,000 × 40,960 world, 15 regions and traced town/river/railway geography remain fixed. The problem to solve is that much of the terrain currently feels like empty space, and inherited sector-based repetition reads as a rectangular grid. Create broad coherent landscapes, not evenly distributed props.
 
