@@ -16,7 +16,7 @@ from frontier_world import (WORLD_WIDTH,WORLD_HEIGHT,SECTOR_W,SECTOR_H,SECTOR_NA
  point_on_map,world_from_map,draw_map_background,draw_landmark,
  WAYSTATIONS,near_waystation,waystation_by_key,draw_waystations)
 from new_austellia import (TOWNS,MAJOR_TOWNS,near_atlas_town,is_water,
-                            draw_local_geography,coastal_water,region_at as austellia_region)
+                            draw_local_geography,draw_starting_transition,coastal_water,region_at as austellia_region)
 from frontier_expansion import (SETTLEMENTS,SIDE_JOBS,extra_buildings,extra_npcs,resource_nodes,
                                 nearby_settlement,get_settlement,get_job,draw_frontier_towns)
 
@@ -1889,7 +1889,7 @@ class Game:
     if h%6==0:
      c.create_oval(px+74,py+21,px+93,py+29,fill='#bda479',outline='#8e7554')
     # Prop layer: cover objects match terrain collision.
-    if h%11 in (0,1):
+    if h%11 in (0,1) and not is_water(cx+tile/2,cy+tile/2):
      ox=cx+30+(h//11)%48;oy=cy+30+(h//73)%45
      if not self.is_frontier_road(ox,oy):
       rx=ox-self.camx;ry=oy-self.camy
@@ -1985,6 +1985,7 @@ class Game:
   draw_local_geography(self.canvas,self.camx,self.camy,VW,VH)
   if self.camx<OLD_WW and self.camy<OLD_WH:
    self.canvas.create_image(-self.camx,-self.camy,image=self.world,anchor='nw')
+   draw_starting_transition(self.canvas,self.camx,self.camy,VW,VH,OLD_WW,OLD_WH)
   draw_frontier_towns(self.canvas,self.camx,self.camy,VW,VH)
   draw_landmark(self.canvas,self.camx,self.camy,VW,VH)
   draw_waystations(self.canvas,self.camx,self.camy,VW,VH)
