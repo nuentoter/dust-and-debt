@@ -24,7 +24,10 @@ def main():
   r.finish_bounty(target)
   assert r.money==amount+60 and r.contract is None and r.bounties_done==1
   r.x,r.y=6500.,4500.;r.safe_timer=0.
-  assert r.spawn_road_encounter()
+  # Make the original traveler recovery path deterministic now that roads have three incident types.
+  from unittest.mock import patch
+  with patch('game.random.choice',return_value='traveler'):
+   assert r.spawn_road_encounter()
   traveler=next(a for a in r.actors if a.kind=="traveler")
   r.x,r.y=traveler.x,traveler.y
   old=r.money
