@@ -1,3 +1,11 @@
+## v2.8 combat AI & earned perks — current development build (November 2026)
+
+Free-roam bandits and bounty targets now use deterministic archetypes (raider, skirmisher, marksman, enforcer). Crow retains a faster boss profile; deputies have their own behavior. Hostiles pause to aim before firing, with an **AIMING** warning above their heads. Skirmishers and marksmen can head toward nearby natural boulders for cover when there is a clear stand position. Enemy morale depends on wounds and allies, and low-morale free-roam bandits/bounties may surrender. **Story mission enemies never surrender**, preventing mission softlocks; lasso and alive bounty capture remain available.
+
+Three automatically earned perks use existing saved progress counters: **Steady Nerve** (3 field arrests, 10% less incoming gun damage), **Trail Grit** (6 paid jobs, Dead Eye passive recovery 11→14 per second), and **Quick Hands** (12 outlaw defeats, reload times 10% shorter). Weapon unlocks and combat difficulty/aim toggles from the first v2.8 build remain intact. No new runtime dependencies.
+
+New regression: `xvfb-run -a python3 tests/enemy_tactics_test.py`; full CI and performance on the user's actual Archcraft system still require verification. **Do not treat v2.8 as completely validated without a green test run and playtesting.**
+
 ## v2.8-map — Rivers, Ridges & Stone (development build, November 2026)
 
 The large New Austellia outer terrain now uses overlapping, smooth biome-colored land swaths instead of the old square 112-unit terrain tiles. Twelve mapped ridge/escarpment systems, connected dry washes, and reproducible clustered rocky cover have been added. Major rocks affect collision; existing towns, railway/wagon roads, mapped water, bridges and the original 4,800 × 3,200 handcrafted frontier are protected. Geography stays camera-local using Python/Tkinter with no new runtime dependencies. The rivers already traced on the original illustrated atlas remain authoritative; the new minor washes are visual and do not add unbridged water barriers.
