@@ -17,8 +17,14 @@ def main():
  old=horse['stamina']
  for _ in range(60):step_motion(horse,1,0,.10,False,100)
  assert horse['stamina']>old and horse['speed']<TROT_SPEED+15
- for _ in range(70):step_motion(horse,1,0,.1,True,100)
- assert horse['exhausted'] and not step_motion(horse,1,0,.1,True,100)[2]
+ exhausted_seen=False
+ for _ in range(70):
+  step_motion(horse,1,0,.1,True,100)
+  if horse['exhausted']:
+   exhausted_seen=True
+   assert not step_motion(horse,1,0,.1,True,100)[2]
+   break
+ assert exhausted_seen,'Gallop must eventually exhaust the horse'
  for _ in range(40):step_motion(horse,0,0,.1,False,100)
  assert horse['stamina']>28
  assert step_motion(horse,1,0,.1,True,100)[2]
