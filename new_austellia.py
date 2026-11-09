@@ -168,6 +168,8 @@ def ford_at(x,y):
 
 def is_water(x,y):
  if x<4800 and y<3200:return False  # old authored Cinder Creek parcel
+ # Settlement platforms and station approaches are raised above floodwater.
+ if near_atlas_town(x,y,230) is not None:return False
  if ford_at(x,y):return False
  return coastal_water(x,y) or bool(lake_at(x,y)) or bool(river_at(x,y))
 
