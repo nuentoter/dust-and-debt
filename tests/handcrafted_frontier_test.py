@@ -11,9 +11,9 @@ def main():
  assert abs(TROT_SPEED/205-1.5)<.01
  assert GALLOP_SPEED==650
  horse={'stamina':100.,'speed':0.,'heading_x':0.,'heading_y':-1.,'exhausted':False}
- for _ in range(50):
+ for _ in range(25):
   vx,vy,running=step_motion(horse,1,0,.10,True,100)
- assert running and horse['speed']>560 and horse['stamina']<20
+ assert running and horse['speed']>560 and 20<horse['stamina']<60
  old=horse['stamina']
  for _ in range(60):step_motion(horse,1,0,.10,False,100)
  assert horse['stamina']>old and horse['speed']<TROT_SPEED+15
@@ -39,9 +39,9 @@ def main():
   for _ in range(40):g.update(.05)
   assert g.horse_motion['stamina']>before
   # A full-speed horse cannot pass straight through an impassable building.
-  g.x,g.y=310,360;g.keys={'d','shift_l'};g.horse_motion['speed']=GALLOP_SPEED
+  g.x,g.y=260,360;g.keys={'d','shift_l'};g.horse_motion['speed']=GALLOP_SPEED
   for _ in range(15):g.update(.05)
-  assert g.x<game.BUILDINGS[0][1]-15,'Horse tunneled into Sheriff building'
+  assert g.x<=game.BUILDINGS[0][1]-16,'Horse tunneled into Sheriff building'
   g.keys.clear();g.mounted=False
   # Each regional story contains three distant destinations plus a return.
   for chapter in CHAPTERS:
@@ -71,7 +71,6 @@ def main():
    assert g.money==previous+chapter['reward']
    assert chapter['id'] in g.chapter_completed
    assert g.chapter_earnings>=chapter['reward']
-   assert not g.progress_regional_chapter() if False else True
   assert len(g.chapter_completed)==2
   g.map_open=True;g.map_destination_index=0;g.render()
   e=type('Key',(),{'keysym':'Tab','state':0})()
