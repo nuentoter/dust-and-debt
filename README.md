@@ -17,11 +17,24 @@ The Great Territory now has interactive activity beyond the original map:
 
 See [assets/audio/README.md](assets/audio/README.md) for full instructions. The [Audio Sprint #15](https://github.com/nuentoter/dust-and-debt/issues/15) remains open for production-quality recordings, mixing, title-theme integration and accessibility controls. The regression suite includes `tests/roads_audio_test.py`.
 
+## New Austellia atlas alignment — playable map update (November 2026)
+
+**The actual illustrated “Frontier Lands of New Austellia” map is now the geography source of truth.** The game keeps its 60,000 × 40,960 world area but no longer uses the previous arbitrary 24-sector grid as its primary terrain geography. The new [new_austellia.py](new_austellia.py) defines **15 named geographic regions**, **30+ mapped locations**, **four railway branches**, **13 wagon trail routes**, five named river channels, two lakes and the Auburn Gulf coastline.
+
+- Your atlas now provides the positions of Galloway, Blackwater Crossing, Saint's Hollow, Roan Creek, Larkfield, Harper's Landing, Valleyford, Dustwell, Riversend, Saint Brigid's Port, Bayou Haven and more.
+- The existing expanded towns and their six side quests now operate from **Galloway, Iron Mesa, Dustwell, Roan Creek, Larkfield and Riversend**. The original Cinder Creek starting area and story missions remain in place.
+- Rivers, lakes and coastlines render in the local world and have collision boundaries. Mapped roads/railway bridges remain traversable; town and station approaches are safe.
+- **M** opens the New Austellia atlas; **Z** zooms, WASD/arrows pan, and clicking pins the accurate projected world position.
+- The overview can display the authentic illustrated image when the correctly sized PNG is supplied at `assets/new_austellia_map.png` (610×457). The repository currently includes the vector fallback and geography data but **not the original binary artwork**; see [WORLD_ATLAS.md](WORLD_ATLAS.md) for the exact conversion/placement procedure. Regional zoom remains vector-based.
+- [tests/new_austellia_test.py](tests/new_austellia_test.py) validates towns, rivers, coastal collision, bridges, rendering and preservation of the inherited story. Full Linux CI also exercises all earlier game systems.
+
+**Audio note:** Sound effects and music are still optional and default to off; press **V** and **O** in game after installing `ffplay` or `mpv`. The new map work does not silently enable sound or claim the soundtrack is finished.
+
 ## The Great Territory — 10× world map foundation (November 2026)
 
 The playable territory is now **60,000 × 40,960 world units**, exactly **10 times the area** of the previous 19,200 × 12,800 map. Its existing towns, missions, buildings, and six newer settlements remain at their original coordinates. The surrounding terrain extends through **24 named geographic regions** with a variety of deserts, forests, grasslands, canyons, salt flats, mountains, mesas, and lake country. **22 discoverable wilderness landmarks** and **13 protected rest waystations** add fixed places to explore in the new territory.
 
-The large map is still **camera-local**: it draws only visible terrain rather than allocating a huge texture. The original hand-painted 4,800 × 3,200 area is kept intact. The user-provided illustrated **Frontier Lands of New Austellia** atlas is the intended world-map reference. **Its exact geography and artwork have not yet been integrated** into this procedural terrain implementation; [map-alignment issue #17](https://github.com/nuentoter/dust-and-debt/issues/17) tracks that high-priority correction. This implementation establishes the **stable world layout**; the entire outer world is **not** yet filled with unique buildings or narrative content.
+The large map is still **camera-local**: it draws only visible terrain rather than allocating a huge texture. The original hand-painted 4,800 × 3,200 area is kept intact. The user-provided illustrated **Frontier Lands of New Austellia** atlas is now reflected in the playable terrain, towns, waterways and routes. The authentic image itself is supported as an optional local artwork file; it has **not yet been bundled in GitHub**. [Map-alignment issue #17](https://github.com/nuentoter/dust-and-debt/issues/17) tracks remaining visual asset and polish work. This implementation establishes the **stable world layout**; the entire outer world is **not** yet filled with unique buildings or narrative content.
 
 ### New world navigation
 
@@ -34,7 +47,7 @@ See [WORLD_ATLAS.md](WORLD_ATLAS.md) for region geography, named landmark and wa
 
 ## Development roadmap: v2.4–v3.0
 
-The post-v2.3 plan is tracked in [ROADMAP_v3.md](ROADMAP_v3.md). **v2.4 Living Law, v2.5 Working Frontier and the 10× Great Territory map foundation are implemented.** **v2.6 Roads and Consequences is implemented**, with real optional synthesized audio playback. Before v2.7's handcrafted quest expansion, [issue #17](https://github.com/nuentoter/dust-and-debt/issues/17) will align the functional 10× world with the user-supplied New Austellia atlas. The production soundtrack, recorded SFX, and full v2.7–v3.0 milestones remain planned; see the [Audio Sprint](https://github.com/nuentoter/dust-and-debt/issues/15). Save-format compatibility between development milestones is no longer guaranteed, at the owner's request; make a backup before upgrading if progress matters.
+The post-v2.3 plan is tracked in [ROADMAP_v3.md](ROADMAP_v3.md). **v2.4 Living Law, v2.5 Working Frontier and the 10× Great Territory map foundation are implemented.** **v2.6 Roads and Consequences is implemented**, with real optional synthesized audio playback. The major geography alignment in [issue #17](https://github.com/nuentoter/dust-and-debt/issues/17) is implemented; bundling the illustration and further shoreline/bridge art polish remain open before full v2.7 quest expansion. The production soundtrack, recorded SFX, and full v2.7–v3.0 milestones remain planned; see the [Audio Sprint](https://github.com/nuentoter/dust-and-debt/issues/15). Save-format compatibility between development milestones is no longer guaranteed, at the owner's request; make a backup before upgrading if progress matters.
 
 # DUST & DEBT
 ### A complete, original top-down Western adventure for Linux
