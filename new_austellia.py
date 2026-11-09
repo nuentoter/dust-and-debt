@@ -241,14 +241,14 @@ def draw_atlas(canvas,view,rect):
   color=BIOME_COLORS.get(biome,"#c8ae85")
   radius=6500*rw/vw
   radius=max(20,min(220,radius))
-  canvas.create_oval(sx-radius,sy-radius*.64,sx+radius,sy+radius*.64,
-                     fill=color,outline="",stipple="gray75")
+  x1=max(rx,sx-radius);y1=max(ry,sy-radius*.64)
+  x2=min(rx+rw,sx+radius);y2=min(ry+rh,sy+radius*.64)
+  if x2>x1 and y2>y1:
+   canvas.create_oval(x1,y1,x2,y2,fill=color,outline='',stipple='gray75')
   if rx+22<sx<rx+rw-22 and ry+14<sy<ry+rh-14:
    canvas.create_text(sx,sy,text=name.upper(),fill="#473b2d",
                       font=("DejaVu Sans",8,"bold"))
  # Gulf coastline is drawn before navigational lines and town labels.
- def inside(pt,edge,value):
-  return (pt[edge]>=value) if edge in (0,2) else (pt[edge-2]<=value)
  def clip_polygon(points):
   # Sutherland-Hodgman polygon clipping to this atlas view.
   poly=list(points)
@@ -268,18 +268,36 @@ def draw_atlas(canvas,view,rect):
  ocean=clip_polygon(COAST_POLYGON)
  if len(ocean)>=3:
   canvas.create_polygon(*[v for p in ocean for v in scr(p)],fill='#779ba1',outline='')
+ def clipped(a,b):
+  # Liang-Barsky clips each rail/river segment to the atlas rectangle.
+  dx=b[0]-a[0];dy=b[1]-a[1];low=0.;high=1.
+  for p,q in ((-dx,a[0]-rx),(dx,rx+rw-a[0]),
+              (-dy,a[1]-ry),(dy,ry+rh-a[1])):
+   if abs(p)<1e-9:
+    if q<0:return None
+    continue
+   ratio=q/p
+   if p<0:low=max(low,ratio)
+   else:high=min(high,ratio)
+   if low>high:return None
+  return (a[0]+low*dx,a[1]+low*dy,a[0]+high*dx,a[1]+high*dy)
+ def draw_route(points,color,width=2,dash=None):
+  for a,b in zip(points,points[1:]):
+   segment=clipped(scr(a),scr(b))
+   if segment:
+    args={'fill':color,'width':width}
+    if dash:args['dash']=dash
+    canvas.create_line(*segment,**args)
  for name,points,w in WATERWAYS:
-  coords=[scr(p) for p in points]
-  canvas.create_line(*[v for p in coords for v in p],fill="#678f98",
-                     width=3 if vw>22000 else 7,smooth=True)
+  draw_route(points,'#678f98',3 if vw>22000 else 7)
  for name,lx,ly,rwx,rhy in LAKES:
   sx,sy=scr((lx,ly))
-  canvas.create_oval(sx-rwx*rw/vw,sy-rhy*rh/vh,sx+rwx*rw/vw,sy+rhy*rh/vh,
-                     fill="#7ba2a8",outline="#536f75",width=2)
- for points in ROADS:
-  canvas.create_line(*[v for p in points for v in scr(p)],fill="#9c7656",width=2,dash=(5,6))
- for points in RAILS:
-  canvas.create_line(*[v for p in points for v in scr(p)],fill="#a45546",width=3,dash=(4,3))
+  x1=max(rx,sx-rwx*rw/vw);y1=max(ry,sy-rhy*rh/vh)
+  x2=min(rx+rw,sx+rwx*rw/vw);y2=min(ry+rh,sy+rhy*rh/vh)
+  if x2>x1 and y2>y1:
+   canvas.create_oval(x1,y1,x2,y2,fill='#7ba2a8',outline='#536f75',width=2)
+ for points in ROADS:draw_route(points,'#9c7656',2,(5,6))
+ for points in RAILS:draw_route(points,'#a45546',3,(4,3))
  for key,name,tx,ty,kind in TOWNS:
   if not vis((tx,ty)):continue
   sx,sy=scr((tx,ty))
