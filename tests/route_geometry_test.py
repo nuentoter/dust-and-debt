@@ -12,7 +12,7 @@ import unittest
 sys.path.insert(0,os.path.dirname(os.path.dirname(__file__)))
 from frontier_routes import (Route,RouteGraph,ROUTE_GRAPH,ROUTE_SOURCES,
                              segment_intersection,nearest_route_anchor,route_path)
-from new_austellia import ROADS,RAILS,TOWNS,MAJOR_TOWNS
+from new_austellia import ROADS,RAILS,SECONDARY_ROADS,TOWNS,MAJOR_TOWNS
 from frontier_world import WAYSTATIONS,START_SPUR
 from tools.audit_routes import audit
 
@@ -23,7 +23,8 @@ class RouteGeometryTest(unittest.TestCase):
   self.assertEqual(len(TOWNS),34)
   self.assertEqual(len(MAJOR_TOWNS),12)
   self.assertEqual(len(WAYSTATIONS),13)
-  self.assertEqual(len(ROUTE_SOURCES),18)
+  self.assertEqual(len(SECONDARY_ROADS),10)
+  self.assertEqual(len(ROUTE_SOURCES),28)
   self.assertEqual(ROUTE_SOURCES[-1].vertices,START_SPUR)
 
  def test_segment_crossing_and_non_crossing(self):
@@ -57,16 +58,17 @@ class RouteGeometryTest(unittest.TestCase):
   graph=RouteGraph(roads)
   self.assertEqual(len(graph.components("wagon")),2)
 
- def test_baseline_reports_existing_gaps(self):
+ def test_corrected_source_connectivity(self):
   report=audit()
   self.assertEqual(report["source"]["wagon_polylines"],13)
   self.assertEqual(report["source"]["waystations"],13)
-  self.assertGreater(len(report["graph"]["disconnected_or_missing_road_core_ids"]),0)
-  self.assertGreater(len(report["graph"]["wagon_routes"]),1)
+  self.assertEqual(report["graph"]["wagon_components"],1)
+  self.assertEqual(report["graph"]["disconnected_or_missing_road_core_ids"],[])
+  self.assertTrue(all(x["distance_to_wagon"]<=180 for x in report["sites"]
+                      if x["id"] in MAJOR_TOWNS))
+  self.assertTrue(all(x["distance_to_wagon"]<=180 for x in report["waystations"]))
   self.assertIn("brimstone",set(x["id"] for x in report["sites"]))
   self.assertIn("calhoun_island",report["known_exemptions"])
-  self.assertTrue(any(s["id"]=="brimstone" and s["distance_to_wagon"]>400
-                      for s in report["sites"]))
   self.assertEqual(len(report["crossings"]),len(__import__('new_austellia').BRIDGES))
 
  def test_deterministic_topology_and_anchor(self):
