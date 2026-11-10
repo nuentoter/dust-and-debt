@@ -127,7 +127,17 @@ def main():
     parser.add_argument("--physical",action="store_true",help="Also sample water/rock/building collision over source centerlines")
     args=parser.parse_args()
     result=audit()
-    if args.physical:result['physical_collision']=physical_audit()
+    if args.physical:
+        result['physical_collision']=physical_audit()
+        detail=result['physical_collision']
+        total=sum(entry['samples'] for entry in detail.values())
+        blocked=sum(entry['blocked'] for entry in detail.values())
+        print('Route collision sample summary: %d blocked of %d samples' % (blocked,total))
+        for name,item in detail.items():
+            if item['blocked']:
+                print('  %s: %d blocked (water=%d, rock=%d, buildings=%d)' %
+                      (name,item['blocked'],item['reasons']['water'],
+                       item['reasons']['ridge_or_rock'],item['reasons']['building']))
     output=json.dumps(result,indent=2,sort_keys=True)+"\n"
     if args.json:
         dest=Path(args.json)
