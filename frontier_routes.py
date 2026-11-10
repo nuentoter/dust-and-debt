@@ -9,7 +9,7 @@ from collections import defaultdict
 import heapq
 import math
 
-from new_austellia import ROADS, RAILS, TOWNS, MAJOR_TOWNS, P
+from new_austellia import ROADS, RAILS
 
 Point=tuple[float,float]
 WAGON="wagon"
@@ -76,6 +76,7 @@ class RouteGraph:
         self.edges=[]
         self.neighbors=defaultdict(list)
         self.route_nodes=defaultdict(set)
+        self.segment_nodes=defaultdict(set)
         self._build()
 
     def _build(self):
@@ -111,6 +112,7 @@ class RouteGraph:
                 if n1==n2:continue
                 self.nodes[n1]=pa;self.nodes[n2]=pb
                 self.route_nodes[rid].update((n1,n2))
+                self.segment_nodes[(rid,index)].update((n1,n2))
                 key=(n1,n2,rid)
                 if key in unique_edges:continue
                 unique_edges.add(key)
@@ -147,7 +149,7 @@ class RouteGraph:
         # Anchor on nearest end node for graph query; projected position is
         # retained for later edge-splitting in phase 2.
         distance,rid,idx,projected=best
-        nodes=self.route_nodes[rid]
+        nodes=self.segment_nodes[(rid,idx)]
         endpoint=min(nodes,key=lambda key:math.dist(self.nodes[key],projected))
         return {"distance":distance,"route_id":rid,"segment_index":idx,
                 "projected":projected,"node":endpoint}
