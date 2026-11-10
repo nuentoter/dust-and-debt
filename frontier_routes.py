@@ -9,11 +9,18 @@ from collections import defaultdict
 import heapq
 import math
 
-from new_austellia import ROADS, RAILS, SECONDARY_ROADS
+from new_austellia import ROADS, RAILS, SECONDARY_ROADS, TRAILS
 
 Point=tuple[float,float]
 WAGON="wagon"
 RAIL="rail"
+TRAIL="trail"
+
+def allowed_kinds(mode):
+    if mode=="rail":return frozenset((RAIL,))
+    if mode=="wagon":return frozenset((WAGON,))
+    if mode in ("foot","horse"):return frozenset((WAGON,TRAIL))
+    raise ValueError("Unknown travel mode: "+str(mode))
 
 @dataclass(frozen=True)
 class Route:
@@ -34,6 +41,7 @@ ROUTE_SOURCES=(
     tuple(Route("wagon_%02d"%i,WAGON,tuple(points)) for i,points in enumerate(ROADS))+
     tuple(Route("rail_%02d"%i,RAIL,tuple(points)) for i,points in enumerate(RAILS))+
     tuple(Route(key,WAGON,tuple(points),"authored") for key,points in SECONDARY_ROADS)+
+    tuple(Route(key,TRAIL,tuple(points),"authored") for key,kind,name,points in TRAILS)+
     # Legacy starting spur, tracked as its own isolated source until a verified
     # visible, collision-safe connection is authored in phase 2.
     (Route("starter_spur",WAGON,((4650,2980),(6000,4300)),"legacy"),)
@@ -93,7 +101,9 @@ class RouteGraph:
         for i,(rid,kind,idx,a,b) in enumerate(segments):
             for j in range(i+1,len(segments)):
                 rid2,kind2,idx2,c,d=segments[j]
-                if kind!=kind2:continue  # rail/road are never joined by default
+                # Only same transport surfaces, or an intentional foot-trail
+                # meeting a road, are allowed to share a junction.
+                if (kind==RAIL)!=(kind2==RAIL):continue
                 # Pre-filter non-overlapping segment bounds.
                 if max(a[0],b[0])<min(c[0],d[0]) or max(c[0],d[0])<min(a[0],b[0]):continue
                 if max(a[1],b[1])<min(c[1],d[1]) or max(c[1],d[1])<min(a[1],b[1]):continue
@@ -124,7 +134,7 @@ class RouteGraph:
                 self.neighbors[n2].append((n1,length,kind,rid))
 
     def components(self,mode=WAGON):
-        eligible={WAGON} if mode in ("wagon","horse","foot") else {RAIL}
+        eligible=allowed_kinds(mode)
         visited=set()
         groups=[]
         for n in sorted(self.nodes):
@@ -139,7 +149,7 @@ class RouteGraph:
         return tuple(sorted(groups,key=lambda group:(-len(group),min(group))))
 
     def nearest_anchor(self,point,mode=WAGON,max_distance=None):
-        kinds={WAGON} if mode!="rail" else {RAIL}
+        kinds=allowed_kinds(mode)
         best=None
         for rid,kind,idx,a,b in self.segments:
             if kind not in kinds:continue
@@ -156,7 +166,7 @@ class RouteGraph:
                 "projected":projected,"node":endpoint}
 
     def path(self,a,b,mode=WAGON):
-        allowed={WAGON} if mode!="rail" else {RAIL}
+        allowed=allowed_kinds(mode)
         start=a if isinstance(a,str) and a in self.nodes else self.nearest_anchor(a,mode)
         end=b if isinstance(b,str) and b in self.nodes else self.nearest_anchor(b,mode)
         if isinstance(start,dict):start=start["node"]
@@ -184,9 +194,10 @@ class RouteGraph:
         groups=self.components(mode)
         for i,group in enumerate(groups):
             for n in group:node_to_group[n]=i
+        eligible=allowed_kinds(mode)
         return {route.id:sorted({node_to_group[n] for n in self.route_nodes[route.id]
                                  if n in node_to_group})
-                for route in self.routes if (route.kind==WAGON)==(mode!="rail")}
+                for route in self.routes if route.kind in eligible}
 
 ROUTE_GRAPH=RouteGraph()
 
