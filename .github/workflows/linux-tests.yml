@@ -64,3 +64,6 @@ jobs:
 
       - name: v2.9 presentation save integrity and settings regression
         run: xvfb-run -a python3 tests/presentation_reliability_test.py
+
+      - name: Original Western score and audio player integration
+        run: xvfb-run -a python3 tests/music_integration_test.py
