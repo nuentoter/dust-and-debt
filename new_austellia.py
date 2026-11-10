@@ -121,7 +121,7 @@ ROADS=tuple(path(p) for p in ROADS_SRC)
 # All positions below are from original atlas pixels, except the Cinder Creek
 # hand-painted parcel's outbound START_SPUR terminal (world coordinates).
 SECONDARY_ROADS_SRC=(
- ("galloway_blackwater",((442,393),(519,386),(605,397),(635,457),(648,515))),
+ ("galloway_blackwater",((442,392),(519,386),(605,397),(635,457),(648,515))),
  ("blackwater_larkfield",((648,515),(730,489),(810,479),(883,506))),
  ("larkfield_harpers",((883,506),(930,525),(980,562),(1049,607))),
  ("saints_hollow_roan",((755,281),(840,335),(930,352),(1057,306))),
