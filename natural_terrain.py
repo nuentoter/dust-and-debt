@@ -5,7 +5,7 @@ No runtime images, third-party modules, dynamic RNG or terrain-sized arrays.
 Named water and bridge collision stays in new_austellia.py.
 """
 import math
-from new_austellia import P,REGIONS,TOWNS,WATERWAYS,near_atlas_town,is_water,distance_to_segment
+from new_austellia import P,REGIONS,TOWNS,WATERWAYS,near_atlas_town,is_water,distance_to_segment,travel_trail
 from frontier_world import biome_at,road_at,BIOME_PALETTES
 
 SEED=1889
@@ -89,7 +89,7 @@ def near_protected(x,y,margin=150):
     if x<4950 and y<3350:return True
     if near_atlas_town(x,y,450+margin):return True
     # The vintage regional road grid survives temporarily near Cinder Creek.
-    if road_at(x,y):return True
+    if road_at(x,y) or travel_trail(x,y):return True
     if is_water(x,y):return True
     return False
 
