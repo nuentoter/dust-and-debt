@@ -1,3 +1,18 @@
+## Phase 2–4 verification update — successful strict 20-unit wagon check
+
+**Verified green CI:** [Run 42744389118](https://github.com/nuentoter/dust-and-debt/actions/runs/42744389118) / commit `1eb9ac45`.
+
+After adding the mainland connector network, rerouting water-hugging wagon tracks and painting explicit local bridge decks, the **strict `--physical --check` route audit passed**. It sampled the centerlines of the 13 primary wagon roads, 10 secondary road connectors, 24 foot/horse trails and 4 rail corridors at **20-world-unit intervals**.
+
+- **Wagon centerline collisions: 0 reported** in the latest 20-unit sample; all 12 core towns and 13 waystations share one wagon-route graph component.
+- **Fishing/camp trails:** 24 named destinations, dry approach pads and trail centerline tests are green.
+- **Old rail lines:** **406 blocked rail samples** remain out of 21,918 samples across all modes: `rail_00` (1 building), `rail_01` (131 water/building), `rail_02` (242 water), `rail_03` (32 water). Rail routes remain **not approved** for rail traffic or wagon shortcuts; these require a separate rail regrading and bridge project.
+- **Important limits:** Sampling centerlines cannot certify full-width horse/wagon shoulder clearance or prove that every position is safe at arbitrary resolution. User ride and low-end laptop performance checks are pending.
+
+The original figures below are preserved as a **historical pre-repair baseline**, not a description of the current wagon network.
+
+---
+
 # New Austellia — Phase 0 physical route clearance findings
 
 **CI execution:** https://github.com/nuentoter/dust-and-debt/actions/runs/42739838298  
