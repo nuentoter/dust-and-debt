@@ -9,7 +9,7 @@ from collections import defaultdict
 import heapq
 import math
 
-from new_austellia import ROADS, RAILS
+from new_austellia import ROADS, RAILS, SECONDARY_ROADS
 
 Point=tuple[float,float]
 WAGON="wagon"
@@ -33,6 +33,7 @@ class Edge:
 ROUTE_SOURCES=(
     tuple(Route("wagon_%02d"%i,WAGON,tuple(points)) for i,points in enumerate(ROADS))+
     tuple(Route("rail_%02d"%i,RAIL,tuple(points)) for i,points in enumerate(RAILS))+
+    tuple(Route(key,WAGON,tuple(points),"authored") for key,points in SECONDARY_ROADS)+
     # Legacy starting spur, tracked as its own isolated source until a verified
     # visible, collision-safe connection is authored in phase 2.
     (Route("starter_spur",WAGON,((4650,2980),(6000,4300)),"legacy"),)
