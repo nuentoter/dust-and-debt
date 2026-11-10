@@ -51,9 +51,15 @@ v2.9 Presentation & Reliability (IN PROGRESS) #13
   UI • accessibility • optimization • save stability
        │
        ▼
+v2.9-map Roads, Trails & Landmarks (SPEC READY) #20
+  full road graph audit • mainland access • fishing trails • camps • visual polish
+       │
+       ▼
 v3.0 Living Frontier Release        #14
   comprehensive verification • release packaging
 ```
+
+**Navigation-first decision (November 9, 2026):** Implement [v2.9-map Roads, Trails & Landmarks #20](https://github.com/nuentoter/dust-and-debt/issues/20) before any new autonomous traveler system. Engineering checklist: [ROADS_TRAILS_LANDMARKS_MILESTONE.md](ROADS_TRAILS_LANDMARKS_MILESTONE.md). This is a specification, not completed road implementation.
 
 ## Milestone map
 
@@ -67,6 +73,7 @@ v3.0 Living Frontier Release        #14
 | 2.7 | Handcrafted Frontier — implemented | Distinct town landmarks, regional interiors, two multi-stop quests, atlas selector, 1.5× trot/2.5× gallop and stamina | [#11](https://github.com/nuentoter/dust-and-debt/issues/11) |
 | 2.8-map | Rivers, Ridges & Stone — initial terrain pass committed | Organic biome transitions, atlas-aligned ridges, tributaries and boulder clusters; no grid seams | [#19](https://github.com/nuentoter/dust-and-debt/issues/19) · [Technical design](NATURAL_TERRAIN_MILESTONE.md) |
 | 2.8 | Combat and Character Progression | Weapon depth, enemy morale, earned upgrades, difficulty options | [#12](https://github.com/nuentoter/dust-and-debt/issues/12) |
+| 2.9-map | Roads, Trails & Landmarks — spec ready | Audit wagon/rail network; repair 12 mainland town + 13 waystation links; author 12+ fishing trails and 12+ camps; graphics and passability CI | [#20](https://github.com/nuentoter/dust-and-debt/issues/20) |
 | 2.9 | Presentation and Reliability — in progress | Settings panel, graphics/weather/hints controls, schema validation, backup recovery, further profiling and CI review | [#13](https://github.com/nuentoter/dust-and-debt/issues/13) |
 | 3.0 | Living Frontier Release | Integrated testing, documentation and a verified source release | [#14](https://github.com/nuentoter/dust-and-debt/issues/14) |
 
