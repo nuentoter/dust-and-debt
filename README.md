@@ -1,15 +1,14 @@
-## v2.9-map — Road network baseline and graph engine (November 2026)
+## v2.9-map — Roads, Trails & Landmarks (integration playtest candidate)
 
-**In progress, not playable route repairs yet.** The initial atlas audit found **five disconnected groups across the 13 authored wagon-road polylines**; the legacy Cinder Creek starter spur is a **sixth isolated group**. See [baseline audit](docs/road_audit_baseline.json), [technical plan](ROADS_TRAILS_TECHNICAL_PLAN.md) and [issue #20](https://github.com/nuentoter/dust-and-debt/issues/20). Major missing last-mile road access includes Larkfield, Saint Brigid's Port, Iron Mesa Fort and Brimstone Point.
+The **original 13 wagon routes** now have **10 authored secondary connectors**, joining Galloway, Blackwater Crossing, Larkfield, Harper's Landing, Roan Creek, Valleyford, Riversend, Saint Brigid's Port, the western forts/Brimstone, and the original Cinder Creek starting spur. A deterministic route graph in `frontier_routes.py` distinguishes wagon roads, foot/horse paths and rail corridors. **All 12 core mainland towns and all 13 transport waystations** are topologically connected by wagon routes in the automated tests. Railroad tracks do not count as free wagon connections.
 
-New `frontier_routes.py` provides a standalone, deterministic geometry graph and graph-only route queries, keeping railroad edges separate from wagon roads. It **does not modify current rendering, collision or traveler AI**. `tools/audit_routes.py` reports town and waystation offsets, disconnected components and existing bridge inventory. The `--check` flag intentionally fails until physical road connections have been authored and verified; this is a release gate, not an ordinary CI test.
+**24 new visible destinations:** 12 named fishing approaches (including Frostvein and Northstar lakes, river banks and bayou) and 12 wilderness camps. Trails are painted and marked on the game world and atlas. Trailhead signs indicate **FISHING** or **CAMP**; camp clearings have tents and campfire props. On foot, press **T** at a named campsite for a once-per-camp rest, +30 HP and six hours of game time (saved as existing `camps_used` IDs). Fishing locations provide visible bank access; the fishing *activity* itself is reserved for a later milestone.
 
-```bash
-python3 tools/audit_routes.py --json docs/road_audit_runtime.json
-python3 tests/route_geometry_test.py
-```
+**Map art upgraded:** wagon roads have layered packed-dirt surfaces and wheel wear; secondary roads and narrow dashed footpaths are visually distinct. New destination symbols and a ROAD/TRAIL/CAMP/FISH legend appear on the map. The **minimap uses the actual route polylines** rather than an imaginary straight-line `ROAD_X/ROAD_Y` lattice. The 4,800×3,200 starting parcel and mission areas stay intact, as does the original M4A music soundtrack.
 
-The next sequence is: verify current CI → author primary/secondary connectors and safe crossings → add 12+ camp trails and 12+ fishing approaches → unify gameplay/minimap/atlas route art → test physical movement and low-end performance. **Do not use the current baseline graph as NPC navigation until its disconnected components and collision failures are resolved.**
+The baseline survey found **5 disconnected original road components plus the old starter spur**; see [source audit](docs/road_audit_baseline.json). Several river-confluence approaches needed explicit visible bridges or detours. [Original audit measurements and repair backlog](docs/ROAD_CLEARANCE_FINDINGS.md). The code includes rigorous centerline checks every 20 world units; actual mounted edge-width clearance and the **pre-existing rail corridor water/building conflicts** require a later pass. Do not claim rail traffic is production-ready.
+
+Tests: `python3 tests/route_geometry_test.py`, `python3 tests/route_destinations_test.py`, `xvfb-run -a python3 tests/route_render_test.py`, and strict `python3 tools/audit_routes.py --physical --check`. Linux Actions runs these with the rest of the game regressions. The owner's Archcraft long-ride playtest and real-world performance measurement are still required; issue [#20](https://github.com/nuentoter/dust-and-debt/issues/20) stays open until accepted.
 
 ## Recorded Dust & Debt soundtrack — creator M4A integration (November 2026)
 
