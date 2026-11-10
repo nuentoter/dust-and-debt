@@ -116,6 +116,24 @@ ROADS_SRC=(
 )
 ROADS=tuple(path(p) for p in ROADS_SRC)
 
+# v2.9-map: deliberately authored missing wagon connections. These preserve
+# the 13 canonical atlas roads and supply visible secondary road approaches.
+# All positions below are from original atlas pixels, except the Cinder Creek
+# hand-painted parcel's outbound START_SPUR terminal (world coordinates).
+SECONDARY_ROADS_SRC=(
+ ("galloway_blackwater",((442,393),(519,386),(605,397),(635,457),(648,515))),
+ ("blackwater_larkfield",((648,515),(730,489),(810,479),(883,506))),
+ ("saints_hollow_roan",((755,281),(840,335),(930,352),(1057,306))),
+ ("harpers_valleyford",((1049,607),(974,640),(908,674),(811,662))),
+ ("valleyford_riversend",((811,662),(740,688),(716,745),(700,835))),
+ ("riversend_saint_brigids",((700,835),(755,855),(819,891))),
+ ("iron_mesa_stonewall",((226,493),(260,524),(318,536),(376,552))),
+ ("brimstone_iron_mesa",((69,587),(130,571),(180,532),(226,493))),
+)
+SECONDARY_ROADS=tuple((key,path(points)) for key,points in SECONDARY_ROADS_SRC)
+SECONDARY_ROADS+=(("cinder_creek_approach",
+ ((6000,4300),*path(((122,167),(145,215),(178,277))))),)
+
 def _crossing(a,b,c,d):
  """Intersection of two finite line segments; return the crossing and road heading."""
  ux,uy=b[0]-a[0],b[1]-a[1]
@@ -133,7 +151,8 @@ def build_bridges():
  """Find real road/rail/water intersections, not arbitrary walkable water strips."""
  crossings=[]
  for water_name,water,width in WATERWAYS:
-  for route_type,routes in (('rail',RAILS),('road',ROADS)):
+  for route_type,routes in (('rail',RAILS),('road',ROADS),
+                            ('road',tuple(points for _,points in SECONDARY_ROADS))):
    for route in routes:
     for a,b in zip(route,route[1:]):
      for c,d in zip(water,water[1:]):
@@ -178,7 +197,8 @@ def near_polyline(x,y,points,radius):
  return False
 
 def travel_road(x,y):
- return any(near_polyline(x,y,route,90) for route in ROADS+RAILS)
+ return any(near_polyline(x,y,route,90) for route in ROADS+RAILS) or any(
+  near_polyline(x,y,points,55) for _,points in SECONDARY_ROADS)
 
 def river_at(x,y):
  # Primary named waterways. Additional narrow streams remain purely decorative.
@@ -255,6 +275,13 @@ def draw_local_geography(canvas,camx,camy,width,height):
    x1,y1=xy(a);x2,y2=xy(b)
    canvas.create_line(x1,y1,x2,y2,width=100,fill="#cbb18a")
    canvas.create_line(x1,y1,x2,y2,width=2,fill="#e4c99d",dash=(14,20))
+ for key,points in SECONDARY_ROADS:
+  for a,b in zip(points,points[1:]):
+   if not visible(a,b):continue
+   x1,y1=xy(a);x2,y2=xy(b)
+   canvas.create_line(x1,y1,x2,y2,width=72,fill='#a58b69',capstyle='round')
+   canvas.create_line(x1,y1,x2,y2,width=46,fill='#c4a77d',capstyle='round')
+   canvas.create_line(x1,y1,x2,y2,width=2,fill='#e6ca98',dash=(15,24))
  for points in RAILS:
   for a,b in zip(points,points[1:]):
    if not visible(a,b):continue
@@ -403,6 +430,7 @@ def draw_atlas(canvas,view,rect):
   if x2>x1 and y2>y1:
    canvas.create_oval(x1,y1,x2,y2,fill='#7ba2a8',outline='#536f75',width=2)
  for points in ROADS:draw_route(points,'#9c7656',2,(5,6))
+ for _,points in SECONDARY_ROADS:draw_route(points,'#b48d61',1.5,(4,7))
  for points in RAILS:draw_route(points,'#a45546',3,(4,3))
  for key,name,tx,ty,kind in TOWNS:
   if not vis((tx,ty)):continue
