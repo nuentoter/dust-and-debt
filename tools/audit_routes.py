@@ -87,12 +87,47 @@ def audit():
             "This report makes no claims about existing game runtime frame rate."]
     }
 
+def physical_audit(step=90):
+    """Sample real collision inputs along all baseline road/rail centerlines.
+
+    Inspection is diagnostic only: missing water crossings must be repaired,
+    not 'made passable' by painting over water.
+    """
+    from natural_terrain import landform_solid
+    from game import BUILDINGS
+    detail={}
+    for route in ROUTE_GRAPH.routes:
+        total=blocked=0
+        reasons={"water":0,"ridge_or_rock":0,"building":0}
+        examples=[]
+        for a,b in zip(route.vertices,route.vertices[1:]):
+            distance=math.dist(a,b)
+            count=max(1,math.ceil(distance/step))
+            for i in range(count+1):
+                x=a[0]+(b[0]-a[0])*i/count
+                y=a[1]+(b[1]-a[1])*i/count
+                total+=1
+                reason=None
+                if is_water(x,y):reason="water"
+                elif landform_solid(x,y,11):reason="ridge_or_rock"
+                elif any(bx-11<x<bx+bw+11 and by-11<y<by+bh+11
+                         for _,bx,by,bw,bh in BUILDINGS):reason="building"
+                if reason:
+                    blocked+=1;reasons[reason]+=1
+                    if len(examples)<8:
+                        examples.append({"xy":[round(x,1),round(y,1)],"reason":reason})
+        detail[route.id]={"kind":route.kind,"sample_step":step,"samples":total,
+                          "blocked":blocked,"reasons":reasons,"first_failures":examples}
+    return detail
+
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--json",help="Write the deterministic baseline report to a file")
     parser.add_argument("--check",action="store_true",help="Fail if the required mainland road network is disconnected")
+    parser.add_argument("--physical",action="store_true",help="Also sample water/rock/building collision over source centerlines")
     args=parser.parse_args()
     result=audit()
+    if args.physical:result['physical_collision']=physical_audit()
     output=json.dumps(result,indent=2,sort_keys=True)+"\n"
     if args.json:
         dest=Path(args.json)
