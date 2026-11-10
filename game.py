@@ -13,6 +13,8 @@ from natural_terrain import draw_ground,draw_landforms,landform_solid,hash32,noi
 from combat_progression import WEAPONS, DIFFICULTIES, available_weapons, normal_weapon, normal_difficulty, incoming_damage, aim_vector, earned_perks, perk_reload_multiplier, perk_incoming_multiplier, perk_deadeye_regen
 from enemy_tactics import ARCHETYPES, archetype, morale, should_surrender, movement, cover_goal
 from natural_terrain import ROCKS
+from frontier_destinations import DESTINATIONS,draw_destinations,draw_destination_map
+from frontier_route_art import draw_scaled_routes
 from horse_riding import step_motion, TROT_SPEED, GALLOP_SPEED
 from frontier_chapters import CHAPTERS,CHAPTER_BY_ID,node_for,available_chapter
 import deadwood_pulp as pulp
@@ -24,7 +26,7 @@ from frontier_world import (WORLD_WIDTH,WORLD_HEIGHT,SECTOR_W,SECTOR_H,SECTOR_NA
  point_on_map,world_from_map,draw_map_background,draw_landmark,
  WAYSTATIONS,near_waystation,waystation_by_key,draw_waystations)
 from new_austellia import (TOWNS,MAJOR_TOWNS,near_atlas_town,is_water,
-                            draw_local_geography,draw_starting_transition,coastal_water,region_at as austellia_region)
+                            draw_local_geography,draw_starting_transition,coastal_water,travel_trail,region_at as austellia_region)
 from frontier_expansion import (SETTLEMENTS,SIDE_JOBS,extra_buildings,extra_npcs,resource_nodes,
                                 nearby_settlement,get_settlement,get_job,draw_frontier_towns)
 
@@ -1984,7 +1986,7 @@ class Game:
   return value^(value>>16)
 
  def is_frontier_road(self,x,y):
-  return road_at(x,y)
+  return road_at(x,y) or travel_trail(x,y)
 
  def terrain_obstacle(self,x,y):
   # Collision for new natural cover is handled by landform_solid in solid().
@@ -2069,6 +2071,7 @@ class Game:
   draw_frontier_towns(self.canvas,self.camx,self.camy,VW,VH)
   draw_landmark(self.canvas,self.camx,self.camy,VW,VH)
   draw_waystations(self.canvas,self.camx,self.camy,VW,VH)
+  draw_destinations(self.canvas,self.camx,self.camy,VW,VH,self.graphics_quality)
   self.draw_expansion_markers()
   self.draw_work_marker()
   self.draw_road_contract_marker()
@@ -2271,14 +2274,9 @@ class Game:
   def mp(wx,wy):
    if not(ox<=wx<=ox+window_w and oy<=wy<=oy+window_h):return None
    return (left+(wx-ox)*sx,top+(wy-oy)*sy)
-  for gx in ROAD_X:
-   if ox<=gx<=ox+window_w:
-    xx=left+(gx-ox)*sx
-    self.canvas.create_line(xx,top,xx,top+mh,fill='#ad976c',width=2)
-  for gy in ROAD_Y:
-   if oy<=gy<=oy+window_h:
-    yy=top+(gy-oy)*sy
-    self.canvas.create_line(left,yy,left+mw,yy,fill='#ad976c',width=2)
+  # Draw actual roads, railway and local trails, not a phantom grid.
+  draw_scaled_routes(self.canvas,(ox,oy,window_w,window_h),
+                     (left,top,mw,mh),self.graphics_quality)
   for n,bx,by,bw,bh in BUILDINGS:
    p=mp(bx+bw/2,by+bh/2)
    if p:self.canvas.create_rectangle(p[0]-2,p[1]-2,p[0]+2,p[1]+2,fill='#bba77e',outline='')
@@ -2336,8 +2334,12 @@ class Game:
    self.canvas.create_image(x,y,image=self.austellia_image,anchor='nw')
    self.canvas.create_rectangle(x,y,x+w,y+h,outline='#6d5136',width=3)
   else:draw_map_background(self.canvas,view)
+  # Overlay revised map routes on the original full-scale illustrated image.
+  if not self.map_zoom and self.austellia_image:
+   draw_scaled_routes(self.canvas,view,MAP_RECT,self.graphics_quality)
   def mark(wx,wy):
    return point_on_map(wx,wy,view)
+  draw_destination_map(self.canvas,mark)
   for key,name,cx,cy,*_ in SETTLEMENTS:
    p=mark(cx,cy)
    if not p:continue
