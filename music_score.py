@@ -88,6 +88,17 @@ def _score_pcm(state):
   for j,semitone in enumerate(chord):
    notes.append((start+j*eighth*.72,_pitch(root+semitone),.082))
  low=[(i*beat*2,_pitch(root+chord[0]-12)) for i,chord in enumerate(cfg["chords"]*2)]
+ # Index active notes by step so older CPUs never scan an entire song
+ # for every one of its 11,025 samples per second.
+ active_notes=[]
+ active_bass=[]
+ for step in range(len(steps)):
+  t0=step*eighth
+  t1=(step+1)*eighth
+  active_notes.append([(start,freq,level) for start,freq,level in notes
+                       if start<t1 and start+.92>t0])
+  active_bass.append([(start,freq) for start,freq in low
+                      if start<t1 and start+1.2>t0])
  rng=random.Random(1898+sum(ord(c) for c in state))
  pcm=bytearray()
  for index in range(int(duration*RATE)):
@@ -95,11 +106,11 @@ def _score_pcm(state):
   step_i=min(len(steps)-1,int(t/eighth))
   signal=0.
   # Only events near the current time contribute; cap polyphony cheaply.
-  for start,frequency,level in notes:
+  for start,frequency,level in active_notes[step_i]:
    elapsed=t-start
    if 0<=elapsed<.92:
     signal+=level*_pluck(elapsed,frequency)
-  for start,frequency in low:
+  for start,frequency in active_bass[step_i]:
    dt=t-start
    if 0<=dt<1.2:signal+=.16*_pluck(dt,frequency,1.5)
   # Whistled/harmonica-like long line at select phrase starts.
