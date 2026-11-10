@@ -62,7 +62,7 @@ class RouteGeometryTest(unittest.TestCase):
   report=audit()
   self.assertEqual(report["source"]["wagon_polylines"],13)
   self.assertEqual(report["source"]["waystations"],13)
-  self.assertEqual(report["graph"]["wagon_components"],1)
+  self.assertEqual(report["graph"]["wagon_components"],1, report["graph"]["wagon_routes"])
   self.assertEqual(report["graph"]["disconnected_or_missing_road_core_ids"],[])
   self.assertTrue(all(x["distance_to_wagon"]<=180 for x in report["sites"]
                       if x["id"] in MAJOR_TOWNS))
