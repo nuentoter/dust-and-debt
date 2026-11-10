@@ -48,7 +48,8 @@ class RouteGeometryTest(unittest.TestCase):
   graph=RouteGraph(roads)
   self.assertEqual(len(graph.components("wagon")),1)
   self.assertEqual(len(graph.components("rail")),1)
-  self.assertIsNone(graph.path((0,0),(5,5),mode="wagon"))
+  rail_tip=next(n for n,p in graph.nodes.items() if p==(5,5))
+  self.assertIsNone(graph.path((0,0),rail_tip,mode="wagon"))
 
  def test_unconnected_parallel_routes_not_snapped(self):
   roads=(Route("a","wagon",((0,0),(10,0))),
