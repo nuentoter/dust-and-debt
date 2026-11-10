@@ -123,6 +123,7 @@ ROADS=tuple(path(p) for p in ROADS_SRC)
 SECONDARY_ROADS_SRC=(
  ("galloway_blackwater",((442,393),(519,386),(605,397),(635,457),(648,515))),
  ("blackwater_larkfield",((648,515),(730,489),(810,479),(883,506))),
+ ("larkfield_harpers",((883,506),(930,525),(980,562),(1049,607))),
  ("saints_hollow_roan",((755,281),(840,335),(930,352),(1057,306))),
  ("harpers_valleyford",((1049,607),(974,640),(908,674),(811,662))),
  ("valleyford_riversend",((811,662),(740,688),(716,745),(700,835))),
