@@ -12,7 +12,7 @@ import unittest
 sys.path.insert(0,os.path.dirname(os.path.dirname(__file__)))
 from frontier_routes import (Route,RouteGraph,ROUTE_GRAPH,ROUTE_SOURCES,
                              segment_intersection,nearest_route_anchor,route_path)
-from new_austellia import ROADS,RAILS,SECONDARY_ROADS,TOWNS,MAJOR_TOWNS
+from new_austellia import ROADS,RAILS,SECONDARY_ROADS,TRAILS,TOWNS,MAJOR_TOWNS
 from frontier_world import WAYSTATIONS,START_SPUR
 from tools.audit_routes import audit
 
@@ -24,6 +24,7 @@ class RouteGeometryTest(unittest.TestCase):
   self.assertEqual(len(MAJOR_TOWNS),12)
   self.assertEqual(len(WAYSTATIONS),13)
   self.assertEqual(len(SECONDARY_ROADS),10)
+  self.assertEqual(len(TRAILS),24)
   self.assertEqual(len(ROUTE_SOURCES),52)
   self.assertEqual(ROUTE_SOURCES[-1].vertices,START_SPUR)
 
@@ -70,6 +71,14 @@ class RouteGeometryTest(unittest.TestCase):
   self.assertIn("brimstone",set(x["id"] for x in report["sites"]))
   self.assertIn("calhoun_island",report["known_exemptions"])
   self.assertEqual(len(report["crossings"]),len(__import__('new_austellia').BRIDGES))
+
+ def test_trails_allow_horses_but_exclude_wagons(self):
+  graph=RouteGraph((Route("road","wagon",((0,0),(10,0))),
+                    Route("camp","trail",((10,0),(10,10)))))
+  end=next(n for n,p in graph.nodes.items() if p==(10,10))
+  self.assertIsNone(graph.path((0,0),end,mode="wagon"))
+  self.assertIsNotNone(graph.path((0,0),end,mode="horse"))
+  self.assertIsNotNone(graph.path((0,0),end,mode="foot"))
 
  def test_deterministic_topology_and_anchor(self):
   again=RouteGraph()

@@ -1,28 +1,31 @@
 #!/usr/bin/env python3
 """Working Frontier economy and audio preparation regression (Xvfb)."""
 import os,sys,tempfile,tkinter as tk
+from unittest.mock import patch
 sys.path.insert(0,os.path.dirname(os.path.dirname(__file__)))
 import game
 from working_frontier import work_offer,shop_prices,daily_stock
 from audio_system import AudioDirector,CUES,MUSIC_STATES
 
 def main():
- bells=[]
- fake_clock=[10.]
- director=AudioDirector(bell=lambda:bells.append('bell'),clock=lambda:fake_clock[0])
- assert not director.cue('gunshot') and not bells
- director.enabled=True
- assert director.cue('gunshot') and len(bells)==1
- assert not director.cue('reload') and len(bells)==1
- fake_clock[0]+=1.
- assert director.cue('reload') and len(bells)==2
- assert not director.cue('unknown')
- assert director.set_music_state('wilderness')
- assert not director.set_music_state('wilderness')
- assert not director.set_music_state('invalid')
- director.configure({'music_enabled':True,'master_volume':8,'effects_volume':-.1})
- assert director.master_volume==1 and director.effects_volume==0
- assert 'gunshot' in CUES and 'combat' in MUSIC_STATES
+ # This unit-only callback records bells without opening a sound device.
+ with patch.dict(os.environ,{'DUST_AND_DEBT_SILENT':'0'}):
+  bells=[]
+  fake_clock=[10.]
+  director=AudioDirector(bell=lambda:bells.append('bell'),clock=lambda:fake_clock[0])
+  assert not director.cue('gunshot') and not bells
+  director.enabled=True
+  assert director.cue('gunshot') and len(bells)==1
+  assert not director.cue('reload') and len(bells)==1
+  fake_clock[0]+=1.
+  assert director.cue('reload') and len(bells)==2
+  assert not director.cue('unknown')
+  assert director.set_music_state('wilderness')
+  assert not director.set_music_state('wilderness')
+  assert not director.set_music_state('invalid')
+  director.configure({'music_enabled':True,'master_volume':8,'effects_volume':-.1})
+  assert director.master_volume==1 and director.effects_volume==0
+  assert 'gunshot' in CUES and 'combat' in MUSIC_STATES
  with tempfile.TemporaryDirectory() as tmp:
   game.SAVE=os.path.join(tmp,'save.json')
   root=tk.Tk();root.withdraw()

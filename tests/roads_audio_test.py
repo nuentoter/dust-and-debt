@@ -39,7 +39,7 @@ def main():
   for scene in ('wilderness','town'):
    shutil.copy2(ambient,os.path.join(tmp,'music',scene+'.wav'))
   with patch('audio_system.shutil.which',side_effect=lambda name: '/usr/bin/ffplay' if name=='ffplay' else None):
-   with patch('audio_system.subprocess.Popen',side_effect=lambda *a,**k:DummyProcess()) as pop:
+   with patch.dict(os.environ,{'DUST_AND_DEBT_SILENT':'0'}), patch('audio_system.subprocess.Popen',side_effect=lambda *a,**k:DummyProcess()) as pop:
     ad=AudioDirector(assets_path=tmp,cache_path=tmp)
     assert ad.backend=='ffplay'
     ad.enabled=True

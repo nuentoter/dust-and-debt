@@ -141,6 +141,7 @@ class Game:
   root.bind('<Motion>',lambda e:setattr(self,'mouse',(e.x,e.y)))
   root.bind('<ButtonPress-1>',self.click);root.bind('<ButtonRelease-1>',lambda e:setattr(self,'mouse_down',False))
   root.protocol('WM_DELETE_WINDOW',self.quit)
+  root.bind('<Destroy>',self.window_destroyed,add='+')
   root.after(FPS,self.loop)
 
  def reset(self):
@@ -2568,6 +2569,9 @@ class Game:
   self.draw_choice_dialogue()
   if self.settings_open:self.draw_settings()
 
+ def window_destroyed(self,event):
+  if event.widget is self.root:self.audio.stop()
+
  def quit(self):
   if self.screen in ('playing','paused','ending'):self.save()
   self.audio.stop()
@@ -2585,6 +2589,7 @@ def main():
   print('Self-test OK: story, buildings, and artwork present.')
   return
  root=tk.Tk()
- Game(root)
- root.mainloop()
+ game=Game(root)
+ try:root.mainloop()
+ finally:game.audio.stop()
 if __name__=='__main__':main()

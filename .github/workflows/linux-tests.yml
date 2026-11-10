@@ -5,6 +5,8 @@ on:
   pull_request:
 jobs:
   smoke:
+    env:
+      DUST_AND_DEBT_SILENT: "1"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -12,6 +14,8 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y python3-tk xvfb
       - name: Verify game data
         run: python3 game.py --self-test
+      - name: Audio process cleanup and silent test regression
+        run: xvfb-run -a python3 tests/audio_cleanup_test.py
       - name: Smoke test v1.3 foundation
         run: xvfb-run -a python3 tests/smoke_test.py
       - name: Dialogue regression tests

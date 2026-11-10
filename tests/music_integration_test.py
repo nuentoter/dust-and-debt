@@ -38,7 +38,7 @@ def main():
   assert install(source,music)[1]==list(SOURCE_FILES)
   assert os.path.basename(tracks_for("title",music)[0])=="Forsaken to This Land.m4a"
   with patch("audio_system.shutil.which",side_effect=lambda name:"/usr/bin/ffplay" if name=="ffplay" else None):
-   with patch("audio_system.subprocess.Popen",return_value=FakePlayer()) as pop:
+   with patch.dict(os.environ,{"DUST_AND_DEBT_SILENT":"0"}), patch("audio_system.subprocess.Popen",return_value=FakePlayer()) as pop:
     audio=AudioDirector(assets_path=tmp,cache_path=tmp)
     assert audio.backend=="ffplay"
     # Use installed assets under expected audio/music layout.

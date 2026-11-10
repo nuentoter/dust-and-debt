@@ -5,7 +5,7 @@ creator's actual recordings in assets/audio/music, never generated substitutes.
 FFplay or mpv supports M4A/MP3/OGG; pw-play/aplay can play original WAVs.
 The selected scene playlist rotates as songs finish without blocking Tkinter.
 """
-import os,shutil,subprocess,time
+import atexit,os,shutil,subprocess,time
 from audio_assets import ensure_wav
 from soundtrack_manifest import tracks_for,installed_count
 
@@ -43,8 +43,10 @@ class AudioDirector:
         self.effects=[]
         self.playlist_index={state:0 for state in MUSIC_STATES}
         self._music_retry_at=0.
+        atexit.register(self.stop)
 
     def _run(self,file,volume,loop=False):
+        if os.environ.get("DUST_AND_DEBT_SILENT")=="1":return None
         if not self.player or not file:return None
         value=int(100*max(0.,min(1.,volume)))
         if value<=0:return None
@@ -74,7 +76,7 @@ class AudioDirector:
     def cue(self,event):
         if event not in CUES:return False
         self.last_event=event
-        if not self.enabled:return False
+        if not self.enabled or os.environ.get("DUST_AND_DEBT_SILENT")=="1":return False
         now=self.clock()
         if now-self.last_bell<.14:return False
         self.last_bell=now
@@ -158,21 +160,27 @@ class AudioDirector:
         if not self.assets_path:return 0
         return installed_count(os.path.join(self.assets_path,"music"))
 
+    @staticmethod
+    def _stop_process(proc):
+        if proc is None:return
+        try:
+            if proc.poll() is None:proc.terminate()
+            proc.wait(timeout=.2)
+        except subprocess.TimeoutExpired:
+            try:
+                proc.kill()
+                proc.wait(timeout=.2)
+            except (OSError,subprocess.TimeoutExpired):pass
+        except OSError:pass
+
     def _stop_music(self):
         proc=self.music_process
         self.music_process=None
-        if proc and proc.poll() is None:
-            try:proc.terminate();proc.wait(timeout=.12)
-            except (OSError,subprocess.TimeoutExpired):
-                try:proc.kill()
-                except OSError:pass
+        self._stop_process(proc)
 
     def stop(self):
         self._stop_music()
-        for proc in self.effects:
-            if proc.poll() is None:
-                try:proc.terminate()
-                except OSError:pass
+        for proc in self.effects:self._stop_process(proc)
         self.effects=[]
 
     def settings(self):

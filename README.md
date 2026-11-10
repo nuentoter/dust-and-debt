@@ -467,3 +467,17 @@ Original game design, narrative, code, and graphics made for this request. Inspi
 ## Building the art (optional)
 
 The expanded world and overview are already included. `expand_world.py` can regenerate them from `assets/world_original.png` using Pillow. Pillow is **not** needed to play.
+
+### Silent development tests
+
+Run the full regression suite without playing music or effects:
+
+```bash
+xvfb-run -a python3 tools/run_tests.py
+```
+
+For a single test, set `DUST_AND_DEBT_SILENT=1` before `xvfb-run`.
+This development-only environment setting suppresses speaker playback and the
+Tk bell without changing saved player preferences. Audio player tests use
+mock processes. Window destruction and normal interpreter exit stop and reap
+owned audio processes.
