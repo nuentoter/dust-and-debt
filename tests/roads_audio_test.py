@@ -32,6 +32,12 @@ def main():
   with wave.open(ambient,'rb') as wav:assert wav.getnframes()>60000
   assert ensure_wav(tmp,'music','night')==ambient
   assert ensure_wav(tmp,'music','title') is None
+  # v2.9 recorded music is required; provide test-only valid WAV overrides
+  # for music state switching, rather than relying on generated score.
+  os.makedirs(os.path.join(tmp,'music'),exist_ok=True)
+  import shutil
+  for scene in ('wilderness','town'):
+   shutil.copy2(ambient,os.path.join(tmp,'music',scene+'.wav'))
   with patch('audio_system.shutil.which',side_effect=lambda name: '/usr/bin/ffplay' if name=='ffplay' else None):
    with patch('audio_system.subprocess.Popen',side_effect=lambda *a,**k:DummyProcess()) as pop:
     ad=AudioDirector(assets_path=tmp,cache_path=tmp)
