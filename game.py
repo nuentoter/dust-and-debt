@@ -154,7 +154,7 @@ class Game:
   self.actors=[];self.bullets=[];self.effects=[];self.dialog=None;self.choice_dialog=None;self.dialog_from='';self.toast=[]
   self.camx=0;self.camy=0;self.map_open=False;self.journal_open=False;self.show_help=False
   self.map_zoom=False;self.map_center=[self.x,self.y];self.landmarks_found=[];self.map_destination_index=0
-  self.waypoint=None;self.sound_on=False;self.audio.enabled=False;self.audio.music_enabled=False;self.audio.set_music_state('silence');self.last_bell=0.;self.autosave_timer=90.;self.loaded_backup=False
+  self.waypoint=None;self.sound_on=False;self.audio.enabled=False;self.audio.music_enabled=True;self.audio.set_music_state('silence');self.last_bell=0.;self.autosave_timer=90.;self.loaded_backup=False
   self.economy_day=0;self.shop_stock={};self.work_active=None;self.work_records={};self.work_finished=0;self.work_income=0;self.work_expenses=0;self.store_id=None;self.work_ledger_open=False
   self.interior=None;self.indoor_x=480.;self.indoor_y=465.;self.shop_open=False;self.show_jail=False
   self.npc_schedule_tick=0;self.npc_home={}
@@ -920,7 +920,7 @@ class Game:
    self.sound_cue('menu');return
   if key=='o' and self.screen in ('title','playing','paused'):
    self.audio.set_music_enabled(not self.audio.music_enabled)
-   self.notify('AMBIENT MUSIC '+('ON' if self.audio.music_enabled else 'OFF')+' ('+self.audio.backend+')',3)
+   self.notify('ORIGINAL SCORE '+('ON' if self.audio.music_enabled else 'OFF')+' ('+self.audio.backend+')',3)
    return
   if key=='f11':
    self.fullscreen=not self.fullscreen;self.root.attributes('-fullscreen',self.fullscreen);return
@@ -1038,6 +1038,8 @@ class Game:
    self.waypoint=s.get('waypoint')
    self.sound_on=bool(s.get('sound_on',False))
    self.audio.configure(s.get('audio',{}))
+   # Enable the new music on first upgrade; retain subsequent opt-outs.
+   if not s.get('music_upgrade_v1',False):self.audio.set_music_enabled(True)
    self.audio.enabled=self.sound_on
    self.economy_day=int(s.get('economy_day',0))
    self.shop_stock=dict(s.get('shop_stock',{}))
@@ -1116,7 +1118,7 @@ class Game:
   d['contract']=self.contract;d['bounties_done']=self.bounties_done
   d['field_prisoner']=self.field_prisoner;d['field_arrests']=self.field_arrests
   d['jail_roster']=self.jail_roster;d['law_reputation']=self.law_reputation
-  d['waypoint']=self.waypoint;d['sound_on']=self.sound_on;d['audio']=self.audio.settings()
+  d['waypoint']=self.waypoint;d['sound_on']=self.sound_on;d['audio']=self.audio.settings();d['music_upgrade_v1']=True
   d['economy_day']=self.economy_day;d['shop_stock']=self.shop_stock
   d['work_active']=self.work_active;d['work_records']=self.work_records
   d['work_finished']=self.work_finished;d['work_income']=self.work_income;d['work_expenses']=self.work_expenses
@@ -2474,7 +2476,7 @@ class Game:
  def draw_help(self):
   self.panel(190,52,580,506)
   self.draw_text(216,95,'HOW TO SURVIVE THE FRONTIER',19,'#efc58a',True)
-  controls=[('WASD / ARROWS','Move'),('SHIFT','Sprint / gallop'),('MOUSE CLICK','Aim and shoot'),('SPACE / R','Fire / reload'),('Q','Dead Eye'),('2 / F6 / F7','Weapon / difficulty / aim assist'),('E / SHIFT+E','Interact / enter buildings'),('H','Mount / dismount Whiskey'),('B','Accept bounty near sheriff'),('L','Lasso wanted targets or bandits'),('G','Hogtie roped outlaw (on foot)'),('E BY TIED TARGET','Pick up captive'),('E BY SHERIFF','Deliver prisoner alive (on foot)'),('1','Health tonic'),('M / J','Map / journal (TAB and Enter choose map towns)'),('F / T','Gather / camp'),('P','Take or collect paid work'),('N / U','Waystation road jobs / rumors'),('Y','Regional stories at Galloway / Roan Creek'),('I','Work ledger and horse condition'),('V / O','Sound effects / ambient music'),('F5','Save game'),('F8','Graphics / sound settings'),('F11','Fullscreen'),('ESC / F1','Pause / help')]
+  controls=[('WASD / ARROWS','Move'),('SHIFT','Sprint / gallop'),('MOUSE CLICK','Aim and shoot'),('SPACE / R','Fire / reload'),('Q','Dead Eye'),('2 / F6 / F7','Weapon / difficulty / aim assist'),('E / SHIFT+E','Interact / enter buildings'),('H','Mount / dismount Whiskey'),('B','Accept bounty near sheriff'),('L','Lasso wanted targets or bandits'),('G','Hogtie roped outlaw (on foot)'),('E BY TIED TARGET','Pick up captive'),('E BY SHERIFF','Deliver prisoner alive (on foot)'),('1','Health tonic'),('M / J','Map / journal (TAB and Enter choose map towns)'),('F / T','Gather / camp'),('P','Take or collect paid work'),('N / U','Waystation road jobs / rumors'),('Y','Regional stories at Galloway / Roan Creek'),('I','Work ledger and horse condition'),('V / O','Sound effects / Western score'),('F5','Save game'),('F8','Graphics / sound settings'),('F11','Fullscreen'),('ESC / F1','Pause / help')]
   for i,(k,v) in enumerate(controls):
    yy=127+i*16
    self.draw_text(218,yy,k,11,'#f4d59e',True)
@@ -2489,7 +2491,8 @@ class Game:
   self.draw_text(480,393,'ENTER  /  CLICK  —  NEW GAME',16,'#f6d5a0',True,anchor='center')
   if os.path.exists(SAVE):self.draw_text(480,473,'L  /  CLICK  —  CONTINUE',16,'#f0c28a',True,anchor='center')
   else:self.draw_text(480,473,'NO SAVED GAME YET',13,'#8c806e',anchor='center')
-  self.draw_text(480,554,VERSION+'  •  Linux  •  Python + Tkinter',11,'#d6b38e',anchor='center')
+  self.draw_text(480,540,'O: MUSIC '+('ON' if self.audio.music_enabled else 'OFF')+'   •   PLAYER: '+self.audio.backend.upper(),10,'#f3d09c',True,anchor='center')
+  self.draw_text(480,569,VERSION+'  •  Linux  •  Python + Tkinter',11,'#d6b38e',anchor='center')
 
  def draw_settings(self):
   self.panel(235,135,490,330,'#201b18','#d2a56c')
@@ -2498,12 +2501,13 @@ class Game:
          ('2','Weather effects','ON' if self.weather_enabled else 'OFF'),
          ('3','Context hints','ON' if self.context_hints else 'OFF'),
          ('4','Sound effects','ON' if self.sound_on else 'OFF'),
-         ('5','Ambient music','ON' if self.audio.music_enabled else 'OFF')]
+         ('5','Original score','ON' if self.audio.music_enabled else 'OFF')]
   for i,(key,name,value) in enumerate(lines):
    y=225+i*40
    self.draw_text(267,y,key+'  '+name,14,'#e5ceac',True)
    self.draw_text(680,y,value,14,'#f7d392',True,anchor='e')
-  self.draw_text(480,440,'F8 / ESC: CLOSE   •   F5: SAVE',12,'#d5b896',True,anchor='center')
+  self.draw_text(480,431,'PLAYER: '+self.audio.backend.upper()+'   •   O: MUSIC',10,'#cbb89a',True,anchor='center')
+  self.draw_text(480,448,'F8 / ESC: CLOSE   •   F5: SAVE',11,'#d5b896',True,anchor='center')
 
  def draw_pause(self):
   self.canvas.create_rectangle(0,0,VW,VH,fill='#17130f',stipple='gray50',outline='')
@@ -2532,6 +2536,7 @@ class Game:
 
  def render(self):
   self.canvas.delete('all')
+  self.audio.service()
   if self.screen=='title':
    self.audio.set_music_state('title')
    self.draw_title();return
