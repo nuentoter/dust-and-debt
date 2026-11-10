@@ -24,7 +24,7 @@ class RouteGeometryTest(unittest.TestCase):
   self.assertEqual(len(MAJOR_TOWNS),12)
   self.assertEqual(len(WAYSTATIONS),13)
   self.assertEqual(len(SECONDARY_ROADS),10)
-  self.assertEqual(len(ROUTE_SOURCES),28)
+  self.assertEqual(len(ROUTE_SOURCES),52)
   self.assertEqual(ROUTE_SOURCES[-1].vertices,START_SPUR)
 
  def test_segment_crossing_and_non_crossing(self):
