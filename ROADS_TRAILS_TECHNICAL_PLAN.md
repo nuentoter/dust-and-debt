@@ -22,7 +22,7 @@
 
 | Present function/data | File | Engineering implication |
 |---|---|---|
-| `TOWNS_SRC`, `P()`, `ROADS_SRC` / `ROADS`, `RAILS_SRC` / `RAILS` | `new_austellia.py` | 13 wagon road polylines, 4 rail polylines, 35 site records. Preserve source coordinates; register persistent IDs for routes |
+| `TOWNS_SRC`, `P()`, `ROADS_SRC` / `ROADS`, `RAILS_SRC` / `RAILS` | `new_austellia.py` | 13 wagon road polylines, 4 rail polylines, 34 site records. Preserve source coordinates; register persistent IDs for routes |
 | `WATERWAYS`, `LAKES`, `COAST_POLYGON`, `BRIDGES`, `bridge_at`, `is_water` | `new_austellia.py` | Water collision is geometric and bridge-limited. A road visually painted across water is **not** guaranteed passable |
 | `draw_local_geography()` | `new_austellia.py` | Currently renders rivers/lakes, 100-world-unit wagon roads, rails and bridge decks in a fixed order; route strokes must migrate without double-drawing |
 | `draw_atlas()` | `new_austellia.py` | World-map vector map draws its own road/rail strokes; when an illustrated PNG is available, full-map display currently bypasses this vector route layer |
@@ -331,7 +331,7 @@ Every phase is a separate **mergeable** group. GitHub-first: push to `main`, run
 
 **Files:** `tools/audit_routes.py`, `tests/route_geometry_test.py`, `docs/road_audit.json`  
 **Tasks**
-- [ ] Extract baseline world/atlas quantities, every route polyline, 35 site IDs and 13 waystation records.
+- [ ] Extract baseline world/atlas quantities, every route polyline, 34 site IDs and 13 waystation records.
 - [ ] Check existing bridge count, endpoints and nearest route; emit disconnected/missing locations.
 - [ ] Record six camera baseline draw metrics.
 - [ ] Add graph fixture tests and report missing links as expected, without treating baseline failures as final release failures.
