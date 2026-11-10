@@ -146,10 +146,16 @@ def main():
         dest.write_text(output,encoding="utf8")
         print("Wrote",dest)
     else:print(output)
-    if args.check and (result["graph"]["wagon_components"]!=1 or
-                       result["graph"]["disconnected_or_missing_road_core_ids"]):
-        print("Road network not ready for autonomous travelers",file=sys.stderr)
-        return 1
+    if args.check:
+        if result["graph"]["wagon_components"]!=1 or result["graph"]["disconnected_or_missing_road_core_ids"]:
+            print("Wagon route graph disconnected or town approach missing",file=sys.stderr)
+            return 1
+        if args.physical:
+            unsafe={rid:item["blocked"] for rid,item in result["physical_collision"].items()
+                    if item["kind"]=="wagon" and item["blocked"]}
+            if unsafe:
+                print("Wagon centerline collision failures: "+str(unsafe),file=sys.stderr)
+                return 1
     return 0
 
 if __name__=="__main__":raise SystemExit(main())
