@@ -51,7 +51,7 @@ v2.9 Presentation & Reliability (IN PROGRESS) #13
   UI • accessibility • optimization • save stability
        │
        ▼
-v2.9-map Roads, Trails & Landmarks (AUDIT + ROUTE GRAPH IN PROGRESS) #20
+v2.9-map Roads, Trails & Landmarks (PLAYTEST CANDIDATE / CI CLEARANCE REVIEW) #20
   full road graph audit • mainland access • fishing trails • camps • visual polish
        │
        ▼
@@ -59,7 +59,7 @@ v3.0 Living Frontier Release        #14
   comprehensive verification • release packaging
 ```
 
-**Navigation-first decision (November 9, 2026):** Implement [v2.9-map Roads, Trails & Landmarks #20](https://github.com/nuentoter/dust-and-debt/issues/20) before any new autonomous traveler system. Engineering checklist: [ROADS_TRAILS_LANDMARKS_MILESTONE.md](ROADS_TRAILS_LANDMARKS_MILESTONE.md). Technical build plan: [ROADS_TRAILS_TECHNICAL_PLAN.md](ROADS_TRAILS_TECHNICAL_PLAN.md). Phase 0 static network audit and first pure-Python transport graph are implemented. The map itself is not repaired or graph-pathable for travelers yet; CI validates the baseline. Physical collision audit and connector work follow.
+**Navigation-first decision (November 9, 2026):** Implement [v2.9-map Roads, Trails & Landmarks #20](https://github.com/nuentoter/dust-and-debt/issues/20) before any new autonomous traveler system. Engineering checklist: [ROADS_TRAILS_LANDMARKS_MILESTONE.md](ROADS_TRAILS_LANDMARKS_MILESTONE.md). Technical build plan: [ROADS_TRAILS_TECHNICAL_PLAN.md](ROADS_TRAILS_TECHNICAL_PLAN.md). New mainland connectors, 24 fishing/camp access trails, a shared road/rail/trail graph, campsite rests, and unified minimap/full-atlas graphics are implemented. The strict 20-unit wagon-road collision gate, rail water crossings, mounted lateral-width testing, and the user's long ride remain review items.
 
 ## Milestone map
 
@@ -73,7 +73,7 @@ v3.0 Living Frontier Release        #14
 | 2.7 | Handcrafted Frontier — implemented | Distinct town landmarks, regional interiors, two multi-stop quests, atlas selector, 1.5× trot/2.5× gallop and stamina | [#11](https://github.com/nuentoter/dust-and-debt/issues/11) |
 | 2.8-map | Rivers, Ridges & Stone — initial terrain pass committed | Organic biome transitions, atlas-aligned ridges, tributaries and boulder clusters; no grid seams | [#19](https://github.com/nuentoter/dust-and-debt/issues/19) · [Technical design](NATURAL_TERRAIN_MILESTONE.md) |
 | 2.8 | Combat and Character Progression | Weapon depth, enemy morale, earned upgrades, difficulty options | [#12](https://github.com/nuentoter/dust-and-debt/issues/12) |
-| 2.9-map | Roads, Trails & Landmarks — spec ready | Audit wagon/rail network; repair 12 mainland town + 13 waystation links; author 12+ fishing trails and 12+ camps; graphics and passability CI | [#20](https://github.com/nuentoter/dust-and-debt/issues/20) |
+| 2.9-map | Roads, Trails & Landmarks — playtest candidate | Connected wagon graph for 12 mainland towns + 13 waystations; 12 fishing banks and 12 camps; upgraded trail art and map; rail/horse clearance still under review | [#20](https://github.com/nuentoter/dust-and-debt/issues/20) |
 | 2.9 | Presentation and Reliability — in progress | Settings panel, graphics/weather/hints controls, schema validation, backup recovery, further profiling and CI review | [#13](https://github.com/nuentoter/dust-and-debt/issues/13) |
 | 3.0 | Living Frontier Release | Integrated testing, documentation and a verified source release | [#14](https://github.com/nuentoter/dust-and-debt/issues/14) |
 
