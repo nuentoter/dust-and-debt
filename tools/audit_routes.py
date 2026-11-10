@@ -87,7 +87,7 @@ def audit():
             "This report makes no claims about existing game runtime frame rate."]
     }
 
-def physical_audit(step=90):
+def physical_audit(step=20):
     """Sample real collision inputs along all baseline road/rail centerlines.
 
     Inspection is diagnostic only: missing water crossings must be repaired,
