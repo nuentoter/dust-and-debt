@@ -135,6 +135,36 @@ SECONDARY_ROADS=tuple((key,path(points)) for key,points in SECONDARY_ROADS_SRC)
 SECONDARY_ROADS+=(("cinder_creek_approach",
  ((6000,4300),*path(((122,167),(145,215),(178,277))))),)
 
+# Authored last-mile paths (source-map pixels): fishing banks and established
+# camp clearings. These are narrow *foot/horse* trails, not wagon shortcuts.
+TRAILS_SRC=(
+ ("fish_frostvein_e","fishing","Frostvein East Bank",((549,232),(543,198),(557,148))),
+ ("fish_frostvein_w","fishing","Frostvein West Bank",((549,232),(490,215),(446,155))),
+ ("fish_northstar_w","fishing","Northstar West Shore",((930,352),(880,303),(893,244))),
+ ("fish_northstar_e","fishing","Northstar East Shore",((1057,306),(1064,272),(1048,244))),
+ ("fish_sable","fishing","Sable River Eddy",((376,552),(386,569),(392,575))),
+ ("fish_blackwater","fishing","Blackwater South Bank",((1049,607),(1010,628),(960,619))),
+ ("fish_roan","fishing","Roan Creek Pool",((1124,442),(1105,451),(1094,446))),
+ ("fish_riversend","fishing","Riversend Channel Bank",((811,662),(845,682),(850,715))),
+ ("fish_dustwell","fishing","Dustwell Wash Bank",((562,726),(550,752),(525,760))),
+ ("fish_cypress","fishing","Cypress Bayou Shore",((1209,746),(1166,776),(1120,784))),
+ ("fish_harpers","fishing","Harper's Landing Fishing",((1049,607),(1053,626),(1045,632))),
+ ("fish_brigids","fishing","Saint Brigid's Pier",((819,891),(823,878))),
+ ("camp_dustwell","camp","Dustwell Road Camp",((415,788),(403,767),(410,764))),
+ ("camp_cinder","camp","Cinder Ridge Shelter",((178,277),(155,318),(150,340))),
+ ("camp_graystone","camp","Graystone Mountain Camp",((370,356),(385,300),(385,240))),
+ ("camp_everwood","camp","Everwood Hunter Camp",((1150,209),(1120,218),(1110,200))),
+ ("camp_cedarheart","camp","Cedarheart Forest Camp",((1313,473),(1285,486),(1260,510))),
+ ("camp_heartland","camp","Heartland Wagon Camp",((810,479),(785,452),(760,430))),
+ ("camp_sable","camp","Sable River Camp",((424,538),(450,564),(500,559))),
+ ("camp_roan","camp","Roan Creek Camp",((1124,442),(1140,448),(1155,435))),
+ ("camp_redthorn","camp","Red Thorn Canyon Camp",((328,599),(285,590),(260,605))),
+ ("camp_sundown","camp","Sundown Plateau Camp",((288,759),(230,740),(160,730))),
+ ("camp_redmesa","camp","Red Mesa Buttes Camp",((625,758),(610,745))),
+ ("camp_cypress","camp","Cypress Bayou Camp",((1031,803),(1045,776),(1050,755))),
+)
+TRAILS=tuple((key,kind,name,path(points)) for key,kind,name,points in TRAILS_SRC)
+
 def _crossing(a,b,c,d):
  """Intersection of two finite line segments; return the crossing and road heading."""
  ux,uy=b[0]-a[0],b[1]-a[1]
@@ -200,6 +230,9 @@ def near_polyline(x,y,points,radius):
 def travel_road(x,y):
  return any(near_polyline(x,y,route,90) for route in ROADS+RAILS) or any(
   near_polyline(x,y,points,55) for _,points in SECONDARY_ROADS)
+
+def travel_trail(x,y):
+ return any(near_polyline(x,y,pts,36) for _,_,_,pts in TRAILS)
 
 def river_at(x,y):
  # Primary named waterways. Additional narrow streams remain purely decorative.
@@ -283,6 +316,13 @@ def draw_local_geography(canvas,camx,camy,width,height):
    canvas.create_line(x1,y1,x2,y2,width=72,fill='#a58b69',capstyle='round')
    canvas.create_line(x1,y1,x2,y2,width=46,fill='#c4a77d',capstyle='round')
    canvas.create_line(x1,y1,x2,y2,width=2,fill='#e6ca98',dash=(15,24))
+ for key,kind,name,points in TRAILS:
+  for a,b in zip(points,points[1:]):
+   if not visible(a,b):continue
+   x1,y1=xy(a);x2,y2=xy(b)
+   canvas.create_line(x1,y1,x2,y2,width=33,fill='#847358',capstyle='round')
+   canvas.create_line(x1,y1,x2,y2,width=18,fill='#b9a47e',capstyle='round')
+   canvas.create_line(x1,y1,x2,y2,width=2,fill='#dfcaa0',dash=(7,19))
  for points in RAILS:
   for a,b in zip(points,points[1:]):
    if not visible(a,b):continue
@@ -432,6 +472,7 @@ def draw_atlas(canvas,view,rect):
    canvas.create_oval(x1,y1,x2,y2,fill='#7ba2a8',outline='#536f75',width=2)
  for points in ROADS:draw_route(points,'#9c7656',2,(5,6))
  for _,points in SECONDARY_ROADS:draw_route(points,'#b48d61',1.5,(4,7))
+ for _,_,_,pts in TRAILS:draw_route(pts,'#8d7156',1,(2,6))
  for points in RAILS:draw_route(points,'#a45546',3,(4,3))
  for key,name,tx,ty,kind in TOWNS:
   if not vis((tx,ty)):continue
