@@ -138,6 +138,7 @@ def main():
                 print('  %s: %d blocked (water=%d, rock=%d, buildings=%d)' %
                       (name,item['blocked'],item['reasons']['water'],
                        item['reasons']['ridge_or_rock'],item['reasons']['building']))
+                print('    first failures:',item['first_failures'][:3])
     output=json.dumps(result,indent=2,sort_keys=True)+"\n"
     if args.json:
         dest=Path(args.json)
