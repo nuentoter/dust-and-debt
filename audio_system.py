@@ -3,11 +3,13 @@
 Sound routing is decoupled from Tkinter. Without a media player, game remains
 functional and uses the opt-in system bell. With ffplay (or mpv), small original
 WAV cues and atmospheric loops are generated lazily with the standard library.
-A supplied theme file at assets/audio/music/title.m4a takes precedence, but is
-not bundled. Volume levels apply to newly started streams.
+Custom tracks in assets/audio/music/ override the original score, including
+the player's title theme. WAV score loops are synthesized on demand and cached.
+Volume levels apply to newly started streams.
 """
 import os,shutil,subprocess,time
 from audio_assets import ensure_wav
+from music_score import ensure_score
 
 CUES = frozenset((
     "gunshot", "reload", "lasso", "hogtie", "bounty_complete",
@@ -22,9 +24,15 @@ class AudioDirector:
         self.clock=clock or time.monotonic
         self.assets_path=assets_path
         self.cache_path=cache_path or os.path.join(os.path.expanduser("~"),".cache","dust-and-debt","audio")
-        self.player=(shutil.which("ffplay") or shutil.which("mpv")) if assets_path else None
-        self.backend=("ffplay" if self.player and os.path.basename(self.player)=="ffplay" else
-                      "mpv" if self.player else "bell" if bell else "none")
+        self.player=None
+        self.backend="bell" if bell else "none"
+        if assets_path:
+            for candidate in ("ffplay","mpv","pw-play","aplay"):
+                result=shutil.which(candidate)
+                if result:
+                    self.player=result
+                    self.backend=candidate
+                    break
         self.enabled=False
         self.music_enabled=False
         self.master_volume=.7
@@ -45,11 +53,17 @@ class AudioDirector:
                   "-volume",str(value)]
             if loop:args+=["-stream_loop","-1"]
             args+=["-autoexit",file]
-        else:
+        elif self.backend=="mpv":
             args=[self.player,"--no-config","--no-video","--really-quiet",
                   "--volume="+str(value)]
             if loop:args+=["--loop-file=inf"]
             args.append(file)
+        elif self.backend=="pw-play":
+            if os.path.splitext(file)[1].lower()!=".wav":return None
+            args=[self.player,"--volume",str(round(value/100,3)),file]
+        else:  # aplay: WAV-only, ALSA handles output routing
+            if os.path.splitext(file)[1].lower()!=".wav":return None
+            args=[self.player,"-q",file]
         try:
             return subprocess.Popen(args,stdin=subprocess.DEVNULL,
                                     stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,
@@ -92,12 +106,11 @@ class AudioDirector:
     def _music_file(self,state):
         if not self.assets_path or state=="silence":return None
         folder=os.path.join(self.assets_path,"music")
-        for ext in (".ogg",".m4a",".mp3",".wav"):
+        extensions=(".wav",) if self.backend in ("pw-play","aplay") else (".ogg",".m4a",".mp3",".wav")
+        for ext in extensions:
             path=os.path.join(folder,state+ext)
             if os.path.isfile(path):return path
-        # Do not replace the user's intended Forsaken to This Land title theme.
-        if state=="title":return None
-        return ensure_wav(self.cache_path,"music",state)
+        return ensure_score(self.cache_path,state)
 
     def set_music_state(self,state):
         if state not in MUSIC_STATES:return False
@@ -113,6 +126,15 @@ class AudioDirector:
     def refresh_music(self):
         self._stop_music()
         if not self.music_enabled or not self.player or self.music_state=="silence":return
+        try:file=self._music_file(self.music_state)
+        except (OSError,ValueError):return
+        self.music_process=self._run(file,self.master_volume*self.music_volume,True)
+
+    def service(self):
+        """Restart finished WAV loops for PipeWire/ALSA players without built-in looping."""
+        if not self.music_enabled or not self.player or self.music_state=="silence":return
+        if self.backend not in ("pw-play","aplay"):return
+        if self.music_process and self.music_process.poll() is None:return
         try:file=self._music_file(self.music_state)
         except (OSError,ValueError):return
         self.music_process=self._run(file,self.master_volume*self.music_volume,True)
