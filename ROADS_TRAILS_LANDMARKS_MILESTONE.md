@@ -7,6 +7,8 @@
 **Sequence:** Finish and test **before** implementing autonomous traveler pathfinding  
 **Repository:** `nuentoter/dust-and-debt` / `main`
 
+**Implementation architecture and staged commits:** [ROADS_TRAILS_TECHNICAL_PLAN.md](ROADS_TRAILS_TECHNICAL_PLAN.md)
+
 ## 1. Goal and player experience
 
 Create a **legible, continuous travel network** across all populated mainland New Austellia. Towns should be reachable by believable wagon roads; smaller settlements and businesses should connect by lesser roads; camps, fishing holes and scenic sites should be reachable by well-authored foot/horse trails branching from that network. The visual language must explain where to travel without requiring HUD waypoints.
