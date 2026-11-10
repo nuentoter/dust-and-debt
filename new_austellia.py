@@ -307,15 +307,25 @@ def draw_local_geography(canvas,camx,camy,width,height):
   for a,b in zip(points,points[1:]):
    if not visible(a,b):continue
    x1,y1=xy(a);x2,y2=xy(b)
-   canvas.create_line(x1,y1,x2,y2,width=100,fill="#cbb18a")
-   canvas.create_line(x1,y1,x2,y2,width=2,fill="#e4c99d",dash=(14,20))
+   dx=x2-x1;dy=y2-y1
+   length=math.hypot(dx,dy) or 1.
+   nx,ny=-dy/length,dx/length
+   # Soft road shoulder, compacted center, wheel wear.
+   canvas.create_line(x1,y1,x2,y2,width=126,fill="#9f8c6f",capstyle='round')
+   canvas.create_line(x1,y1,x2,y2,width=101,fill="#cbb18a",capstyle='round')
+   canvas.create_line(x1,y1,x2,y2,width=76,fill="#d6bb92",capstyle='round')
+   for sign in (-1,1):
+    shift=sign*29
+    canvas.create_line(x1+nx*shift,y1+ny*shift,x2+nx*shift,y2+ny*shift,
+                       width=3,fill="#9d8566",dash=(20,18))
  for key,points in SECONDARY_ROADS:
   for a,b in zip(points,points[1:]):
    if not visible(a,b):continue
    x1,y1=xy(a);x2,y2=xy(b)
-   canvas.create_line(x1,y1,x2,y2,width=72,fill='#a58b69',capstyle='round')
-   canvas.create_line(x1,y1,x2,y2,width=46,fill='#c4a77d',capstyle='round')
-   canvas.create_line(x1,y1,x2,y2,width=2,fill='#e6ca98',dash=(15,24))
+   canvas.create_line(x1,y1,x2,y2,width=84,fill='#8e7a5e',capstyle='round')
+   canvas.create_line(x1,y1,x2,y2,width=60,fill='#b59a76',capstyle='round')
+   canvas.create_line(x1,y1,x2,y2,width=31,fill='#c4a77d',capstyle='round')
+   canvas.create_line(x1,y1,x2,y2,width=2,fill='#8e7457',dash=(18,26))
  for key,kind,name,points in TRAILS:
   for a,b in zip(points,points[1:]):
    if not visible(a,b):continue
