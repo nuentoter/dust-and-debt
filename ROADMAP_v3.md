@@ -5,7 +5,7 @@
 **Release target:** v3.0 — Living Frontier  
 **Operating model:** GitHub-first development, one milestone at a time; user pulls the current main branch when desired.
 
-**v2.4, v2.5, the 10× world map, v2.6 regional gameplay, the New Austellia geography, and v2.7 Handcrafted Frontier are implemented and Linux-CI tested.** Optional procedural WAV effects and background atmospheres work with ffplay/mpv. The user's actual title recording, production SFX, mixing and remaining v2.7–v3.0 features remain to be finished.
+**v2.4, v2.5, the 10× world map, v2.6 regional gameplay, the New Austellia geography, and v2.7 Handcrafted Frontier are implemented and Linux-CI tested.** Original procedural Western instrumental score, WAV effects and background atmospheres use ffplay/mpv or PipeWire/ALSA CLI fallback where installed. The user's actual title recording, production SFX, mixing and remaining v2.7–v3.0 features remain to be finished.
 
 ## Timeline / dependency map
 
