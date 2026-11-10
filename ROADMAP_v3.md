@@ -59,7 +59,7 @@ v3.0 Living Frontier Release        #14
   comprehensive verification • release packaging
 ```
 
-**Navigation-first decision (November 9, 2026):** Implement [v2.9-map Roads, Trails & Landmarks #20](https://github.com/nuentoter/dust-and-debt/issues/20) before any new autonomous traveler system. Engineering checklist: [ROADS_TRAILS_LANDMARKS_MILESTONE.md](ROADS_TRAILS_LANDMARKS_MILESTONE.md). This is a specification, not completed road implementation.
+**Navigation-first decision (November 9, 2026):** Implement [v2.9-map Roads, Trails & Landmarks #20](https://github.com/nuentoter/dust-and-debt/issues/20) before any new autonomous traveler system. Engineering checklist: [ROADS_TRAILS_LANDMARKS_MILESTONE.md](ROADS_TRAILS_LANDMARKS_MILESTONE.md). Technical build plan: [ROADS_TRAILS_TECHNICAL_PLAN.md](ROADS_TRAILS_TECHNICAL_PLAN.md). This is a specification, not completed road implementation.
 
 ## Milestone map
 
