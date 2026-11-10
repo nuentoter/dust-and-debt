@@ -28,7 +28,16 @@ def main():
    g.map_zoom=True;g.map_center=[g.x,g.y];g.render()
    g.map_open=False;g.render()
   assert len(DESTINATIONS)==24
+  rest_site=campsites()[0]
+  g.x,g.y=rest_site.x,rest_site.y
+  g.mounted=False;g.interior=None;g.hp=30
+  assert g.rest_at_frontier_camp()
+  assert rest_site.id in g.camps_used and g.hp>=60
+  assert not g.rest_at_frontier_camp(), 'One free rest per named camp'
   assert g.save(manual=True)
+  loaded=game.Game(root);loaded.continue_game()
+  assert rest_site.id in loaded.camps_used
+  loaded.audio.stop()
   g.audio.stop();root.destroy()
   print("OK: world, atlas and minimap render at 4 destination sites in Normal/Low detail")
   print("Samples (mode,site,ms,canvas objects):",results)
