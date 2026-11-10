@@ -71,6 +71,9 @@ jobs:
       - name: v2.9-map phase 0-1 atlas route graph baseline
         run: python3 tests/route_geometry_test.py
 
+      - name: Fishing, camp and road route integration
+        run: python3 tests/route_destinations_test.py
+
       - name: Audit physical road and rail clearance (diagnostic)
         run: python3 tools/audit_routes.py --physical --json /tmp/dust_debt_road_audit.json
 
