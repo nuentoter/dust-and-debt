@@ -1,71 +1,48 @@
-# Dust & Debt sound and music (v2.6)
+# Dust & Debt — original recorded soundtrack
 
-**Actual audio playback is now available, but optional.** The code works
-silently without an audio player. It plays through `ffplay` (preferred) or
-`mpv` when one is installed and available on `PATH`. Otherwise **V** uses the
-original Tk system bell as a small fallback.
+The creator has already composed/collected **twelve M4A recordings** for the game. The gameplay soundtrack uses those original files, **not a procedurally generated Western substitute**. The project Library contains their filenames, but the raw media data has not yet been added to this GitHub repository.
 
-On Archcraft/Arch Linux, one optional command is:
+## Install actual recordings
+
+Copy all original files into `assets/audio/music/` *with their current filenames*. Or use the idempotent installer, pointing at the folder where the original audio files live:
 
 ```bash
-sudo pacman -S ffmpeg
+cd ~/dust-and-debt-github
+python tools/install_soundtrack.py "$HOME/Music/Dust-and-Debt"
 ```
 
-This provides `ffplay`. The game does not install packages automatically.
+The installer prints which files were installed or missing and copies without changing audio encoding. If you only have the tracks in the ChatGPT Library, retrieve the M4As there first. Files must actually exist on disk for playback.
 
-## Controls
+**Title:** `Forsaken to This Land.m4a` (the agreed original opening theme).
 
-- **V** — toggle game sound effects (off by default).
-- **O** — toggle background music/ambience (off by default).
-- Enable **O** on the title screen to hear a supplied title theme.
-- Preferences are saved with the game. No audio file or device is required to start.
+**Wilderness:** `Whistling the Frontier.m4a`, `Dust on Our Sleeves.m4a`, `Mournful Frontier Ballad.m4a`.
 
-## Sounds bundled as code (not recordings)
+**Town:** `The Good.m4a`, `Sol de Harmonica.m4a`, `Mm-Hmm.m4a`.
 
-`audio_assets.py` lazily creates small, **original synthesized WAV samples**
-the first time they are needed. These include gunfire, reloading, rope movement,
-hogtie, horse, door, purchases and positive completion cues, and five atmospheric
-sound beds for town, wilderness, night, interior and combat. They are intentionally
-low-key temporary effects. They are **not realistic recorded SFX** and the beds
-are **not a replacement for the game's bespoke title song**.
+**Night:** `Rainy Night Blues.m4a`, `Why Me.m4a`, `Mournful Hymn.m4a`.
 
-WAV files are generated only in `~/.cache/dust-and-debt/audio/` to keep the Git
-repository small and the game dependency-light. Music loops using an external,
-isolated player process; scene changes stop the previous loop. The game does not
-wait for or depend on these processes to run. Volume settings are stored in the
-audio director and apply when a new clip begins.
+**Interior:** `Sol de Harmonica.m4a`, `Mournful Hymn.m4a`.
 
-## Adding the intended opening theme
+**Combat:** `Blood Money Spends.m4a`.
 
-The user-created composition **“Forsaken to This Land”** is the intended
-cinematic/title theme. Its audio data is **not in this repository yet**. To
-connect the actual previously composed track, copy the authorized recording to
+**Unassigned:** `Untitled.m4a` is copied but deliberately not used until its intended role is known.
 
-```text
-assets/audio/music/title.m4a
+These assignments are provisional. Edit the Python tuple lists in `soundtrack_manifest.py` to change which music plays where. Playlists rotate when a track finishes. `title.m4a`, `town.m4a` etc. also work as direct scene overrides.
+
+## Playback on Linux
+
+Install a supported M4A-capable command-line player if necessary:
+
+```bash
+sudo pacman -S mpv
 ```
 
-or `title.ogg`, `title.mp3` or `title.wav`. This title recording overrides
-any generated fallback. No recreated MIDI/theme approximation is substituted.
+`ffplay` (FFmpeg) also works. `pw-play` / `aplay` only handle WAV music files and cannot decode these M4As unaided. The title screen displays the detected backend and number of installed recordings.
 
-You can also put original or properly licensed background tracks in
+**O** toggles music (on by default for the new music update). **V** toggles effects. In-game **F8 → 5** toggles music, and your choice saves. Missing music tracks cause silence, never a generated replacement.
 
-```text
-assets/audio/music/town.ogg
-assets/audio/music/wilderness.ogg
-assets/audio/music/night.ogg
-assets/audio/music/combat.ogg
-assets/audio/music/interior.ogg
-```
+The earlier procedural WAV **sound effects** in `audio_assets.py` are separate and remain optional. Their bell fallback works even when music is unavailable.
 
-Real audio files at these paths take priority over procedurally generated beds.
-Additional effects use the matching `assets/audio/sfx/<cue>.wav` names.
-Do not add third-party sound recordings without checking distribution rights.
+## Distribution and polish
 
-## Future polish
-
-Properly recorded horse footsteps, gunshots, wind/rain, transitions, crossfades,
-independent in-game volume controls and a verified packaged soundtrack still
-need to be created. The v2.6 audio work proves playback and scene handling; it
-is **not yet a finished professional audio mix**. See the Audio Sprint issue for
-the remaining production tasks.
+Only upload/distribute these M4As if you hold the necessary rights. The user-owned recordings have not yet been copied into GitHub by this assistant because the Library file entries could not be materialized as raw bytes in the current environment. Crossfades, volume sliders and real-device testing remain open in the audio sprint issue.
