@@ -35,6 +35,18 @@ def destinations_in_view(camx,camy,width,height,pad=170):
 
 def draw_destinations(canvas,camx,camy,width,height,detail="normal"):
     """Camera-cull decorative pads. Never create invisible collision shapes."""
+    # Trailhead wayfinding: signs can be visible even when the camp or bank
+    # itself is beyond the current camera window.
+    for site in DESTINATIONS:
+        sx,sy=site.trailhead[0]-camx,site.trailhead[1]-camy
+        if not(-75<sx<width+75 and -95<sy<height+75):continue
+        tint="#609c9b" if site.kind=="fishing" else "#b28b53"
+        canvas.create_line(sx,sy+15,sx,sy-23,fill="#654a36",width=6)
+        canvas.create_rectangle(sx-36,sy-33,sx+36,sy-12,
+                                fill="#79573a",outline="#3c2b1f",width=2)
+        canvas.create_text(sx,sy-23,text="FISHING" if site.kind=="fishing" else "CAMP",
+                           fill="#ecdfba",font=("DejaVu Sans",8,"bold"))
+        canvas.create_oval(sx-6,sy+12,sx+6,sy+18,fill=tint,outline="")
     for site in destinations_in_view(camx,camy,width,height):
         x,y=site.x-camx,site.y-camy
         if site.kind=="camp":
