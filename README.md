@@ -1,3 +1,23 @@
+## Original music integrated — adaptive Western score (November 2026)
+
+**Dust & Debt now includes actual instrumental music**, not just an ambience/drone placeholder. Six original, procedurally composed tracks are generated to your local cache on first use (standard library only): **title, town, wilderness, night, interior and combat**. Instruments evoke plucked guitar, bass, distant reed/whistle and muted hoof/brush percussion. The music changes automatically with the scene. The title screen starts with an original instrumental theme; this is **not a recording of** the previously planned vocal/title song, *Forsaken to This Land*, which can still be supplied separately.
+
+Music is switched **ON by default** on the first launch of this update, including existing saves once. Press **O** to toggle quickly or use **F8 → 5**; your preference is saved and respected on subsequent launches. The title screen displays the audio backend. SFX are independent (press **V** or F8 → 4).
+
+### Linux playback prerequisites
+
+No pip package is required, but the computer needs a command-line audio player installed. Automatically selected priority: **ffplay** (FFmpeg), **mpv**, **pw-play** (PipeWire), then **aplay** (ALSA). On Arch/Archcraft, if the title screen shows `PLAYER: BELL` or `NONE` and the music is silent, install a player:
+
+```bash
+sudo pacman -S mpv
+```
+
+Then **restart the game** (backend detection occurs on launch). The original WAV loops are cached under `~/.cache/dust-and-debt/audio/score_v1/`. Volume follows the existing master/music audio settings. The WAV-only backends repeat finished tracks via the game update cycle. If the audio backend is present but silence persists, first verify system audio routing and that output isn't muted.
+
+**Custom theme support:** Place a licensed/owned song as `assets/audio/music/title.ogg`, `title.m4a`, `title.mp3`, or `title.wav` (the WAV format works with every supported backend). Similarly override `town`, `wilderness`, `night`, `interior`, and `combat` by basename. Custom files take precedence over procedural tracks. No copyrighted recordings are bundled.
+
+Run `xvfb-run -a python3 tests/music_integration_test.py` to check synthesis, custom override, routing, and saved music toggles. The sound heard on the author's specific Archcraft machine still needs a real playback check.
+
 ## v2.9 development build — Presentation & Reliability (November 2026)
 
 **F8** opens an in-game settings panel while playing or paused (and while inside a building). Its numbered options toggle **graphics detail** (Normal/Low), weather effects, context-sensitive prompt hints, sound effects, and ambient music. F8 or Escape closes the panel; F5 saves. Low graphics detail skips decorative foreground scatter (not map geography, actors, critical markers or collision). Combat difficulty (F6) and aim assist (F7) remain separate.
