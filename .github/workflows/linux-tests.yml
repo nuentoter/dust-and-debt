@@ -82,9 +82,10 @@ jobs:
         run: xvfb-run -a python3 tests/route_render_test.py
 
       - name: Audit physical road and rail clearance (diagnostic)
-        run: python3 tools/audit_routes.py --physical --json /tmp/dust_debt_road_audit.json
+        run: python3 tools/audit_routes.py --physical --check --json /tmp/dust_debt_road_audit.json
 
       - name: Preserve detailed route audit for development
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: new-austellia-road-audit
