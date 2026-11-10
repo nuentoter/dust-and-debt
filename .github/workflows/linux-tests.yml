@@ -74,6 +74,9 @@ jobs:
       - name: Fishing, camp and road route integration
         run: python3 tests/route_destinations_test.py
 
+      - name: Camera-local route and destination art smoke test
+        run: xvfb-run -a python3 tests/route_render_test.py
+
       - name: Audit physical road and rail clearance (diagnostic)
         run: python3 tools/audit_routes.py --physical --json /tmp/dust_debt_road_audit.json
 
