@@ -920,7 +920,7 @@ class Game:
    self.sound_cue('menu');return
   if key=='o' and self.screen in ('title','playing','paused'):
    self.audio.set_music_enabled(not self.audio.music_enabled)
-   self.notify('ORIGINAL SCORE '+('ON' if self.audio.music_enabled else 'OFF')+' ('+self.audio.backend+')',3)
+   self.notify('RECORDED SOUNDTRACK '+('ON' if self.audio.music_enabled else 'OFF')+' ('+self.audio.backend+')',3)
    return
   if key=='f11':
    self.fullscreen=not self.fullscreen;self.root.attributes('-fullscreen',self.fullscreen);return
@@ -2476,7 +2476,7 @@ class Game:
  def draw_help(self):
   self.panel(190,52,580,506)
   self.draw_text(216,95,'HOW TO SURVIVE THE FRONTIER',19,'#efc58a',True)
-  controls=[('WASD / ARROWS','Move'),('SHIFT','Sprint / gallop'),('MOUSE CLICK','Aim and shoot'),('SPACE / R','Fire / reload'),('Q','Dead Eye'),('2 / F6 / F7','Weapon / difficulty / aim assist'),('E / SHIFT+E','Interact / enter buildings'),('H','Mount / dismount Whiskey'),('B','Accept bounty near sheriff'),('L','Lasso wanted targets or bandits'),('G','Hogtie roped outlaw (on foot)'),('E BY TIED TARGET','Pick up captive'),('E BY SHERIFF','Deliver prisoner alive (on foot)'),('1','Health tonic'),('M / J','Map / journal (TAB and Enter choose map towns)'),('F / T','Gather / camp'),('P','Take or collect paid work'),('N / U','Waystation road jobs / rumors'),('Y','Regional stories at Galloway / Roan Creek'),('I','Work ledger and horse condition'),('V / O','Sound effects / Western score'),('F5','Save game'),('F8','Graphics / sound settings'),('F11','Fullscreen'),('ESC / F1','Pause / help')]
+  controls=[('WASD / ARROWS','Move'),('SHIFT','Sprint / gallop'),('MOUSE CLICK','Aim and shoot'),('SPACE / R','Fire / reload'),('Q','Dead Eye'),('2 / F6 / F7','Weapon / difficulty / aim assist'),('E / SHIFT+E','Interact / enter buildings'),('H','Mount / dismount Whiskey'),('B','Accept bounty near sheriff'),('L','Lasso wanted targets or bandits'),('G','Hogtie roped outlaw (on foot)'),('E BY TIED TARGET','Pick up captive'),('E BY SHERIFF','Deliver prisoner alive (on foot)'),('1','Health tonic'),('M / J','Map / journal (TAB and Enter choose map towns)'),('F / T','Gather / camp'),('P','Take or collect paid work'),('N / U','Waystation road jobs / rumors'),('Y','Regional stories at Galloway / Roan Creek'),('I','Work ledger and horse condition'),('V / O','Sound effects / original soundtrack'),('F5','Save game'),('F8','Graphics / sound settings'),('F11','Fullscreen'),('ESC / F1','Pause / help')]
   for i,(k,v) in enumerate(controls):
    yy=127+i*16
    self.draw_text(218,yy,k,11,'#f4d59e',True)
@@ -2491,7 +2491,8 @@ class Game:
   self.draw_text(480,393,'ENTER  /  CLICK  —  NEW GAME',16,'#f6d5a0',True,anchor='center')
   if os.path.exists(SAVE):self.draw_text(480,473,'L  /  CLICK  —  CONTINUE',16,'#f0c28a',True,anchor='center')
   else:self.draw_text(480,473,'NO SAVED GAME YET',13,'#8c806e',anchor='center')
-  self.draw_text(480,540,'O: MUSIC '+('ON' if self.audio.music_enabled else 'OFF')+'   •   PLAYER: '+self.audio.backend.upper(),10,'#f3d09c',True,anchor='center')
+  self.draw_text(480,536,'O: ORIGINAL SOUNDTRACK '+('ON' if self.audio.music_enabled else 'OFF')+'   •   PLAYER: '+self.audio.backend.upper(),10,'#f3d09c',True,anchor='center')
+  self.draw_text(480,550,'RECORDINGS: '+str(self.audio.soundtrack_count())+' / 12',10,'#f3d09c',True,anchor='center')
   self.draw_text(480,569,VERSION+'  •  Linux  •  Python + Tkinter',11,'#d6b38e',anchor='center')
 
  def draw_settings(self):
@@ -2501,12 +2502,12 @@ class Game:
          ('2','Weather effects','ON' if self.weather_enabled else 'OFF'),
          ('3','Context hints','ON' if self.context_hints else 'OFF'),
          ('4','Sound effects','ON' if self.sound_on else 'OFF'),
-         ('5','Original score','ON' if self.audio.music_enabled else 'OFF')]
+         ('5','Recorded soundtrack','ON' if self.audio.music_enabled else 'OFF')]
   for i,(key,name,value) in enumerate(lines):
    y=225+i*40
    self.draw_text(267,y,key+'  '+name,14,'#e5ceac',True)
    self.draw_text(680,y,value,14,'#f7d392',True,anchor='e')
-  self.draw_text(480,431,'PLAYER: '+self.audio.backend.upper()+'   •   O: MUSIC',10,'#cbb89a',True,anchor='center')
+  self.draw_text(480,431,'PLAYER: '+self.audio.backend.upper()+'   •   '+str(self.audio.soundtrack_count())+'/12 TRACKS',10,'#cbb89a',True,anchor='center')
   self.draw_text(480,448,'F8 / ESC: CLOSE   •   F5: SAVE',11,'#d5b896',True,anchor='center')
 
  def draw_pause(self):
