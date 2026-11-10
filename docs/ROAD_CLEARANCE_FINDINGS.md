@@ -10,7 +10,7 @@
 - **2,975** total route-centerline samples; **147** collided (4.94%).
 - **54** blocked samples along wagon routes; **93** along rail corridors.
 - Failures: **141 water**, **6 buildings**, **0 ridge/rock** in this baseline sample.
-- **6** wagon routes with water failures, **2** wagon routes with building conflicts (one route could have both).
+- **5** wagon routes with water failures, **2** wagon routes with building conflicts (one route could have both).
 - This is point sampling, not continuous collision validation of full wagon or horse width. Some missed narrow obstacles or alternate safe lanes are possible; player/horse clearance must be tested separately.
 
 ### Per-route failures
