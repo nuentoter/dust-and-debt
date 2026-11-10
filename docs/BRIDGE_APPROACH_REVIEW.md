@@ -79,7 +79,7 @@ clipping, bends, repeat visits, land-anchor search, retained off-route probes,
 real wet approaches, unsupported terminals, horse-only building collisions,
 mode isolation, coarse sampling and missing/failed review gates.
 
-Next milestone work: remove phantom legacy-grid terrain protection while
-preserving authored routes and the starter parcel, then collect representative
-captures/performance baselines and prepare the user long-ride acceptance.
+Follow-up: [terrain-mask cleanup and visual/performance baseline](map_review/README.md)
+removes the phantom-grid protection and records actual captures. Rendering
+profiling, documented visual polish and user long-ride acceptance remain open.
 Traveler AI and milestone closure remain deferred.

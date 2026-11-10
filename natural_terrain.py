@@ -88,7 +88,7 @@ def near_protected(x,y,margin=150):
     """No ridges or major rocks on roads, rails, bridges, plazas, old map."""
     if x<4950 and y<3350:return True
     if near_atlas_town(x,y,450+margin):return True
-    # The vintage regional road grid survives temporarily near Cinder Creek.
+    # Only authored transport corridors clear natural cover; no phantom grid.
     if road_at(x,y) or travel_trail(x,y):return True
     if is_water(x,y):return True
     return False

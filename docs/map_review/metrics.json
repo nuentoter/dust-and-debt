@@ -1,0 +1,654 @@
+{
+  "source_commit": "13bdaff0fc28c37bbf7e5d20d11c348f1b533a73",
+  "game_sources_dirty": true,
+  "geometry_sha256": "8fdd554657b7193e4d25702239416bf0259ec859bfc17f09185ded396e420f03",
+  "seed": 1889,
+  "samples_per_view": 10,
+  "warmup_frames": 1,
+  "viewport": [
+    960,
+    600
+  ],
+  "timing_scope": "Game.render + Tk.update_idletasks; screenshot encoding excluded",
+  "p95_method": "nearest rank",
+  "python": "3.14.9",
+  "display": ":101",
+  "png_capture": true,
+  "game_import_seconds": 0.229068,
+  "rocks": 334,
+  "solid_rocks": 95,
+  "views": [
+    {
+      "id": "starter_seam",
+      "title": "Cinder Creek eastern/southern seam",
+      "detail": "normal",
+      "world_xy": [
+        4700,
+        3100
+      ],
+      "camera": [
+        4220,
+        2800
+      ],
+      "player_xy": [
+        4700,
+        3100
+      ],
+      "focus_solid_foot": false,
+      "focus_solid_horse": false,
+      "p50_ms": 125.958,
+      "p95_ms": 146.015,
+      "max_canvas_items": 284,
+      "frame_samples_ms": [
+        111.65,
+        125.711,
+        141.947,
+        118.688,
+        119.923,
+        126.205,
+        120.089,
+        146.015,
+        127.032,
+        141.009
+      ],
+      "capture": "starter_seam_normal.png"
+    },
+    {
+      "id": "grass_junction",
+      "title": "Larkfield grassland junction",
+      "detail": "normal",
+      "world_xy": [
+        36588,
+        19084
+      ],
+      "camera": [
+        36108,
+        18784
+      ],
+      "player_xy": [
+        36588,
+        19084
+      ],
+      "focus_solid_foot": false,
+      "focus_solid_horse": false,
+      "p50_ms": 224.608,
+      "p95_ms": 318.053,
+      "max_canvas_items": 364,
+      "frame_samples_ms": [
+        183.59,
+        271.397,
+        243.357,
+        291.284,
+        318.053,
+        205.86,
+        198.861,
+        176.727,
+        168.16,
+        277.682
+      ],
+      "capture": "grass_junction_normal.png"
+    },
+    {
+      "id": "desert_road",
+      "title": "Dustwell desert wagon approach",
+      "detail": "normal",
+      "world_xy": [
+        17196,
+        29721
+      ],
+      "camera": [
+        16716,
+        29421
+      ],
+      "player_xy": [
+        17196,
+        29721
+      ],
+      "focus_solid_foot": false,
+      "focus_solid_horse": false,
+      "p50_ms": 210.449,
+      "p95_ms": 264.222,
+      "max_canvas_items": 494,
+      "frame_samples_ms": [
+        203.799,
+        190.345,
+        232.268,
+        264.222,
+        223.408,
+        189.496,
+        212.662,
+        212.602,
+        208.297,
+        181.941
+      ],
+      "capture": "desert_road_normal.png"
+    },
+    {
+      "id": "desert_outskirts",
+      "title": "Copper Sands wagon road",
+      "detail": "normal",
+      "world_xy": [
+        13260.0,
+        28117.5
+      ],
+      "camera": [
+        12780,
+        27817
+      ],
+      "player_xy": [
+        13260.0,
+        28117.5
+      ],
+      "focus_solid_foot": false,
+      "focus_solid_horse": false,
+      "p50_ms": 163.835,
+      "p95_ms": 299.575,
+      "max_canvas_items": 200,
+      "frame_samples_ms": [
+        162.562,
+        185.704,
+        165.108,
+        299.575,
+        175.954,
+        192.637,
+        138.862,
+        122.523,
+        121.671,
+        126.679
+      ],
+      "capture": "desert_outskirts_normal.png"
+    },
+    {
+      "id": "forest_trail",
+      "title": "Everwood branch trail",
+      "detail": "normal",
+      "world_xy": [
+        46409,
+        8222
+      ],
+      "camera": [
+        45929,
+        7922
+      ],
+      "player_xy": [
+        46409,
+        8222
+      ],
+      "focus_solid_foot": false,
+      "focus_solid_horse": false,
+      "p50_ms": 113.982,
+      "p95_ms": 135.244,
+      "max_canvas_items": 171,
+      "frame_samples_ms": [
+        117.427,
+        113.876,
+        114.087,
+        111.748,
+        107.014,
+        121.347,
+        107.813,
+        108.161,
+        135.244,
+        116.146
+      ],
+      "capture": "forest_trail_normal.png"
+    },
+    {
+      "id": "river_bridge",
+      "title": "Blackwater town bridge",
+      "detail": "normal",
+      "world_xy": [
+        26851,
+        19235
+      ],
+      "camera": [
+        26371,
+        18935
+      ],
+      "player_xy": [
+        26851,
+        19235
+      ],
+      "focus_solid_foot": false,
+      "focus_solid_horse": false,
+      "p50_ms": 197.083,
+      "p95_ms": 342.734,
+      "max_canvas_items": 634,
+      "frame_samples_ms": [
+        176.993,
+        194.204,
+        169.779,
+        199.962,
+        166.833,
+        171.077,
+        218.122,
+        217.242,
+        342.734,
+        340.203
+      ],
+      "capture": "river_bridge_normal.png"
+    },
+    {
+      "id": "fishing_bank",
+      "title": "Northstar east fishing bank",
+      "detail": "normal",
+      "world_xy": [
+        43425,
+        9203
+      ],
+      "camera": [
+        42945,
+        8903
+      ],
+      "player_xy": [
+        43425,
+        9203
+      ],
+      "focus_solid_foot": false,
+      "focus_solid_horse": false,
+      "p50_ms": 182.547,
+      "p95_ms": 235.869,
+      "max_canvas_items": 220,
+      "frame_samples_ms": [
+        228.275,
+        215.014,
+        235.869,
+        183.738,
+        181.357,
+        140.108,
+        155.136,
+        163.752,
+        156.742,
+        204.598
+      ],
+      "capture": "fishing_bank_normal.png"
+    },
+    {
+      "id": "camp_clearing",
+      "title": "Everwood named camp",
+      "detail": "normal",
+      "world_xy": [
+        45994,
+        7543
+      ],
+      "camera": [
+        45514,
+        7243
+      ],
+      "player_xy": [
+        45994,
+        7543
+      ],
+      "focus_solid_foot": false,
+      "focus_solid_horse": false,
+      "p50_ms": 179.226,
+      "p95_ms": 206.06,
+      "max_canvas_items": 220,
+      "frame_samples_ms": [
+        165.74,
+        158.214,
+        165.146,
+        151.17,
+        198.668,
+        166.251,
+        192.201,
+        199.925,
+        206.06,
+        195.296
+      ],
+      "capture": "camp_clearing_normal.png"
+    },
+    {
+      "id": "legacy_grid_ridge",
+      "title": "Graystone ridge at former grid line",
+      "detail": "normal",
+      "world_xy": [
+        10200,
+        7458.368275862069
+      ],
+      "camera": [
+        9720,
+        7158
+      ],
+      "player_xy": [
+        10340,
+        7638.368275862069
+      ],
+      "focus_solid_foot": true,
+      "focus_solid_horse": true,
+      "p50_ms": 148.513,
+      "p95_ms": 339.829,
+      "max_canvas_items": 220,
+      "frame_samples_ms": [
+        252.634,
+        232.025,
+        337.636,
+        339.829,
+        139.342,
+        155.138,
+        121.199,
+        114.135,
+        114.142,
+        141.887
+      ],
+      "capture": "legacy_grid_ridge_normal.png"
+    },
+    {
+      "id": "starter_seam",
+      "title": "Cinder Creek eastern/southern seam",
+      "detail": "low",
+      "world_xy": [
+        4700,
+        3100
+      ],
+      "camera": [
+        4220,
+        2800
+      ],
+      "player_xy": [
+        4700,
+        3100
+      ],
+      "focus_solid_foot": false,
+      "focus_solid_horse": false,
+      "p50_ms": 114.118,
+      "p95_ms": 136.513,
+      "max_canvas_items": 229,
+      "frame_samples_ms": [
+        115.48,
+        112.757,
+        108.009,
+        109.963,
+        136.421,
+        115.923,
+        105.486,
+        136.513,
+        127.442,
+        108.656
+      ],
+      "capture": "starter_seam_low.png"
+    },
+    {
+      "id": "grass_junction",
+      "title": "Larkfield grassland junction",
+      "detail": "low",
+      "world_xy": [
+        36588,
+        19084
+      ],
+      "camera": [
+        36108,
+        18784
+      ],
+      "player_xy": [
+        36588,
+        19084
+      ],
+      "focus_solid_foot": false,
+      "focus_solid_horse": false,
+      "p50_ms": 198.098,
+      "p95_ms": 537.019,
+      "max_canvas_items": 349,
+      "frame_samples_ms": [
+        201.389,
+        152.919,
+        156.322,
+        194.807,
+        181.57,
+        244.404,
+        249.553,
+        265.233,
+        537.019,
+        194.093
+      ],
+      "capture": "grass_junction_low.png"
+    },
+    {
+      "id": "desert_road",
+      "title": "Dustwell desert wagon approach",
+      "detail": "low",
+      "world_xy": [
+        17196,
+        29721
+      ],
+      "camera": [
+        16716,
+        29421
+      ],
+      "player_xy": [
+        17196,
+        29721
+      ],
+      "focus_solid_foot": false,
+      "focus_solid_horse": false,
+      "p50_ms": 217.145,
+      "p95_ms": 323.947,
+      "max_canvas_items": 440,
+      "frame_samples_ms": [
+        212.41,
+        254.717,
+        242.413,
+        221.88,
+        252.023,
+        193.153,
+        323.947,
+        179.505,
+        179.705,
+        167.0
+      ],
+      "capture": "desert_road_low.png"
+    },
+    {
+      "id": "desert_outskirts",
+      "title": "Copper Sands wagon road",
+      "detail": "low",
+      "world_xy": [
+        13260.0,
+        28117.5
+      ],
+      "camera": [
+        12780,
+        27817
+      ],
+      "player_xy": [
+        13260.0,
+        28117.5
+      ],
+      "focus_solid_foot": false,
+      "focus_solid_horse": false,
+      "p50_ms": 147.966,
+      "p95_ms": 241.931,
+      "max_canvas_items": 147,
+      "frame_samples_ms": [
+        199.211,
+        127.535,
+        109.468,
+        112.98,
+        113.998,
+        226.921,
+        163.766,
+        132.166,
+        167.323,
+        241.931
+      ],
+      "capture": "desert_outskirts_low.png"
+    },
+    {
+      "id": "forest_trail",
+      "title": "Everwood branch trail",
+      "detail": "low",
+      "world_xy": [
+        46409,
+        8222
+      ],
+      "camera": [
+        45929,
+        7922
+      ],
+      "player_xy": [
+        46409,
+        8222
+      ],
+      "focus_solid_foot": false,
+      "focus_solid_horse": false,
+      "p50_ms": 108.642,
+      "p95_ms": 129.652,
+      "max_canvas_items": 148,
+      "frame_samples_ms": [
+        113.546,
+        103.665,
+        107.98,
+        113.051,
+        108.045,
+        125.915,
+        129.652,
+        108.822,
+        104.668,
+        108.461
+      ],
+      "capture": "forest_trail_low.png"
+    },
+    {
+      "id": "river_bridge",
+      "title": "Blackwater town bridge",
+      "detail": "low",
+      "world_xy": [
+        26851,
+        19235
+      ],
+      "camera": [
+        26371,
+        18935
+      ],
+      "player_xy": [
+        26851,
+        19235
+      ],
+      "focus_solid_foot": false,
+      "focus_solid_horse": false,
+      "p50_ms": 167.1,
+      "p95_ms": 182.833,
+      "max_canvas_items": 594,
+      "frame_samples_ms": [
+        159.011,
+        163.244,
+        182.638,
+        170.955,
+        155.843,
+        151.358,
+        173.737,
+        175.765,
+        149.755,
+        182.833
+      ],
+      "capture": "river_bridge_low.png"
+    },
+    {
+      "id": "fishing_bank",
+      "title": "Northstar east fishing bank",
+      "detail": "low",
+      "world_xy": [
+        43425,
+        9203
+      ],
+      "camera": [
+        42945,
+        8903
+      ],
+      "player_xy": [
+        43425,
+        9203
+      ],
+      "focus_solid_foot": false,
+      "focus_solid_horse": false,
+      "p50_ms": 179.517,
+      "p95_ms": 314.063,
+      "max_canvas_items": 165,
+      "frame_samples_ms": [
+        111.9,
+        110.238,
+        139.024,
+        166.278,
+        190.974,
+        314.063,
+        223.762,
+        189.252,
+        177.988,
+        181.045
+      ],
+      "capture": "fishing_bank_low.png"
+    },
+    {
+      "id": "camp_clearing",
+      "title": "Everwood named camp",
+      "detail": "low",
+      "world_xy": [
+        45994,
+        7543
+      ],
+      "camera": [
+        45514,
+        7243
+      ],
+      "player_xy": [
+        45994,
+        7543
+      ],
+      "focus_solid_foot": false,
+      "focus_solid_horse": false,
+      "p50_ms": 133.763,
+      "p95_ms": 167.543,
+      "max_canvas_items": 155,
+      "frame_samples_ms": [
+        157.752,
+        119.949,
+        137.763,
+        121.352,
+        140.497,
+        120.773,
+        129.763,
+        114.994,
+        167.543,
+        147.208
+      ],
+      "capture": "camp_clearing_low.png"
+    },
+    {
+      "id": "legacy_grid_ridge",
+      "title": "Graystone ridge at former grid line",
+      "detail": "low",
+      "world_xy": [
+        10200,
+        7458.368275862069
+      ],
+      "camera": [
+        9720,
+        7158
+      ],
+      "player_xy": [
+        10340,
+        7638.368275862069
+      ],
+      "focus_solid_foot": true,
+      "focus_solid_horse": true,
+      "p50_ms": 129.732,
+      "p95_ms": 176.419,
+      "max_canvas_items": 160,
+      "frame_samples_ms": [
+        147.776,
+        123.526,
+        130.439,
+        156.056,
+        128.593,
+        176.419,
+        129.025,
+        131.839,
+        117.524,
+        118.247
+      ],
+      "capture": "legacy_grid_ridge_low.png"
+    }
+  ],
+  "game_init_seconds": 1.438091,
+  "peak_rss_kib": 172100
+}

@@ -3,7 +3,7 @@
 **Companion specification:** [ROADS_TRAILS_LANDMARKS_MILESTONE.md](ROADS_TRAILS_LANDMARKS_MILESTONE.md)  
 **Milestone:** v2.9-map, GitHub issue #20 — prerequisite to autonomous travelers  
 **Plan status:** IMPLEMENTATION IN PROGRESS. Sampled route clearance passes; sampled bridge approaches pass, integrated acceptance remains open.
-**Date:** November 9, 2026  
+**Date:** November 10, 2026
 **Target:** Python 3 + Tkinter on low-end Archcraft/X11 hardware; no additional runtime dependencies  
 **Source of truth:** New Austellia world dimensions **60,000×40,960**, atlas source dimensions **1448×1086**, existing town/river/road/rail/bridge definitions
 
@@ -15,9 +15,11 @@ The 10-unit foot/horse center-and-margin audit passes for roads, trails and rail
 CI requires rail clearance explicitly. All 50 bridge records pass scoped route-approach checks; the seven off-route
 tangent probes are documented in [bridge approach review](docs/BRIDGE_APPROACH_REVIEW.md).
 See [rail/bridge results](docs/RAIL_BRIDGE_PROGRESS.md)
-and [the current audit](docs/road_audit.json). Legacy-grid protection cleanup,
-representative captures, performance baselines and user ride acceptance remain
-open. Unchecked items below remain requirements, not a claim of no implementation.
+and [the current audit](docs/road_audit.json). Legacy-grid protection is retired.
+[Visual/performance review](docs/map_review/README.md) provides 18 Normal/Low
+captures, retained before captures and measured Xvfb/graph baselines. Starter-spur scaled-map parity, rendering
+profiling, documented visual polish, real-hardware checks and user ride acceptance
+remain open. Unchecked items below remain requirements, not a claim of no implementation.
 
 ## 0. Engineering decisions
 
@@ -38,18 +40,18 @@ open. Unchecked items below remain requirements, not a claim of no implementatio
 | `WATERWAYS`, `LAKES`, `COAST_POLYGON`, `BRIDGES`, `bridge_at`, `is_water` | `new_austellia.py` | Water collision is geometric and bridge-limited. A road visually painted across water is **not** guaranteed passable |
 | `draw_local_geography()` | `new_austellia.py` | Currently renders rivers/lakes, 100-world-unit wagon roads, rails and bridge decks in a fixed order; route strokes must migrate without double-drawing |
 | `draw_atlas()` | `new_austellia.py` | World-map vector map draws its own road/rail strokes; when an illustrated PNG is available, full-map display currently bypasses this vector route layer |
-| `ROAD_X`, `ROAD_Y`, `START_SPUR`, `road_at()`, `WAYSTATIONS` | `frontier_world.py` | Old-grid road predicates still exist near the starter area. `START_SPUR` art is drawn separately and should converge with route data |
+| `ROAD_X`, `ROAD_Y`, `START_SPUR`, `road_at()`, `WAYSTATIONS` | `frontier_world.py` | Legacy grid constants are deprecated and have no runtime effect. Authored route masks and the preserved starter spur protect terrain; spur art remains separately drawn |
 | `near_protected()`, `ROCKS`, `landform_solid()` | `natural_terrain.py` | Rocks are generated and filtered once at module import. New protected route corridors must be defined **before** rock filtering or via a compatible override |
 | `Game.solid()` (line ~236), `can_move()`, `move_actor()` | `game.py` | Water, rock/cliff, then building checks. Test the precise player-radius/horse steps used in the game |
 | `draw_far_terrain()` and `draw_world()` (~1993, ~2063) | `game.py` | Scene order is terrain → atlas geography → old parcel overlay → towns/landmarks/waystations → decoration → actors. Route art must respect this |
 | `draw_scattered_props()` | `game.py` | Existing decor excludes `is_frontier_road()` only. Add new route corridor awareness before rendering shrubs/rocks across trails |
-| `draw_minimap()` (~2262) | `game.py` | **Still renders straight ROAD_X / ROAD_Y grid strokes**, even while the full world uses traced atlas routes. Replace with the same route polylines |
-| `draw_map()` (~2328) | `game.py` | Whole map may display `austellia_image` PNG, whereas zoomed map uses vector `draw_atlas`. Overlay added paths on **both** views |
+| `draw_minimap()` (~2262) | `game.py` | Uses clipped authored road/secondary/trail/rail polylines from the shared route-art layer; keep projection parity covered by tests |
+| `draw_map()` (~2328) | `game.py` | Full illustrated and zoomed vector modes now overlay authored routes and destination markers; preserve map controls and projection parity |
 | `draw_starting_transition()` | `new_austellia.py` | Keep the hand-painted map boundary visually soft; do not route inside existing impassable houses |
 | `draw_waystations()`, `LANDMARKS` | `frontier_world.py` | 13 waystations should be real graph destinations; old "camp" landmark category is not proof of a new physical campsite |
 | `Game.rest_at_frontier_camp()`, `camps_used`, `landmarks_found` | `game.py` | Optional future interaction integrations must not erase existing camp progression or discovery state |
 
-**Known structural risk:** `new_austellia.travel_road()` currently includes both `ROADS` and `RAILS`; `frontier_world.road_at()` includes a legacy grid in one region. Neither is an adequate authoritative *wagon* graph. The milestone explicitly separates them.
+**Mode contract:** Environmental cover/scenery masks intentionally include authored roads and rail corridors. They are not wagon-navigation eligibility. The retired grid has no runtime influence; wagon/rail/foot/horse navigation continues to use the route graph's explicit modes.
 
 ## 2. System layout and dependency direction
 

@@ -21,7 +21,7 @@ import deadwood_pulp as pulp
 from road_events import (EVENT_TYPES,EVENT_TITLES,offer_for_day,nearby_station,
                         dispatch_rumor,safe_event_position,nearest_landmark)
 from frontier_world import (WORLD_WIDTH,WORLD_HEIGHT,SECTOR_W,SECTOR_H,SECTOR_NAMES,
- BIOME_PALETTES,BIOME_GRID,LANDMARKS,ROAD_X,ROAD_Y,START_SPUR,MAP_RECT,
+ BIOME_PALETTES,BIOME_GRID,LANDMARKS,START_SPUR,MAP_RECT,
  region_at,biome_at,near_landmark,landmark_by_key,road_at,map_view,
  point_on_map,world_from_map,draw_map_background,draw_landmark,
  WAYSTATIONS,near_waystation,waystation_by_key,draw_waystations)

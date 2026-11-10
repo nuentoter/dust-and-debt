@@ -1,0 +1,18 @@
+{
+  "geometry_sha256": "8fdd554657b7193e4d25702239416bf0259ec859bfc17f09185ded396e420f03",
+  "python": "3.14.9",
+  "build_samples_seconds": [
+    0.02744797198101878,
+    0.01762242498807609,
+    0.013667315011844039,
+    0.010152442002436146,
+    0.01634600802208297
+  ],
+  "p50_seconds": 0.01634600802208297,
+  "p95_seconds": 0.02744797198101878,
+  "nodes": 211,
+  "edges": 238,
+  "segments": 208,
+  "peak_process_rss_kib": 24224,
+  "scope": "five fresh RouteGraph constructions after imports; no Tk/game window"
+}

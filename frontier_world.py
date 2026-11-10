@@ -41,7 +41,8 @@ LANDMARKS = tuple((key,name,x,y,{'mine':'mine','fort':'ruin','ranch':'camp',
   'island':'water','lake':'water','pass':'pass','waterfall':'water',
   'ruin':'ruin','spring':'water','tower':'tower'}.get(kind,'camp'))
   for key,name,x,y,kind in TOWNS if kind not in ('city','town','port','settlement'))
-# Roads are linked to the current six towns; the starting world has a spur.
+# Deprecated grid coordinates remain importable for old tooling only.
+# Authored atlas routes and the visible starter spur own runtime corridors.
 ROAD_X = tuple(range(6000,WORLD_WIDTH,4200))
 ROAD_Y = tuple(range(4300,WORLD_HEIGHT,3600))
 START_SPUR=((4650,2980),(6000,4300))
@@ -72,11 +73,9 @@ def landmark_by_key(key):
  return next((item for item in LANDMARKS if item[0]==key),None)
 
 def road_at(x,y):
+ """Authored road/rail cover corridors plus the preserved starter spur."""
  # Preserve the hand-authored original region; don't paint roads across it.
  if x<4800 and y<3200:return False
- if x<17000 and y<10300:
-  if any(abs(x-rx)<38 for rx in ROAD_X):return True
-  if any(abs(y-ry)<39 for ry in ROAD_Y):return True
  if travel_road(x,y):return True
  x1,y1=START_SPUR[0];x2,y2=START_SPUR[1]
  dx=x2-x1;dy=y2-y1

@@ -2,7 +2,7 @@
 
 **Milestone:** v2.9-map / v3.0 prerequisite  
 **Status:** IMPLEMENTATION IN PROGRESS; sampled route clearance passes, integrated acceptance remains open
-**Last revised:** November 9, 2026  
+**Last revised:** November 10, 2026
 **Dependencies:** Existing New Austellia atlas, 60,000×40,960 world, Rivers/Ridges/Stone first pass, original Cinder Creek parcel  
 **Sequence:** Finish and test **before** implementing autonomous traveler pathfinding  
 **Repository:** `nuentoter/dust-and-debt` / `main`
@@ -17,9 +17,11 @@ The 10-unit foot/horse center-and-margin audit passes for roads, trails and rail
 CI requires rail clearance explicitly. All 50 bridge records pass scoped route-approach checks; the seven off-route
 tangent probes are documented in [bridge approach review](docs/BRIDGE_APPROACH_REVIEW.md).
 See [rail/bridge results](docs/RAIL_BRIDGE_PROGRESS.md)
-and [the current audit](docs/road_audit.json). Legacy-grid protection cleanup,
-representative captures, performance baselines and user ride acceptance remain
-open. Unchecked items below remain requirements, not a claim of no implementation.
+and [the current audit](docs/road_audit.json). Legacy-grid protection is retired.
+[Visual/performance review](docs/map_review/README.md) provides 18 Normal/Low
+captures, retained before captures and measured Xvfb/graph baselines. Starter-spur scaled-map parity, rendering
+profiling, documented visual polish, real-hardware checks and user ride acceptance
+remain open. Unchecked items below remain requirements, not a claim of no implementation.
 
 ## 1. Goal and player experience
 
@@ -41,7 +43,7 @@ Create a **legible, continuous travel network** across all populated mainland Ne
 |---|---|---|
 | `new_austellia.py` | 60,000×40,960 world; **34 authored sites** in `TOWNS_SRC` (includes water/landmarks/islands); **13** `ROADS_SRC` wagon paths; **4** `RAILS_SRC` corridors; **5** named waterways and **2** lakes | Use original atlas as the geographic authority. Analyze line endpoint and midsegment connections before modifying them |
 | `new_austellia.py` | `BRIDGES` derives rail/road intersections with water; `is_water` blocks other water except valid bridges and protected settlement parcels | Test all river/route intersections, visible bridge decks, passability and lack of invisible crossings |
-| `frontier_world.py` | **13** named `WAYSTATIONS`, associated with atlas transport hubs; `START_SPUR` joins early authored parcel toward outside world; `ROAD_X/ROAD_Y` is still present for some old nearby road behavior | Retire/bridge over visible-vs-logical legacy grid discrepancy in a controlled change; never strand the first town or break jobs |
+| `frontier_world.py` | **13** named `WAYSTATIONS`, associated with atlas transport hubs; `START_SPUR` joins early authored parcel toward outside world; `ROAD_X/ROAD_Y` is retained only as deprecated constants; phantom-grid behavior is removed | Retirement is tested: authored route, bridge and starter-spur clearance passes; preserve the original town and jobs |
 | `natural_terrain.py` | Ridges, dry washes, deterministic rocky clusters; `near_protected` excludes current road/rail/town corridors | Extend protected travel corridors to new roads/trails before enabling collision; avoid rock/cliff obstructions |
 | `game.py` | Geographical drawing + old authored starter parcel + landmarks, waystations and collision | Integrate new renderer between ground and markers; add HUD/map trail indicators judiciously |
 | `frontier_world.py` | `LANDMARKS` infers categories from existing atlas sites, including camp-like ranches | Keep that classification separate from **new physical campsite destinations**; don't assume every camp label is a camp clearing |
@@ -196,7 +198,7 @@ All 12 are placement **targets**, not assertions that usable coordinates already
 - [ ] Place map pins at reachable bank/clearing approaches, *not* the center of a lake or waterfall.
 - [ ] Ensure map scaling `MAP_RECT` and the drawn gameplay route share identical world coordinates; no visually promising but unwalkable shortcuts.
 - [ ] Review the 4800×3200 original art seam and `START_SPUR` transition at the edge of the starting world.
-- [ ] At least six representative reference screenshots/review captures: grassy town junction, desert wagon road, forest foot trail, river bridge, fishing approach, camp clearing (record only after actual screenshots exist).
+- [x] At least six representative reference screenshots/review captures: grassy town junction, desert wagon road, forest foot trail, river bridge, fishing approach and camp clearing. [Nine views in Normal/Low](docs/map_review/README.md), including starter seam and former grid ridge; visual approval remains open.
 
 ### Tkinter/X11 performance constraints
 
