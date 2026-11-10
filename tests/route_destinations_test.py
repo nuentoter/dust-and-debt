@@ -31,6 +31,20 @@ class SitesTest(unittest.TestCase):
     self.assertIsNotNone(route_path(d.trailhead,(d.x,d.y),mode="foot"),d.id)
     self.assertIsNotNone(route_path(d.trailhead,(d.x,d.y),mode="horse"),d.id)
 
+ def test_trail_centers_are_passable(self):
+  # Do not allow a visible fishing/camping trail to disappear into water.
+  for d in DESTINATIONS:
+   with self.subTest(destination=d.id):
+    for a,b in zip(d.route,d.route[1:]):
+     n=max(1,math.ceil(math.dist(a,b)/75.))
+     for i in range(n+1):
+      x=a[0]+(b[0]-a[0])*i/n
+      y=a[1]+(b[1]-a[1])*i/n
+      self.assertFalse(is_water(x,y),
+                       "%s trail wet at %.1f, %.1f"%(d.id,x,y))
+      self.assertFalse(landform_solid(x,y,11),
+                       "%s trail blocked by landform at %.1f, %.1f"%(d.id,x,y))
+
  def test_wagons_cannot_use_trails_as_shortcuts(self):
   # A route that exists exclusively as a trail should not be marked
   # usable by wagon; trail segments remain separate graph mode.
