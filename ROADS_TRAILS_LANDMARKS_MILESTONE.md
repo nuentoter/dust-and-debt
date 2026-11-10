@@ -27,7 +27,7 @@ Create a **legible, continuous travel network** across all populated mainland Ne
 
 | Existing source | Current reality | Required action |
 |---|---|---|
-| `new_austellia.py` | 60,000×40,960 world; **35 authored sites** in `TOWNS_SRC` (includes water/landmarks/islands); **13** `ROADS_SRC` wagon paths; **4** `RAILS_SRC` corridors; **5** named waterways and **2** lakes | Use original atlas as the geographic authority. Analyze line endpoint and midsegment connections before modifying them |
+| `new_austellia.py` | 60,000×40,960 world; **34 authored sites** in `TOWNS_SRC` (includes water/landmarks/islands); **13** `ROADS_SRC` wagon paths; **4** `RAILS_SRC` corridors; **5** named waterways and **2** lakes | Use original atlas as the geographic authority. Analyze line endpoint and midsegment connections before modifying them |
 | `new_austellia.py` | `BRIDGES` derives rail/road intersections with water; `is_water` blocks other water except valid bridges and protected settlement parcels | Test all river/route intersections, visible bridge decks, passability and lack of invisible crossings |
 | `frontier_world.py` | **13** named `WAYSTATIONS`, associated with atlas transport hubs; `START_SPUR` joins early authored parcel toward outside world; `ROAD_X/ROAD_Y` is still present for some old nearby road behavior | Retire/bridge over visible-vs-logical legacy grid discrepancy in a controlled change; never strand the first town or break jobs |
 | `natural_terrain.py` | Ridges, dry washes, deterministic rocky clusters; `near_protected` excludes current road/rail/town corridors | Extend protected travel corridors to new roads/trails before enabling collision; avoid rock/cliff obstructions |
@@ -215,7 +215,7 @@ All 12 are placement **targets**, not assertions that usable coordinates already
 ### Phase A — Inventory and road-network audit (blocking)
 - [ ] Dump all 13 road and 4 rail paths with endpoints, vertex counts and connected components.
 - [ ] Identify true junctions including rail/wagon crossing semantics and roads meeting midsegments.
-- [ ] Calculate nearest usable road attachment for all 35 atlas sites and 13 waystations; label mainland vs water-only.
+- [ ] Calculate nearest usable road attachment for all 34 atlas sites and 13 waystations; label mainland vs water-only.
 - [ ] Audit every existing `BRIDGES` intersection and test whether collision and deck art match.
 - [ ] Generate and commit `docs/road_audit.json` or Markdown report with dated measurements, disconnected IDs and proposed fixes.
 - [ ] Write **failing first** graph tests for missing town/road connectivity; don't hide failures by marking sites optional.
