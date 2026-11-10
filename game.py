@@ -828,10 +828,15 @@ class Game:
 
  def rest_at_frontier_camp(self):
   if self.mounted or self.interior:return False
-  town=nearby_settlement(self.x,self.y,225) or near_waystation(self.x,self.y,225)
+  # Named wilderness camps are now real rest sites, using the existing
+  # once-per-camp save progression rather than inventing another save system.
+  site=next((d for d in DESTINATIONS if d.kind=='camp' and
+             math.hypot(self.x-d.x,self.y-d.y)<115),None)
+  town=site.id if site else (
+       nearby_settlement(self.x,self.y,225) or near_waystation(self.x,self.y,225))
   if not town:return False
   if town in self.camps_used:
-   self.notify('You have already used the free camp at this settlement.',3);return False
+   self.notify('You have already used this free camp.',3);return False
   self.camps_used.append(town)
   self.hp=min(self.maxhp,self.hp+30)
   self.advance_clock(6);self.update_npc_schedules()
