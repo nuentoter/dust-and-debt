@@ -6,6 +6,7 @@ Atlas landmarks use source-image pixel coordinates projected into the existing
 This module uses only math and Tk canvas; no Pillow required at runtime.
 """
 import math
+from dataclasses import dataclass
 
 MAP_WIDTH,MAP_HEIGHT=1448.,1086.
 WORLD_WIDTH,WORLD_HEIGHT=60000.,40960.
@@ -93,10 +94,10 @@ COASTLINE_SRC=((0,1086),(380,1010),(530,967),(650,895),(720,887),
 COAST_POLYGON=tuple(P(*p) for p in COASTLINE_SRC)+((60000,40960),(0,40960))
 # Red railroad routes and brown wagon trails: traced routes with intermediate bends.
 RAILS_SRC=(
- ((441,392),(505,376),(569,366),(636,336),(694,293),(754,281),(823,293),(894,330),(960,338),(1033,321),(1057,306)),
- ((442,392),(478,410),(518,455),(566,482),(606,508),(648,515),(728,521),(799,523),(852,511),(883,506),(935,547),(991,574),(1049,607),(1123,628),(1175,681),(1209,746)),
- ((648,515),(596,550),(533,586),(472,643),(441,699),(415,746),(415,788),(488,802),(572,803),(647,812),(700,835),(774,851),(819,891)),
- ((883,506),(904,559),(901,607),(853,643),(811,662),(764,700),(744,761),(700,835)),
+ ((441,392),(454,394),(470,385),(505,376),(569,366),(636,336),(694,293),(754,281),(823,293),(894,330),(960,338),(1033,321),(1057,306)),
+ ((442,392),(478,410),(518,455),(566,482),(608,465),(648,515),(677,480),(728,521),(799,523),(852,511),(883,506),(891,506),(900,515),(935,547),(991,574),(1040,575),(1049,607),(1123,628),(1175,681),(1209,746)),
+ ((648,515),(596,550),(533,586),(472,643),(441,699),(415,746),(415,788),(430,784),(430,765),(500,775),(572,785),(647,790),(700,815),(700,835),(774,851),(819,891)),
+ ((883,506),(904,559),(901,607),(853,643),(811,662),(764,700),(744,761),(710,785),(685,815),(684,835),(700,835)),
 )
 RAILS=tuple(path(p) for p in RAILS_SRC)
 ROADS_SRC=(
@@ -208,13 +209,9 @@ BRIDGES=build_bridges()+(
  (*P(1155,163),-.104,.995,"Pineheart Creek Bridge","road",170),
 )
 
-def bridge_at(x,y,margin=8):
- """Only the actual bridge deck across a river is passable."""
- for bx,by,dx,dy,name,kind,width in BRIDGES:
-  along=(x-bx)*dx+(y-by)*dy
-  across=abs(-(x-bx)*dy+(y-by)*dx)
-  if abs(along)<width+120 and across<74+margin:return True
- return False
+def bridge_at(x,y,margin=0):
+ """Use exactly the painted deck footprint; no hidden default bank margin."""
+ return any(deck.contains(x,y,margin) for deck in BRIDGE_DECKS)
 
 
 def place(key):
@@ -290,6 +287,87 @@ def near_atlas_town(x,y,radius=420):
   if kind in SETTLEMENT_KINDS and math.hypot(tx-x,ty-y)<radius:return key
  return None
 
+@dataclass(frozen=True)
+class BridgeDeck:
+ x:float
+ y:float
+ dx:float
+ dy:float
+ half_length:float
+ half_width:float
+ water:str
+ kind:str
+
+ def contains(self,x,y,margin=0):
+  along=(x-self.x)*self.dx+(y-self.y)*self.dy
+  across=-(x-self.x)*self.dy+(y-self.y)*self.dx
+  return abs(along)<=self.half_length+margin and abs(across)<=self.half_width+margin
+
+ @property
+ def corners(self):
+  return tuple((self.x+self.dx*along-self.dy*across,
+                self.y+self.dy*along+self.dx*across)
+               for along,across in ((-self.half_length,-self.half_width),
+                                    (self.half_length,-self.half_width),
+                                    (self.half_length,self.half_width),
+                                    (-self.half_length,self.half_width)))
+
+ @property
+ def bounds(self):
+  points=self.corners
+  return (min(p[0] for p in points),min(p[1] for p in points),
+          max(p[0] for p in points),max(p[1] for p in points))
+
+
+def bridge_deck(record):
+ """Derive collision and art once from the same normalized bridge frame."""
+ x,y,dx,dy,water,kind,width=record
+ length=math.hypot(dx,dy)
+ if not length:raise ValueError('Bridge heading must be nonzero')
+ dx,dy=dx/length,dy/length
+ half_length=width+120.
+ # Shallow rail crossings need a longer finite deck to reach both banks.
+ # Near-parallel riverbed tracks must be rerouted, not given giant bridges.
+ if kind=='rail':
+  for name,points,water_width in WATERWAYS:
+   if name!=water:continue
+   a,b=min(zip(points,points[1:]),key=lambda pair:distance_to_segment(x,y,*pair))
+   wx,wy=b[0]-a[0],b[1]-a[1]
+   sine=abs(dx*wy-dy*wx)/math.hypot(wx,wy)
+   if sine>=.15:half_length=max(half_length,water_width/sine+120.)
+   break
+ return BridgeDeck(x,y,dx,dy,half_length,38. if kind=='rail' else 82.,water,kind)
+
+
+BRIDGE_DECKS=tuple(bridge_deck(record) for record in BRIDGES)
+
+
+def draw_bridge_decks(canvas,camx,camy,width,height,decks=BRIDGE_DECKS):
+ """Camera-culled decks: the light timber polygon is the collision footprint."""
+ for deck in decks:
+  bx,by,ex,ey=deck.bounds
+  if ex<camx-10 or bx>camx+width+10 or ey<camy-10 or by>camy+height+10:continue
+  cx,cy=deck.x-camx,deck.y-camy
+  dx,dy=deck.dx,deck.dy;nx,ny=-dy,dx
+  half=deck.half_length;side=deck.half_width
+  canvas.create_polygon(*[v for x,y in deck.corners for v in (x-camx,y-camy)],
+                        fill='#bb9d70',outline='',tags=('bridge_deck',))
+  for sign in (-1,1):
+   across=sign*(side-4)
+   canvas.create_line(cx-dx*half+nx*across,cy-dy*half+ny*across,
+                      cx+dx*half+nx*across,cy+dy*half+ny*across,
+                      fill='#6a4b33',width=5)
+  for offset in range(-int(half)+12,int(half)-8,28):
+   px,py=cx+dx*offset,cy+dy*offset
+   canvas.create_line(px-nx*(side-8),py-ny*(side-8),
+                      px+nx*(side-8),py+ny*(side-8),fill='#786344',width=2)
+  if deck.kind=='rail':
+   for sign in (-1,1):
+    canvas.create_line(cx-dx*half+nx*sign*14,cy-dy*half+ny*sign*14,
+                       cx+dx*half+nx*sign*14,cy+dy*half+ny*sign*14,
+                       fill='#3e3831',width=5)
+
+
 def draw_local_geography(canvas,camx,camy,width,height):
  """Only draw river/coast/road segments intersecting the camera viewport."""
  def visible(a,b,pad=450):
@@ -352,27 +430,8 @@ def draw_local_geography(canvas,camx,camy,width,height):
    x1,y1=xy(a);x2,y2=xy(b)
    canvas.create_line(x1,y1,x2,y2,width=25,fill="#745c48")
    canvas.create_line(x1,y1,x2,y2,width=4,fill="#3e3430",dash=(8,10))
- # Distinct planked bridges with rails and timber ties, at true intersections.
- for bx,by,dx,dy,river,kind,water_width in BRIDGES:
-  if not(camx-450<bx<camx+width+450 and camy-450<by<camy+height+450):continue
-  half=water_width+105
-  cx,cy=bx-camx,by-camy
-  ax,ay=cx-dx*half,cy-dy*half
-  ex,ey=cx+dx*half,cy+dy*half
-  canvas.create_line(ax,ay,ex,ey,fill='#594b39',width=122)
-  canvas.create_line(ax,ay,ex,ey,fill='#bb9d70',width=106)
-  nx,ny=-dy,dx
-  for side in (-1,1):
-   canvas.create_line(ax+nx*side*63,ay+ny*side*63,
-                      ex+nx*side*63,ey+ny*side*63,fill='#6a4b33',width=7)
-  for offset in range(-int(half)+12,int(half),28):
-   px,py=cx+dx*offset,cy+dy*offset
-   canvas.create_line(px-nx*45,py-ny*45,px+nx*45,py+ny*45,
-                      fill='#786344',width=3)
-  if kind=='rail':
-   for side in (-1,1):
-    canvas.create_line(ax+nx*side*14,ay+ny*side*14,
-                       ex+nx*side*14,ey+ny*side*14,fill='#3e3831',width=5)
+ # Shared deck frames keep painted timber and passable river surfaces aligned.
+ draw_bridge_decks(canvas,camx,camy,width,height)
  # Coastal islands remain visible, but are not invisible pedestrian bridges.
  for key,name,ix,iy,kind in TOWNS:
   if kind!='island':continue

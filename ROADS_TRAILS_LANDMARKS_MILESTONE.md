@@ -1,7 +1,7 @@
 # Dust & Debt — Roads, Trails & Landmarks Pass
 
 **Milestone:** v2.9-map / v3.0 prerequisite  
-**Status:** IMPLEMENTATION IN PROGRESS; physical clearance and integrated acceptance remain open
+**Status:** IMPLEMENTATION IN PROGRESS; sampled route clearance passes, integrated acceptance remains open
 **Last revised:** November 9, 2026  
 **Dependencies:** Existing New Austellia atlas, 60,000×40,960 world, Rivers/Ridges/Stone first pass, original Cinder Creek parcel  
 **Sequence:** Finish and test **before** implementing autonomous traveler pathfinding  
@@ -10,14 +10,15 @@
 **Implementation architecture and staged commits:** [ROADS_TRAILS_TECHNICAL_PLAN.md](ROADS_TRAILS_TECHNICAL_PLAN.md)
 
 
-**Current implementation snapshot (November 9):** Route graphs, authored secondary roads,
-24 destination trails, map overlays and initial destination art are implemented.
-The current continuation adds 10-unit foot/horse center-and-margin collision
-sampling and preserves distinct bridge approaches previously lost by distance-only
-deduplication. See [measured clearance progress](docs/ROAD_CLEARANCE_PROGRESS.md)
-and [the current audit](docs/road_audit.json). The integrated wagon/trail fine-clearance gate passes after five town-approach
-detours; rail collision, deck-art parity and integrated acceptance remain open.
-Unchecked items below remain requirements, not a claim of no implementation.
+**Current implementation snapshot (November 9):** Route graphs, secondary roads,
+24 destination trails, initial art and campsite rest are implemented. Shared
+immutable bridge frames now drive both painted and passable deck footprints.
+The 10-unit foot/horse center-and-margin audit passes for roads, trails and rail;
+CI requires rail clearance explicitly. Seven straight-line bridge-end probes
+still need individual approach review. See [current rail/bridge results](docs/RAIL_BRIDGE_PROGRESS.md)
+and [the current audit](docs/road_audit.json). Legacy-grid protection cleanup,
+representative captures, performance baselines and user ride acceptance remain
+open. Unchecked items below remain requirements, not a claim of no implementation.
 
 ## 1. Goal and player experience
 

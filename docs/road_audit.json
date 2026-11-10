@@ -2,19 +2,59 @@
   "crossings": [
     {
       "center_passable": true,
-      "entry_passable": false,
+      "deck_corners": [
+        [
+          26614.83505360548,
+          19097.80492330782
+        ],
+        [
+          27144.244382613593,
+          19700.016017704264
+        ],
+        [
+          27087.16494639452,
+          19750.19507669218
+        ],
+        [
+          26557.755617386407,
+          19147.983982295736
+        ]
+      ],
+      "deck_half_length": 400.91534014520346,
+      "deck_half_width": 38.0,
+      "entry_passable": true,
       "exit_passable": false,
       "id": "crossing_000",
       "kind": "rail",
       "physically_validated": false,
       "water": "Sable River",
       "xy": [
-        25100.6,
-        19154.5
+        26851.0,
+        19424.0
       ]
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          26596.926509394973,
+          19646.78281991302
+        ],
+        [
+          27048.85924678528,
+          19150.07073552068
+        ],
+        [
+          27105.073490605027,
+          19201.21718008698
+        ],
+        [
+          26653.14075321472,
+          19697.92926447932
+        ]
+      ],
+      "deck_half_length": 335.7700455320868,
+      "deck_half_width": 38.0,
       "entry_passable": true,
       "exit_passable": true,
       "id": "crossing_001",
@@ -28,6 +68,26 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          27210.391728164337,
+          19248.42420035415
+        ],
+        [
+          26531.30535666198,
+          19664.384297979726
+        ],
+        [
+          26491.608271835663,
+          19599.57579964585
+        ],
+        [
+          27170.69464333802,
+          19183.615702020274
+        ]
+      ],
+      "deck_half_length": 398.1774424728624,
+      "deck_half_width": 38.0,
       "entry_passable": true,
       "exit_passable": true,
       "id": "crossing_002",
@@ -41,22 +101,29 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          26705.985844238607,
+          19148.872948206088
+        ],
+        [
+          27115.79932367816,
+          19587.111367413767
+        ],
+        [
+          26996.014155761393,
+          19699.127051793912
+        ],
+        [
+          26586.20067632184,
+          19260.888632586233
+        ]
+      ],
+      "deck_half_length": 300.0,
+      "deck_half_width": 82.0,
       "entry_passable": true,
       "exit_passable": true,
       "id": "crossing_003",
-      "kind": "rail",
-      "physically_validated": false,
-      "water": "Sable River",
-      "xy": [
-        26851.0,
-        19424.0
-      ]
-    },
-    {
-      "center_passable": true,
-      "entry_passable": true,
-      "exit_passable": true,
-      "id": "crossing_004",
       "kind": "road",
       "physically_validated": false,
       "water": "Sable River",
@@ -67,9 +134,29 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          20086.576810554787,
+          19354.413553376005
+        ],
+        [
+          19927.705821524254,
+          19932.99804058981
+        ],
+        [
+          19769.55939501915,
+          19889.573303588128
+        ],
+        [
+          19928.430384049683,
+          19310.988816374324
+        ]
+      ],
+      "deck_half_length": 300.0,
+      "deck_half_width": 82.0,
       "entry_passable": true,
       "exit_passable": true,
-      "id": "crossing_005",
+      "id": "crossing_004",
       "kind": "road",
       "physically_validated": false,
       "water": "Sable River",
@@ -80,6 +167,59 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          27079.994032788243,
+          19213.558243337073
+        ],
+        [
+          26760.888211336816,
+          19721.664014526315
+        ],
+        [
+          26622.005967211757,
+          19634.441756662927
+        ],
+        [
+          26941.111788663184,
+          19126.335985473685
+        ]
+      ],
+      "deck_half_length": 300.0,
+      "deck_half_width": 82.0,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_005",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Sable River",
+      "xy": [
+        26851.0,
+        19424.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "deck_corners": [
+        [
+          26569.5939519543,
+          19556.418413082552
+        ],
+        [
+          27025.924363481576,
+          19166.851274433327
+        ],
+        [
+          27132.4060480457,
+          19291.581586917448
+        ],
+        [
+          26676.075636518424,
+          19681.148725566673
+        ]
+      ],
+      "deck_half_length": 300.0,
+      "deck_half_width": 82.0,
       "entry_passable": true,
       "exit_passable": true,
       "id": "crossing_006",
@@ -93,22 +233,29 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          27164.23125922798,
+          12080.255822228051
+        ],
+        [
+          27731.48196804472,
+          11697.367495261447
+        ],
+        [
+          27774.001454800728,
+          11760.360298390106
+        ],
+        [
+          27206.750745983987,
+          12143.24862535671
+        ]
+      ],
+      "deck_half_length": 342.19031166164723,
+      "deck_half_width": 38.0,
       "entry_passable": true,
       "exit_passable": true,
       "id": "crossing_007",
-      "kind": "road",
-      "physically_validated": false,
-      "water": "Sable River",
-      "xy": [
-        26851.0,
-        19424.0
-      ]
-    },
-    {
-      "center_passable": true,
-      "entry_passable": true,
-      "exit_passable": true,
-      "id": "crossing_008",
       "kind": "rail",
       "physically_validated": false,
       "water": "Blackwater River",
@@ -119,8 +266,61 @@
     },
     {
       "center_passable": true,
-      "entry_passable": false,
+      "deck_corners": [
+        [
+          26620.326479132917,
+          19104.051502647235
+        ],
+        [
+          27138.752957086155,
+          19693.76943836485
+        ],
+        [
+          27081.673520867083,
+          19743.948497352765
+        ],
+        [
+          26563.247042913845,
+          19154.23056163515
+        ]
+      ],
+      "deck_half_length": 392.5981586654622,
+      "deck_half_width": 38.0,
+      "entry_passable": true,
       "exit_passable": false,
+      "id": "crossing_008",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Blackwater River",
+      "xy": [
+        26851.0,
+        19424.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "deck_corners": [
+        [
+          26484.24091761508,
+          19770.633761752702
+        ],
+        [
+          27161.544838565173,
+          19026.219793680997
+        ],
+        [
+          27217.75908238492,
+          19077.366238247298
+        ],
+        [
+          26540.455161434827,
+          19821.780206319003
+        ]
+      ],
+      "deck_half_length": 503.2128667856748,
+      "deck_half_width": 38.0,
+      "entry_passable": true,
+      "exit_passable": true,
       "id": "crossing_009",
       "kind": "rail",
       "physically_validated": false,
@@ -132,22 +332,29 @@
     },
     {
       "center_passable": true,
-      "entry_passable": false,
-      "exit_passable": false,
-      "id": "crossing_010",
-      "kind": "rail",
-      "physically_validated": false,
-      "water": "Blackwater River",
-      "xy": [
-        26851.0,
-        19424.0
-      ]
-    },
-    {
-      "center_passable": true,
-      "entry_passable": false,
+      "deck_corners": [
+        [
+          49621.70521400307,
+          27232.96339162445
+        ],
+        [
+          50170.208022824925,
+          28187.10135076027
+        ],
+        [
+          50104.31936872077,
+          28224.978590104525
+        ],
+        [
+          49555.816559898914,
+          27270.840630968705
+        ]
+      ],
+      "deck_half_length": 550.2805139992995,
+      "deck_half_width": 38.0,
+      "entry_passable": true,
       "exit_passable": true,
-      "id": "crossing_011",
+      "id": "crossing_010",
       "kind": "rail",
       "physically_validated": false,
       "water": "Blackwater River",
@@ -158,9 +365,29 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          27208.87643480916,
+          19249.352361481222
+        ],
+        [
+          26532.820650017155,
+          19663.456136852656
+        ],
+        [
+          26493.12356519084,
+          19598.647638518778
+        ],
+        [
+          27169.179349982845,
+          19184.543863147344
+        ]
+      ],
+      "deck_half_length": 396.40047960604534,
+      "deck_half_width": 38.0,
       "entry_passable": true,
       "exit_passable": true,
-      "id": "crossing_012",
+      "id": "crossing_011",
       "kind": "rail",
       "physically_validated": false,
       "water": "Blackwater River",
@@ -171,9 +398,29 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          37481.858959238925,
+          21303.67327045102
+        ],
+        [
+          37436.09842933411,
+          21966.651827711918
+        ],
+        [
+          37360.27882177097,
+          21961.418558277684
+        ],
+        [
+          37406.03935167578,
+          21298.44000101679
+        ]
+      ],
+      "deck_half_length": 332.2779685312107,
+      "deck_half_width": 38.0,
       "entry_passable": true,
       "exit_passable": true,
-      "id": "crossing_013",
+      "id": "crossing_012",
       "kind": "rail",
       "physically_validated": false,
       "water": "Blackwater River",
@@ -184,8 +431,61 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          26685.495170266626,
+          19126.961027245703
+        ],
+        [
+          27136.28999765014,
+          19609.023288374152
+        ],
+        [
+          27016.504829733374,
+          19721.038972754297
+        ],
+        [
+          26565.71000234986,
+          19238.976711625848
+        ]
+      ],
+      "deck_half_length": 330.0,
+      "deck_half_width": 82.0,
       "entry_passable": true,
-      "exit_passable": false,
+      "exit_passable": true,
+      "id": "crossing_013",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Blackwater River",
+      "xy": [
+        26851.0,
+        19424.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "deck_corners": [
+        [
+          27095.949323860812,
+          19188.15295477761
+        ],
+        [
+          26744.932920264248,
+          19747.069303085776
+        ],
+        [
+          26606.050676139188,
+          19659.84704522239
+        ],
+        [
+          26957.067079735752,
+          19100.930696914224
+        ]
+      ],
+      "deck_half_length": 330.0,
+      "deck_half_width": 82.0,
+      "entry_passable": false,
+      "exit_passable": true,
       "id": "crossing_014",
       "kind": "road",
       "physically_validated": false,
@@ -197,22 +497,29 @@
     },
     {
       "center_passable": true,
-      "entry_passable": false,
-      "exit_passable": true,
-      "id": "crossing_015",
-      "kind": "road",
-      "physically_validated": false,
-      "water": "Blackwater River",
-      "xy": [
-        26851.0,
-        19424.0
-      ]
-    },
-    {
-      "center_passable": true,
+      "deck_corners": [
+        [
+          50360.485615780366,
+          27630.702439955032
+        ],
+        [
+          50142.71080227277,
+          28253.738659288818
+        ],
+        [
+          49987.89574171104,
+          28199.62491775057
+        ],
+        [
+          50205.67055521864,
+          27576.588698416785
+        ]
+      ],
+      "deck_half_length": 330.0,
+      "deck_half_width": 82.0,
       "entry_passable": true,
       "exit_passable": true,
-      "id": "crossing_016",
+      "id": "crossing_015",
       "kind": "road",
       "physically_validated": false,
       "water": "Blackwater River",
@@ -223,9 +530,29 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          43698.11633531918,
+          22732.949595249225
+        ],
+        [
+          43289.91013080986,
+          23251.570549897315
+        ],
+        [
+          43161.04068147307,
+          23150.137493019243
+        ],
+        [
+          43569.246885982386,
+          22631.516538371154
+        ]
+      ],
+      "deck_half_length": 330.0,
+      "deck_half_width": 82.0,
       "entry_passable": true,
       "exit_passable": true,
-      "id": "crossing_017",
+      "id": "crossing_016",
       "kind": "road",
       "physically_validated": false,
       "water": "Blackwater River",
@@ -236,9 +563,29 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          50701.60670034244,
+          27983.014748849095
+        ],
+        [
+          50088.61322621963,
+          28227.63486389045
+        ],
+        [
+          50027.828833997235,
+          28075.315273350843
+        ],
+        [
+          50640.82230812004,
+          27830.69515830949
+        ]
+      ],
+      "deck_half_length": 330.0,
+      "deck_half_width": 82.0,
       "entry_passable": true,
       "exit_passable": true,
-      "id": "crossing_018",
+      "id": "crossing_017",
       "kind": "road",
       "physically_validated": false,
       "water": "Blackwater River",
@@ -249,9 +596,29 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          26546.777431377937,
+          19575.896770015017
+        ],
+        [
+          27048.740884057937,
+          19147.372917500863
+        ],
+        [
+          27155.222568622063,
+          19272.103229984983
+        ],
+        [
+          26653.259115942063,
+          19700.627082499137
+        ]
+      ],
+      "deck_half_length": 330.0,
+      "deck_half_width": 82.0,
       "entry_passable": true,
       "exit_passable": true,
-      "id": "crossing_019",
+      "id": "crossing_018",
       "kind": "road",
       "physically_validated": false,
       "water": "Blackwater River",
@@ -262,9 +629,29 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          41901.74766881844,
+          22250.763337384327
+        ],
+        [
+          41387.405292617914,
+          22664.347573114355
+        ],
+        [
+          41284.63587646681,
+          22536.54128569483
+        ],
+        [
+          41798.97825266734,
+          22122.957049964803
+        ]
+      ],
+      "deck_half_length": 330.0,
+      "deck_half_width": 82.0,
       "entry_passable": true,
       "exit_passable": true,
-      "id": "crossing_020",
+      "id": "crossing_019",
       "kind": "road",
       "physically_validated": false,
       "water": "Blackwater River",
@@ -275,22 +662,62 @@
     },
     {
       "center_passable": true,
-      "entry_passable": false,
+      "deck_corners": [
+        [
+          43185.86824467419,
+          21855.57587837747
+        ],
+        [
+          43703.398148248874,
+          23530.26379691539
+        ],
+        [
+          43630.78631324219,
+          23552.70307981307
+        ],
+        [
+          43113.256409667505,
+          21878.015161275147
+        ]
+      ],
+      "deck_half_length": 876.4155443610766,
+      "deck_half_width": 38.0,
+      "entry_passable": true,
       "exit_passable": false,
-      "id": "crossing_021",
+      "id": "crossing_020",
       "kind": "rail",
       "physically_validated": false,
       "water": "Roan Creek",
       "xy": [
-        43420.5,
-        22869.9
+        43408.3,
+        22704.1
       ]
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          47998.08702407779,
+          5586.490104265964
+        ],
+        [
+          47931.95990684595,
+          6162.70812235166
+        ],
+        [
+          47769.029294835505,
+          6144.010109893003
+        ],
+        [
+          47835.15641206734,
+          5567.792091807307
+        ]
+      ],
+      "deck_half_length": 290.0,
+      "deck_half_width": 82.0,
       "entry_passable": true,
       "exit_passable": true,
-      "id": "crossing_022",
+      "id": "crossing_021",
       "kind": "road",
       "physically_validated": false,
       "water": "Roan Creek",
@@ -301,9 +728,29 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          44739.57910535026,
+          15014.553731492737
+        ],
+        [
+          45182.807889128424,
+          15388.650303557408
+        ],
+        [
+          45077.02885840669,
+          15513.977063108474
+        ],
+        [
+          44633.800074628525,
+          15139.880491043803
+        ]
+      ],
+      "deck_half_length": 290.0,
+      "deck_half_width": 82.0,
       "entry_passable": true,
       "exit_passable": true,
-      "id": "crossing_023",
+      "id": "crossing_022",
       "kind": "road",
       "physically_validated": false,
       "water": "Roan Creek",
@@ -314,9 +761,29 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          44744.795815862206,
+          15011.874626702192
+        ],
+        [
+          45179.70177197395,
+          15395.615176212563
+        ],
+        [
+          45071.19582349171,
+          15518.588584492438
+        ],
+        [
+          44636.289867379965,
+          15134.848034982067
+        ]
+      ],
+      "deck_half_length": 290.0,
+      "deck_half_width": 82.0,
       "entry_passable": true,
       "exit_passable": true,
-      "id": "crossing_024",
+      "id": "crossing_023",
       "kind": "road",
       "physically_validated": false,
       "water": "Roan Creek",
@@ -327,9 +794,29 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          43059.53160458529,
+          21162.699957902783
+        ],
+        [
+          43609.00532499291,
+          21348.384180661218
+        ],
+        [
+          43556.50151028191,
+          21503.75261194889
+        ],
+        [
+          43007.027789874286,
+          21318.068389190455
+        ]
+      ],
+      "deck_half_length": 290.0,
+      "deck_half_width": 82.0,
       "entry_passable": true,
       "exit_passable": true,
-      "id": "crossing_025",
+      "id": "crossing_024",
       "kind": "road",
       "physically_validated": false,
       "water": "Roan Creek",
@@ -340,9 +827,29 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          43624.22961253783,
+          21745.539955067892
+        ],
+        [
+          43044.349969805575,
+          21757.355197118202
+        ],
+        [
+          43041.00910826031,
+          21593.38922917322
+        ],
+        [
+          43620.88875099256,
+          21581.57398712291
+        ]
+      ],
+      "deck_half_length": 290.0,
+      "deck_half_width": 82.0,
       "entry_passable": true,
       "exit_passable": true,
-      "id": "crossing_026",
+      "id": "crossing_025",
       "kind": "road",
       "physically_validated": false,
       "water": "Roan Creek",
@@ -353,6 +860,59 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          29044.0,
+          31086.430330756895
+        ],
+        [
+          29044.0,
+          31899.569669243105
+        ],
+        [
+          28968.0,
+          31899.569669243105
+        ],
+        [
+          28968.0,
+          31086.430330756895
+        ]
+      ],
+      "deck_half_length": 406.5696692431056,
+      "deck_half_width": 38.0,
+      "entry_passable": true,
+      "exit_passable": false,
+      "id": "crossing_026",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Riversend Channel",
+      "xy": [
+        29006.0,
+        31493.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "deck_corners": [
+        [
+          28641.000455698126,
+          31382.36498027189
+        ],
+        [
+          29385.689165011016,
+          31529.068170234375
+        ],
+        [
+          29370.999544301874,
+          31603.63501972811
+        ],
+        [
+          28626.310834988984,
+          31456.931829765625
+        ]
+      ],
+      "deck_half_length": 379.50069160782255,
+      "deck_half_width": 38.0,
       "entry_passable": false,
       "exit_passable": true,
       "id": "crossing_027",
@@ -366,22 +926,29 @@
     },
     {
       "center_passable": true,
-      "entry_passable": false,
-      "exit_passable": true,
-      "id": "crossing_028",
-      "kind": "rail",
-      "physically_validated": false,
-      "water": "Riversend Channel",
-      "xy": [
-        29006.0,
-        31493.0
-      ]
-    },
-    {
-      "center_passable": true,
+      "deck_corners": [
+        [
+          35293.38335948294,
+          24314.33142131884
+        ],
+        [
+          34476.185143386414,
+          24650.603790701087
+        ],
+        [
+          34447.26441139701,
+          24580.321564916772
+        ],
+        [
+          35264.462627493536,
+          24244.049195534524
+        ]
+      ],
+      "deck_half_length": 441.84047766170863,
+      "deck_half_width": 38.0,
       "entry_passable": true,
       "exit_passable": true,
-      "id": "crossing_029",
+      "id": "crossing_028",
       "kind": "rail",
       "physically_validated": false,
       "water": "Riversend Channel",
@@ -392,9 +959,29 @@
     },
     {
       "center_passable": true,
-      "entry_passable": false,
-      "exit_passable": false,
-      "id": "crossing_030",
+      "deck_corners": [
+        [
+          28577.375046800586,
+          31455.0
+        ],
+        [
+          29434.624953199414,
+          31455.0
+        ],
+        [
+          29434.624953199414,
+          31531.0
+        ],
+        [
+          28577.375046800586,
+          31531.0
+        ]
+      ],
+      "deck_half_length": 428.62495319941326,
+      "deck_half_width": 38.0,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_029",
       "kind": "rail",
       "physically_validated": false,
       "water": "Riversend Channel",
@@ -405,9 +992,29 @@
     },
     {
       "center_passable": true,
-      "entry_passable": false,
+      "deck_corners": [
+        [
+          28680.10362659377,
+          31395.96622340305
+        ],
+        [
+          29339.410501613693,
+          31426.206007652607
+        ],
+        [
+          29331.89637340623,
+          31590.03377659695
+        ],
+        [
+          28672.589498386307,
+          31559.793992347393
+        ]
+      ],
+      "deck_half_length": 330.0,
+      "deck_half_width": 82.0,
+      "entry_passable": true,
       "exit_passable": true,
-      "id": "crossing_031",
+      "id": "crossing_030",
       "kind": "road",
       "physically_validated": false,
       "water": "Riversend Channel",
@@ -418,9 +1025,29 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          30733.485323070396,
+          30338.831062226887
+        ],
+        [
+          30109.36861914156,
+          30124.172403242428
+        ],
+        [
+          30162.708043495273,
+          29969.088858629806
+        ],
+        [
+          30786.824747424107,
+          30183.747517614265
+        ]
+      ],
+      "deck_half_length": 330.0,
+      "deck_half_width": 82.0,
       "entry_passable": true,
       "exit_passable": true,
-      "id": "crossing_032",
+      "id": "crossing_031",
       "kind": "road",
       "physically_validated": false,
       "water": "Riversend Channel",
@@ -431,9 +1058,29 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          34870.71783208083,
+          25193.184130159407
+        ],
+        [
+          34214.87081444777,
+          25119.260592217684
+        ],
+        [
+          34233.23969357269,
+          24956.292545411892
+        ],
+        [
+          34889.086711205746,
+          25030.216083353615
+        ]
+      ],
+      "deck_half_length": 330.0,
+      "deck_half_width": 82.0,
       "entry_passable": true,
       "exit_passable": true,
-      "id": "crossing_033",
+      "id": "crossing_032",
       "kind": "road",
       "physically_validated": false,
       "water": "Riversend Channel",
@@ -444,9 +1091,29 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          31169.509999207803,
+          28976.88981898555
+        ],
+        [
+          31722.820504074123,
+          29336.67793052424
+        ],
+        [
+          31633.418609691784,
+          29474.167207491028
+        ],
+        [
+          31080.108104825464,
+          29114.379095952336
+        ]
+      ],
+      "deck_half_length": 330.0,
+      "deck_half_width": 82.0,
       "entry_passable": true,
       "exit_passable": true,
-      "id": "crossing_034",
+      "id": "crossing_033",
       "kind": "road",
       "physically_validated": false,
       "water": "Riversend Channel",
@@ -457,8 +1124,61 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          29333.340231635128,
+          31585.045492844903
+        ],
+        [
+          28673.648433021546,
+          31564.87792378029
+        ],
+        [
+          28678.659768364872,
+          31400.954507155097
+        ],
+        [
+          29338.351566978454,
+          31421.12207621971
+        ]
+      ],
+      "deck_half_length": 330.0,
+      "deck_half_width": 82.0,
       "entry_passable": true,
-      "exit_passable": false,
+      "exit_passable": true,
+      "id": "crossing_034",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Riversend Channel",
+      "xy": [
+        29006.0,
+        31493.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "deck_corners": [
+        [
+          28676.0,
+          31411.0
+        ],
+        [
+          29336.0,
+          31411.0
+        ],
+        [
+          29336.0,
+          31575.0
+        ],
+        [
+          28676.0,
+          31575.0
+        ]
+      ],
+      "deck_half_length": 330.0,
+      "deck_half_width": 82.0,
+      "entry_passable": true,
+      "exit_passable": true,
       "id": "crossing_035",
       "kind": "road",
       "physically_validated": false,
@@ -470,19 +1190,59 @@
     },
     {
       "center_passable": true,
-      "entry_passable": false,
+      "deck_corners": [
+        [
+          17234.0,
+          29480.96506598147
+        ],
+        [
+          17234.0,
+          29961.03493401853
+        ],
+        [
+          17158.0,
+          29961.03493401853
+        ],
+        [
+          17158.0,
+          29480.96506598147
+        ]
+      ],
+      "deck_half_length": 240.03493401853171,
+      "deck_half_width": 38.0,
+      "entry_passable": true,
       "exit_passable": true,
       "id": "crossing_036",
-      "kind": "road",
+      "kind": "rail",
       "physically_validated": false,
-      "water": "Riversend Channel",
+      "water": "Dustwell Wash",
       "xy": [
-        29006.0,
-        31493.0
+        17196.0,
+        29721.0
       ]
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          16521.400136562275,
+          29845.66568500402
+        ],
+        [
+          17852.6704736905,
+          29522.47947775906
+        ],
+        [
+          17870.599863437725,
+          29596.33431499598
+        ],
+        [
+          16539.3295263095,
+          29919.52052224094
+        ]
+      ],
+      "deck_half_length": 684.968983799792,
+      "deck_half_width": 38.0,
       "entry_passable": true,
       "exit_passable": true,
       "id": "crossing_037",
@@ -496,35 +1256,29 @@
     },
     {
       "center_passable": true,
-      "entry_passable": false,
-      "exit_passable": false,
-      "id": "crossing_038",
-      "kind": "rail",
-      "physically_validated": false,
-      "water": "Dustwell Wash",
-      "xy": [
-        17196.0,
-        29721.0
-      ]
-    },
-    {
-      "center_passable": true,
-      "entry_passable": false,
-      "exit_passable": false,
-      "id": "crossing_039",
-      "kind": "rail",
-      "physically_validated": false,
-      "water": "Dustwell Wash",
-      "xy": [
-        21631.7,
-        30264.0
-      ]
-    },
-    {
-      "center_passable": true,
+      "deck_corners": [
+        [
+          29044.0,
+          31250.60283785047
+        ],
+        [
+          29044.0,
+          31735.39716214953
+        ],
+        [
+          28968.0,
+          31735.39716214953
+        ],
+        [
+          28968.0,
+          31250.60283785047
+        ]
+      ],
+      "deck_half_length": 242.39716214952807,
+      "deck_half_width": 38.0,
       "entry_passable": true,
       "exit_passable": true,
-      "id": "crossing_040",
+      "id": "crossing_038",
       "kind": "rail",
       "physically_validated": false,
       "water": "Dustwell Wash",
@@ -535,6 +1289,92 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          28777.8705487954,
+          31409.32829932954
+        ],
+        [
+          29248.819071913742,
+          31502.104851176726
+        ],
+        [
+          29234.1294512046,
+          31576.67170067046
+        ],
+        [
+          28763.180928086258,
+          31483.895148823274
+        ]
+      ],
+      "deck_half_length": 240.0,
+      "deck_half_width": 38.0,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_039",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Dustwell Wash",
+      "xy": [
+        29006.0,
+        31493.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "deck_corners": [
+        [
+          28401.20688261431,
+          31122.422894125888
+        ],
+        [
+          28375.00846538276,
+          31604.218176871935
+        ],
+        [
+          28299.120576020436,
+          31600.09164707902
+        ],
+        [
+          28325.318993251985,
+          31118.296364332975
+        ]
+      ],
+      "deck_half_length": 241.25352408917468,
+      "deck_half_width": 38.0,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_040",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Dustwell Wash",
+      "xy": [
+        28350.2,
+        31361.3
+      ]
+    },
+    {
+      "center_passable": true,
+      "deck_corners": [
+        [
+          28276.687450204143,
+          31455.0
+        ],
+        [
+          29735.312549795857,
+          31455.0
+        ],
+        [
+          29735.312549795857,
+          31531.0
+        ],
+        [
+          28276.687450204143,
+          31531.0
+        ]
+      ],
+      "deck_half_length": 729.3125497958566,
+      "deck_half_width": 38.0,
       "entry_passable": true,
       "exit_passable": true,
       "id": "crossing_041",
@@ -548,22 +1388,29 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          17233.49139887099,
+          29470.164605745726
+        ],
+        [
+          17319.83354127367,
+          29942.33516226669
+        ],
+        [
+          17158.50860112901,
+          29971.835394254274
+        ],
+        [
+          17072.16645872633,
+          29499.66483773331
+        ]
+      ],
+      "deck_half_length": 240.0,
+      "deck_half_width": 82.0,
       "entry_passable": true,
       "exit_passable": true,
       "id": "crossing_042",
-      "kind": "rail",
-      "physically_validated": false,
-      "water": "Dustwell Wash",
-      "xy": [
-        29006.0,
-        31493.0
-      ]
-    },
-    {
-      "center_passable": true,
-      "entry_passable": true,
-      "exit_passable": true,
-      "id": "crossing_043",
       "kind": "road",
       "physically_validated": false,
       "water": "Dustwell Wash",
@@ -574,6 +1421,59 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          28770.00910955103,
+          31400.089830346173
+        ],
+        [
+          29249.505018656433,
+          31422.082400709485
+        ],
+        [
+          29241.99089044897,
+          31585.910169653827
+        ],
+        [
+          28762.494981343567,
+          31563.917599290515
+        ]
+      ],
+      "deck_half_length": 240.0,
+      "deck_half_width": 82.0,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_043",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Dustwell Wash",
+      "xy": [
+        29006.0,
+        31493.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "deck_corners": [
+        [
+          29243.382259096914,
+          31582.295369790638
+        ],
+        [
+          28763.60640555976,
+          31567.628046834554
+        ],
+        [
+          28768.617740903086,
+          31403.704630209362
+        ],
+        [
+          29248.39359444024,
+          31418.371953165446
+        ]
+      ],
+      "deck_half_length": 240.0,
+      "deck_half_width": 82.0,
       "entry_passable": true,
       "exit_passable": true,
       "id": "crossing_044",
@@ -587,6 +1487,26 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          28766.0,
+          31411.0
+        ],
+        [
+          29246.0,
+          31411.0
+        ],
+        [
+          29246.0,
+          31575.0
+        ],
+        [
+          28766.0,
+          31575.0
+        ]
+      ],
+      "deck_half_length": 240.0,
+      "deck_half_width": 82.0,
       "entry_passable": true,
       "exit_passable": true,
       "id": "crossing_045",
@@ -600,22 +1520,29 @@
     },
     {
       "center_passable": true,
-      "entry_passable": true,
-      "exit_passable": true,
-      "id": "crossing_046",
-      "kind": "road",
-      "physically_validated": false,
-      "water": "Dustwell Wash",
-      "xy": [
-        29006.0,
-        31493.0
-      ]
-    },
-    {
-      "center_passable": true,
+      "deck_corners": [
+        [
+          26471.0,
+          19153.0
+        ],
+        [
+          27231.0,
+          19153.0
+        ],
+        [
+          27231.0,
+          19317.0
+        ],
+        [
+          26471.0,
+          19317.0
+        ]
+      ],
+      "deck_half_length": 380.0,
+      "deck_half_width": 82.0,
       "entry_passable": false,
       "exit_passable": true,
-      "id": "crossing_047",
+      "id": "crossing_046",
       "kind": "road",
       "physically_validated": false,
       "water": "Blackwater Town Crossing",
@@ -626,9 +1553,29 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          43379.478545422935,
+          22878.488296563282
+        ],
+        [
+          43565.15199379906,
+          22329.010935275193
+        ],
+        [
+          43720.521454577065,
+          22381.511703436718
+        ],
+        [
+          43534.84800620094,
+          22930.989064724807
+        ]
+      ],
+      "deck_half_length": 290.0,
+      "deck_half_width": 82.0,
       "entry_passable": true,
       "exit_passable": true,
-      "id": "crossing_048",
+      "id": "crossing_047",
       "kind": "road",
       "physically_validated": false,
       "water": "Harper River Crossing",
@@ -639,9 +1586,29 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          28924.0,
+          31411.0
+        ],
+        [
+          29584.0,
+          31411.0
+        ],
+        [
+          29584.0,
+          31575.0
+        ],
+        [
+          28924.0,
+          31575.0
+        ]
+      ],
+      "deck_half_length": 330.0,
+      "deck_half_width": 82.0,
       "entry_passable": true,
       "exit_passable": true,
-      "id": "crossing_049",
+      "id": "crossing_048",
       "kind": "road",
       "physically_validated": false,
       "water": "Riversend East Bridge",
@@ -652,9 +1619,29 @@
     },
     {
       "center_passable": true,
+      "deck_corners": [
+        [
+          47970.70303874374,
+          5868.095675032673
+        ],
+        [
+          47910.408387316245,
+          6444.953157439928
+        ],
+        [
+          47747.29696125626,
+          6427.904324967327
+        ],
+        [
+          47807.591612683755,
+          5851.046842560072
+        ]
+      ],
+      "deck_half_length": 290.0,
+      "deck_half_width": 82.0,
       "entry_passable": true,
       "exit_passable": true,
-      "id": "crossing_050",
+      "id": "crossing_049",
       "kind": "road",
       "physically_validated": false,
       "water": "Pineheart Creek Bridge",
@@ -669,7 +1656,7 @@
     "mainland_core_components": [
       0
     ],
-    "rail_components": 2,
+    "rail_components": 1,
     "wagon_components": 1,
     "wagon_routes": [
       {
@@ -2397,1388 +3384,186 @@
     "rail_00": {
       "actor_profiles": {
         "11": {
-          "blocked": 2,
+          "blocked": 0,
           "lanes": {
             "center": {
-              "blocked": 1,
-              "samples": 2710
+              "blocked": 0,
+              "samples": 2719
             },
             "left": {
               "blocked": 0,
-              "samples": 2710
+              "samples": 2719
             },
             "right": {
-              "blocked": 1,
-              "samples": 2710
+              "blocked": 0,
+              "samples": 2719
             }
           },
-          "samples": 8130
+          "samples": 8157
         },
         "16": {
-          "blocked": 3,
+          "blocked": 0,
           "lanes": {
             "center": {
-              "blocked": 3,
-              "samples": 2710
+              "blocked": 0,
+              "samples": 2719
             }
           },
-          "samples": 2710
+          "samples": 2719
         }
       },
-      "blocked": 5,
-      "blocked_ranges": [
-        {
-          "end_t": 0.15441176470588236,
-          "end_xy": [
-            18682.5,
-            14691.735
-          ],
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "building",
-          "samples": 1,
-          "segment": 0,
-          "start_t": 0.15441176470588236,
-          "start_xy": [
-            18682.5,
-            14691.735
-          ]
-        },
-        {
-          "end_t": 0.15441176470588236,
-          "end_xy": [
-            18682.167,
-            14690.273
-          ],
-          "lane": "right",
-          "offset": -1.5,
-          "radius": 11,
-          "reason": "building",
-          "samples": 1,
-          "segment": 0,
-          "start_t": 0.15441176470588236,
-          "start_xy": [
-            18682.167,
-            14690.273
-          ]
-        },
-        {
-          "end_t": 0.15441176470588236,
-          "end_xy": [
-            18682.5,
-            14691.735
-          ],
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 16,
-          "reason": "building",
-          "samples": 3,
-          "segment": 0,
-          "start_t": 0.14705882352941177,
-          "start_xy": [
-            18663.0,
-            14696.176
-          ]
-        }
-      ],
+      "blocked": 0,
+      "blocked_ranges": [],
       "edges_sampled": true,
-      "first_failures": [
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "building",
-          "segment": 0,
-          "t": 0.15441176470588236,
-          "xy": [
-            18682.5,
-            14691.735
-          ]
-        },
-        {
-          "lane": "right",
-          "offset": -1.5,
-          "radius": 11,
-          "reason": "building",
-          "segment": 0,
-          "t": 0.15441176470588236,
-          "xy": [
-            18682.167,
-            14690.273
-          ]
-        },
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 16,
-          "reason": "building",
-          "segment": 0,
-          "t": 0.14705882352941177,
-          "xy": [
-            18663.0,
-            14696.176
-          ]
-        },
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 16,
-          "reason": "building",
-          "segment": 0,
-          "t": 0.15073529411764705,
-          "xy": [
-            18672.75,
-            14693.956
-          ]
-        },
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 16,
-          "reason": "building",
-          "segment": 0,
-          "t": 0.15441176470588236,
-          "xy": [
-            18682.5,
-            14691.735
-          ]
-        }
-      ],
+      "first_failures": [],
       "half_width": 12.5,
       "kind": "rail",
       "reasons": {
-        "building": 5,
+        "building": 0,
         "ridge_or_rock": 0,
         "water": 0,
         "world_bounds": 0
       },
       "sample_step": 10,
-      "samples": 10840
+      "samples": 10876
     },
     "rail_01": {
       "actor_profiles": {
         "11": {
-          "blocked": 733,
+          "blocked": 0,
           "lanes": {
             "center": {
-              "blocked": 245,
-              "samples": 3679
+              "blocked": 0,
+              "samples": 3927
             },
             "left": {
-              "blocked": 244,
-              "samples": 3679
+              "blocked": 0,
+              "samples": 3927
             },
             "right": {
-              "blocked": 244,
-              "samples": 3679
+              "blocked": 0,
+              "samples": 3927
             }
           },
-          "samples": 11037
+          "samples": 11781
         },
         "16": {
-          "blocked": 246,
+          "blocked": 0,
           "lanes": {
             "center": {
-              "blocked": 246,
-              "samples": 3679
+              "blocked": 0,
+              "samples": 3927
             }
           },
-          "samples": 3679
+          "samples": 3927
         }
       },
-      "blocked": 979,
-      "blocked_ranges": [
-        {
-          "end_t": 0.8341968911917098,
-          "end_xy": [
-            24835.264,
-            18997.347
-          ],
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "samples": 13,
-          "segment": 3,
-          "start_t": 0.772020725388601,
-          "start_xy": [
-            24732.238,
-            18936.352
-          ]
-        },
-        {
-          "end_t": 0.8341968911917098,
-          "end_xy": [
-            24834.5,
-            18998.638
-          ],
-          "lane": "left",
-          "offset": 1.5,
-          "radius": 11,
-          "reason": "water",
-          "samples": 13,
-          "segment": 3,
-          "start_t": 0.772020725388601,
-          "start_xy": [
-            24731.474,
-            18937.643
-          ]
-        },
-        {
-          "end_t": 0.8341968911917098,
-          "end_xy": [
-            24836.028,
-            18996.056
-          ],
-          "lane": "right",
-          "offset": -1.5,
-          "radius": 11,
-          "reason": "water",
-          "samples": 13,
-          "segment": 3,
-          "start_t": 0.772020725388601,
-          "start_xy": [
-            24733.003,
-            18935.062
-          ]
-        },
-        {
-          "end_t": 0.807909604519774,
-          "end_xy": [
-            26516.571,
-            19373.288
-          ],
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "samples": 122,
-          "segment": 4,
-          "start_t": 0.12429378531073447,
-          "start_xy": [
-            25326.395,
-            19192.814
-          ]
-        },
-        {
-          "end_t": 0.807909604519774,
-          "end_xy": [
-            26516.346,
-            19374.771
-          ],
-          "lane": "left",
-          "offset": 1.5,
-          "radius": 11,
-          "reason": "water",
-          "samples": 121,
-          "segment": 4,
-          "start_t": 0.12994350282485875,
-          "start_xy": [
-            25336.007,
-            19195.788
-          ]
-        },
-        {
-          "end_t": 0.807909604519774,
-          "end_xy": [
-            26516.796,
-            19371.805
-          ],
-          "lane": "right",
-          "offset": -1.5,
-          "radius": 11,
-          "reason": "water",
-          "samples": 122,
-          "segment": 4,
-          "start_t": 0.12429378531073447,
-          "start_xy": [
-            25326.62,
-            19191.331
-          ]
-        },
-        {
-          "end_t": 0.19519519519519518,
-          "end_xy": [
-            27498.072,
-            19468.114
-          ],
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "samples": 32,
-          "segment": 5,
-          "start_t": 0.1021021021021021,
-          "start_xy": [
-            27189.468,
-            19447.075
-          ]
-        },
-        {
-          "end_t": 0.1981981981981982,
-          "end_xy": [
-            27507.925,
-            19470.289
-          ],
-          "lane": "left",
-          "offset": 1.5,
-          "radius": 11,
-          "reason": "water",
-          "samples": 33,
-          "segment": 5,
-          "start_t": 0.1021021021021021,
-          "start_xy": [
-            27189.366,
-            19448.572
-          ]
-        },
-        {
-          "end_t": 0.19519519519519518,
-          "end_xy": [
-            27498.174,
-            19466.618
-          ],
-          "lane": "right",
-          "offset": -1.5,
-          "radius": 11,
-          "reason": "water",
-          "samples": 32,
-          "segment": 5,
-          "start_t": 0.1021021021021021,
-          "start_xy": [
-            27189.57,
-            19445.579
-          ]
-        },
-        {
-          "end_t": 0.16165413533834586,
-          "end_xy": [
-            36936.365,
-            19334.079
-          ],
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "building",
-          "samples": 20,
-          "segment": 9,
-          "start_t": 0.09022556390977443,
-          "start_xy": [
-            36782.436,
-            19223.579
-          ]
-        },
-        {
-          "end_t": 0.15789473684210525,
-          "end_xy": [
-            36927.388,
-            19329.482
-          ],
-          "lane": "left",
-          "offset": 1.5,
-          "radius": 11,
-          "reason": "building",
-          "samples": 18,
-          "segment": 9,
-          "start_t": 0.09398496240601503,
-          "start_xy": [
-            36789.663,
-            19230.613
-          ]
-        },
-        {
-          "end_t": 0.16165413533834586,
-          "end_xy": [
-            36937.239,
-            19332.86
-          ],
-          "lane": "right",
-          "offset": -1.5,
-          "radius": 11,
-          "reason": "building",
-          "samples": 20,
-          "segment": 9,
-          "start_t": 0.09022556390977443,
-          "start_xy": [
-            36783.311,
-            19222.36
-          ]
-        },
-        {
-          "end_t": 0.8708487084870848,
-          "end_xy": [
-            43156.649,
-            22733.207
-          ],
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "samples": 50,
-          "segment": 11,
-          "start_t": 0.6900369003690037,
-          "start_xy": [
-            42722.159,
-            22508.096
-          ]
-        },
-        {
-          "end_t": 0.8708487084870848,
-          "end_xy": [
-            43155.959,
-            22734.539
-          ],
-          "lane": "left",
-          "offset": 1.5,
-          "radius": 11,
-          "reason": "water",
-          "samples": 51,
-          "segment": 11,
-          "start_t": 0.6863468634686347,
-          "start_xy": [
-            42712.601,
-            22504.834
-          ]
-        },
-        {
-          "end_t": 0.8708487084870848,
-          "end_xy": [
-            43157.339,
-            22731.875
-          ],
-          "lane": "right",
-          "offset": -1.5,
-          "radius": 11,
-          "reason": "water",
-          "samples": 49,
-          "segment": 11,
-          "start_t": 0.6937269372693727,
-          "start_xy": [
-            42731.716,
-            22511.358
-          ]
-        },
-        {
-          "end_t": 0.7137809187279152,
-          "end_xy": [
-            49693.717,
-            27434.477
-          ],
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "samples": 8,
-          "segment": 14,
-          "start_t": 0.6890459363957597,
-          "start_xy": [
-            49658.866,
-            27373.852
-          ]
-        },
-        {
-          "end_t": 0.7137809187279152,
-          "end_xy": [
-            49692.417,
-            27435.225
-          ],
-          "lane": "left",
-          "offset": 1.5,
-          "radius": 11,
-          "reason": "water",
-          "samples": 8,
-          "segment": 14,
-          "start_t": 0.6890459363957597,
-          "start_xy": [
-            49657.565,
-            27374.599
-          ]
-        },
-        {
-          "end_t": 0.7137809187279152,
-          "end_xy": [
-            49695.018,
-            27433.729
-          ],
-          "lane": "right",
-          "offset": -1.5,
-          "radius": 11,
-          "reason": "water",
-          "samples": 8,
-          "segment": 14,
-          "start_t": 0.6890459363957597,
-          "start_xy": [
-            49660.166,
-            27373.104
-          ]
-        },
-        {
-          "end_t": 0.8341968911917098,
-          "end_xy": [
-            24835.264,
-            18997.347
-          ],
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 16,
-          "reason": "water",
-          "samples": 13,
-          "segment": 3,
-          "start_t": 0.772020725388601,
-          "start_xy": [
-            24732.238,
-            18936.352
-          ]
-        },
-        {
-          "end_t": 0.807909604519774,
-          "end_xy": [
-            26516.571,
-            19373.288
-          ],
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 16,
-          "reason": "water",
-          "samples": 122,
-          "segment": 4,
-          "start_t": 0.12429378531073447,
-          "start_xy": [
-            25326.395,
-            19192.814
-          ]
-        },
-        {
-          "end_t": 0.19519519519519518,
-          "end_xy": [
-            27498.072,
-            19468.114
-          ],
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 16,
-          "reason": "water",
-          "samples": 32,
-          "segment": 5,
-          "start_t": 0.1021021021021021,
-          "start_xy": [
-            27189.468,
-            19447.075
-          ]
-        },
-        {
-          "end_t": 0.16541353383458646,
-          "end_xy": [
-            36944.466,
-            19339.895
-          ],
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 16,
-          "reason": "building",
-          "samples": 21,
-          "segment": 9,
-          "start_t": 0.09022556390977443,
-          "start_xy": [
-            36782.436,
-            19223.579
-          ]
-        },
-        {
-          "end_t": 0.8708487084870848,
-          "end_xy": [
-            43156.649,
-            22733.207
-          ],
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 16,
-          "reason": "water",
-          "samples": 50,
-          "segment": 11,
-          "start_t": 0.6900369003690037,
-          "start_xy": [
-            42722.159,
-            22508.096
-          ]
-        },
-        {
-          "end_t": 0.7137809187279152,
-          "end_xy": [
-            49693.717,
-            27434.477
-          ],
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 16,
-          "reason": "water",
-          "samples": 8,
-          "segment": 14,
-          "start_t": 0.6890459363957597,
-          "start_xy": [
-            49658.866,
-            27373.852
-          ]
-        }
-      ],
+      "blocked": 0,
+      "blocked_ranges": [],
       "edges_sampled": true,
-      "first_failures": [
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "segment": 3,
-          "t": 0.772020725388601,
-          "xy": [
-            24732.238,
-            18936.352
-          ]
-        },
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "segment": 3,
-          "t": 0.7772020725388601,
-          "xy": [
-            24740.824,
-            18941.435
-          ]
-        },
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "segment": 3,
-          "t": 0.7823834196891192,
-          "xy": [
-            24749.409,
-            18946.518
-          ]
-        },
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "segment": 3,
-          "t": 0.7875647668393783,
-          "xy": [
-            24757.995,
-            18951.601
-          ]
-        },
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "segment": 3,
-          "t": 0.7927461139896373,
-          "xy": [
-            24766.58,
-            18956.684
-          ]
-        },
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "segment": 3,
-          "t": 0.7979274611398963,
-          "xy": [
-            24775.166,
-            18961.767
-          ]
-        },
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "segment": 3,
-          "t": 0.8031088082901554,
-          "xy": [
-            24783.751,
-            18966.85
-          ]
-        },
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "segment": 3,
-          "t": 0.8082901554404145,
-          "xy": [
-            24792.337,
-            18971.933
-          ]
-        }
-      ],
+      "first_failures": [],
       "half_width": 12.5,
       "kind": "rail",
       "reasons": {
-        "building": 79,
+        "building": 0,
         "ridge_or_rock": 0,
-        "water": 900,
+        "water": 0,
         "world_bounds": 0
       },
       "sample_step": 10,
-      "samples": 14716
+      "samples": 15708
     },
     "rail_02": {
       "actor_profiles": {
         "11": {
-          "blocked": 1433,
+          "blocked": 0,
           "lanes": {
             "center": {
-              "blocked": 478,
-              "samples": 3267
+              "blocked": 0,
+              "samples": 3422
             },
             "left": {
-              "blocked": 475,
-              "samples": 3267
+              "blocked": 0,
+              "samples": 3422
             },
             "right": {
-              "blocked": 480,
-              "samples": 3267
+              "blocked": 0,
+              "samples": 3422
             }
           },
-          "samples": 9801
+          "samples": 10266
         },
         "16": {
-          "blocked": 478,
+          "blocked": 0,
           "lanes": {
             "center": {
-              "blocked": 478,
-              "samples": 3267
+              "blocked": 0,
+              "samples": 3422
             }
           },
-          "samples": 3267
+          "samples": 3422
         }
       },
-      "blocked": 1911,
-      "blocked_ranges": [
-        {
-          "end_t": 0.8603896103896104,
-          "end_xy": [
-            19798.679,
-            30175.286
-          ],
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "samples": 241,
-          "segment": 6,
-          "start_t": 0.08116883116883117,
-          "start_xy": [
-            17441.536,
-            29763.857
-          ]
-        },
-        {
-          "end_t": 0.8474025974025974,
-          "end_xy": [
-            19759.135,
-            30169.906
-          ],
-          "lane": "left",
-          "offset": 1.5,
-          "radius": 11,
-          "reason": "water",
-          "samples": 237,
-          "segment": 6,
-          "start_t": 0.08116883116883117,
-          "start_xy": [
-            17441.278,
-            29765.335
-          ]
-        },
-        {
-          "end_t": 0.8701298701298701,
-          "end_xy": [
-            19828.401,
-            30178.951
-          ],
-          "lane": "right",
-          "offset": -1.5,
-          "radius": 11,
-          "reason": "water",
-          "samples": 244,
-          "segment": 6,
-          "start_t": 0.08116883116883117,
-          "start_xy": [
-            17441.794,
-            29762.379
-          ]
-        },
-        {
-          "end_t": 0.335243553008596,
-          "end_xy": [
-            21387.983,
-            30261.404
-          ],
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "samples": 101,
-          "segment": 7,
-          "start_t": 0.04871060171919771,
-          "start_xy": [
-            20390.562,
-            30250.802
-          ]
-        },
-        {
-          "end_t": 0.7621776504297995,
-          "end_xy": [
-            22874.14,
-            30277.201
-          ],
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "samples": 101,
-          "segment": 7,
-          "start_t": 0.47564469914040114,
-          "start_xy": [
-            21876.719,
-            30266.599
-          ]
-        },
-        {
-          "end_t": 0.335243553008596,
-          "end_xy": [
-            21387.967,
-            30262.904
-          ],
-          "lane": "left",
-          "offset": 1.5,
-          "radius": 11,
-          "reason": "water",
-          "samples": 100,
-          "segment": 7,
-          "start_t": 0.05157593123209169,
-          "start_xy": [
-            20400.52,
-            30252.408
-          ]
-        },
-        {
-          "end_t": 0.7679083094555874,
-          "end_xy": [
-            22894.073,
-            30278.913
-          ],
-          "lane": "left",
-          "offset": 1.5,
-          "radius": 11,
-          "reason": "water",
-          "samples": 103,
-          "segment": 7,
-          "start_t": 0.47564469914040114,
-          "start_xy": [
-            21876.703,
-            30268.099
-          ]
-        },
-        {
-          "end_t": 0.335243553008596,
-          "end_xy": [
-            21387.999,
-            30259.904
-          ],
-          "lane": "right",
-          "offset": -1.5,
-          "radius": 11,
-          "reason": "water",
-          "samples": 102,
-          "segment": 7,
-          "start_t": 0.045845272206303724,
-          "start_xy": [
-            20380.603,
-            30249.196
-          ]
-        },
-        {
-          "end_t": 0.7593123209169055,
-          "end_xy": [
-            22864.182,
-            30275.595
-          ],
-          "lane": "right",
-          "offset": -1.5,
-          "radius": 11,
-          "reason": "water",
-          "samples": 100,
-          "segment": 7,
-          "start_t": 0.47564469914040114,
-          "start_xy": [
-            21876.735,
-            30265.099
-          ]
-        },
-        {
-          "end_t": 0.8565400843881856,
-          "end_xy": [
-            28690.819,
-            31368.62
-          ],
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "samples": 35,
-          "segment": 9,
-          "start_t": 0.7130801687763713,
-          "start_xy": [
-            28375.637,
-            31244.241
-          ]
-        },
-        {
-          "end_t": 0.8565400843881856,
-          "end_xy": [
-            28690.268,
-            31370.016
-          ],
-          "lane": "left",
-          "offset": 1.5,
-          "radius": 11,
-          "reason": "water",
-          "samples": 35,
-          "segment": 9,
-          "start_t": 0.7130801687763713,
-          "start_xy": [
-            28375.087,
-            31245.636
-          ]
-        },
-        {
-          "end_t": 0.8565400843881856,
-          "end_xy": [
-            28691.369,
-            31367.225
-          ],
-          "lane": "right",
-          "offset": -1.5,
-          "radius": 11,
-          "reason": "water",
-          "samples": 34,
-          "segment": 9,
-          "start_t": 0.7172995780590717,
-          "start_xy": [
-            28385.458,
-            31246.503
-          ]
-        },
-        {
-          "end_t": 0.8603896103896104,
-          "end_xy": [
-            19798.679,
-            30175.286
-          ],
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 16,
-          "reason": "water",
-          "samples": 241,
-          "segment": 6,
-          "start_t": 0.08116883116883117,
-          "start_xy": [
-            17441.536,
-            29763.857
-          ]
-        },
-        {
-          "end_t": 0.335243553008596,
-          "end_xy": [
-            21387.983,
-            30261.404
-          ],
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 16,
-          "reason": "water",
-          "samples": 101,
-          "segment": 7,
-          "start_t": 0.04871060171919771,
-          "start_xy": [
-            20390.562,
-            30250.802
-          ]
-        },
-        {
-          "end_t": 0.7621776504297995,
-          "end_xy": [
-            22874.14,
-            30277.201
-          ],
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 16,
-          "reason": "water",
-          "samples": 101,
-          "segment": 7,
-          "start_t": 0.47564469914040114,
-          "start_xy": [
-            21876.719,
-            30266.599
-          ]
-        },
-        {
-          "end_t": 0.8565400843881856,
-          "end_xy": [
-            28690.819,
-            31368.62
-          ],
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 16,
-          "reason": "water",
-          "samples": 35,
-          "segment": 9,
-          "start_t": 0.7130801687763713,
-          "start_xy": [
-            28375.637,
-            31244.241
-          ]
-        }
-      ],
+      "blocked": 0,
+      "blocked_ranges": [],
       "edges_sampled": true,
-      "first_failures": [
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "segment": 6,
-          "t": 0.08116883116883117,
-          "xy": [
-            17441.536,
-            29763.857
-          ]
-        },
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "segment": 6,
-          "t": 0.08441558441558442,
-          "xy": [
-            17451.357,
-            29765.571
-          ]
-        },
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "segment": 6,
-          "t": 0.08766233766233766,
-          "xy": [
-            17461.179,
-            29767.286
-          ]
-        },
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "segment": 6,
-          "t": 0.09090909090909091,
-          "xy": [
-            17471.0,
-            29769.0
-          ]
-        },
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "segment": 6,
-          "t": 0.09415584415584416,
-          "xy": [
-            17480.821,
-            29770.714
-          ]
-        },
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "segment": 6,
-          "t": 0.09740259740259741,
-          "xy": [
-            17490.643,
-            29772.429
-          ]
-        },
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "segment": 6,
-          "t": 0.10064935064935066,
-          "xy": [
-            17500.464,
-            29774.143
-          ]
-        },
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "segment": 6,
-          "t": 0.1038961038961039,
-          "xy": [
-            17510.286,
-            29775.857
-          ]
-        }
-      ],
+      "first_failures": [],
       "half_width": 12.5,
       "kind": "rail",
       "reasons": {
         "building": 0,
         "ridge_or_rock": 0,
-        "water": 1911,
+        "water": 0,
         "world_bounds": 0
       },
       "sample_step": 10,
-      "samples": 13068
+      "samples": 13688
     },
     "rail_03": {
       "actor_profiles": {
         "11": {
-          "blocked": 161,
+          "blocked": 0,
           "lanes": {
             "center": {
-              "blocked": 54,
-              "samples": 1659
+              "blocked": 0,
+              "samples": 1793
             },
             "left": {
-              "blocked": 53,
-              "samples": 1659
+              "blocked": 0,
+              "samples": 1793
             },
             "right": {
-              "blocked": 54,
-              "samples": 1659
+              "blocked": 0,
+              "samples": 1793
             }
           },
-          "samples": 4977
+          "samples": 5379
         },
         "16": {
-          "blocked": 54,
+          "blocked": 0,
           "lanes": {
             "center": {
-              "blocked": 54,
-              "samples": 1659
+              "blocked": 0,
+              "samples": 1793
             }
           },
-          "samples": 1659
+          "samples": 1793
         }
       },
-      "blocked": 215,
-      "blocked_ranges": [
-        {
-          "end_t": 0.8982035928143712,
-          "end_xy": [
-            29191.575,
-            31208.886
-          ],
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "samples": 54,
-          "segment": 6,
-          "start_t": 0.7395209580838323,
-          "start_xy": [
-            29480.853,
-            30766.003
-          ]
-        },
-        {
-          "end_t": 0.8982035928143712,
-          "end_xy": [
-            29190.319,
-            31208.066
-          ],
-          "lane": "left",
-          "offset": 1.5,
-          "radius": 11,
-          "reason": "water",
-          "samples": 53,
-          "segment": 6,
-          "start_t": 0.7425149700598802,
-          "start_xy": [
-            29474.139,
-            30773.539
-          ]
-        },
-        {
-          "end_t": 0.8982035928143712,
-          "end_xy": [
-            29192.831,
-            31209.707
-          ],
-          "lane": "right",
-          "offset": -1.5,
-          "radius": 11,
-          "reason": "water",
-          "samples": 54,
-          "segment": 6,
-          "start_t": 0.7395209580838323,
-          "start_xy": [
-            29482.109,
-            30766.823
-          ]
-        },
-        {
-          "end_t": 0.8982035928143712,
-          "end_xy": [
-            29191.575,
-            31208.886
-          ],
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 16,
-          "reason": "water",
-          "samples": 54,
-          "segment": 6,
-          "start_t": 0.7395209580838323,
-          "start_xy": [
-            29480.853,
-            30766.003
-          ]
-        }
-      ],
+      "blocked": 0,
+      "blocked_ranges": [],
       "edges_sampled": true,
-      "first_failures": [
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "segment": 6,
-          "t": 0.7395209580838323,
-          "xy": [
-            29480.853,
-            30766.003
-          ]
-        },
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "segment": 6,
-          "t": 0.7425149700598802,
-          "xy": [
-            29475.395,
-            30774.359
-          ]
-        },
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "segment": 6,
-          "t": 0.7455089820359282,
-          "xy": [
-            29469.937,
-            30782.716
-          ]
-        },
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "segment": 6,
-          "t": 0.7485029940119761,
-          "xy": [
-            29464.479,
-            30791.072
-          ]
-        },
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "segment": 6,
-          "t": 0.7514970059880239,
-          "xy": [
-            29459.021,
-            30799.428
-          ]
-        },
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "segment": 6,
-          "t": 0.7544910179640718,
-          "xy": [
-            29453.563,
-            30807.784
-          ]
-        },
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "segment": 6,
-          "t": 0.7574850299401198,
-          "xy": [
-            29448.105,
-            30816.141
-          ]
-        },
-        {
-          "lane": "center",
-          "offset": 0.0,
-          "radius": 11,
-          "reason": "water",
-          "segment": 6,
-          "t": 0.7604790419161677,
-          "xy": [
-            29442.647,
-            30824.497
-          ]
-        }
-      ],
+      "first_failures": [],
       "half_width": 12.5,
       "kind": "rail",
       "reasons": {
         "building": 0,
         "ridge_or_rock": 0,
-        "water": 215,
+        "water": 0,
         "world_bounds": 0
       },
       "sample_step": 10,
-      "samples": 6636
+      "samples": 7172
     },
     "riversend_saint_brigids": {
       "actor_profiles": {
@@ -5145,8 +4930,8 @@
     }
   ],
   "source": {
-    "bridge_records": 51,
-    "geometry_sha256": "5fe76c2160acab94d0ff84d3b734a2f6b5ea4d60c81f994880f67f308a468010",
+    "bridge_records": 50,
+    "geometry_sha256": "8fdd554657b7193e4d25702239416bf0259ec859bfc17f09185ded396e420f03",
     "rail_polylines": 4,
     "route_records": 52,
     "site_count": 34,

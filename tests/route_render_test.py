@@ -6,6 +6,7 @@ import game
 from frontier_destinations import DESTINATIONS,fishing_spots,campsites
 from frontier_route_art import clip_segment,draw_scaled_routes
 from frontier_routes import ROUTE_GRAPH
+from new_austellia import BRIDGE_DECKS
 
 def main():
  with tempfile.TemporaryDirectory() as tmp:
@@ -23,6 +24,15 @@ def main():
     count=len(g.canvas.find_all())
     assert count>20 and count<3000,(detail,site.id,count)
     results.append((detail,site.id,round(elapsed*1000,1),count))
+   # The real world pipeline must draw shared-footprint bridge polygons.
+   rail=max((d for d in BRIDGE_DECKS if d.kind=='rail'),key=lambda d:d.half_length)
+   road=next(d for d in BRIDGE_DECKS if d.kind=='road')
+   for deck in (road,rail):
+    g.x,g.y=deck.x,deck.y
+    g.camx=max(0,g.x-game.VW/2);g.camy=max(0,g.y-game.VH/2)
+    g.render()
+    assert g.canvas.find_withtag('bridge_deck'),(detail,deck.water)
+    assert len(g.canvas.find_all())<3000,(detail,deck.water)
    g.map_open=True
    g.map_zoom=False;g.render()
    g.map_zoom=True;g.map_center=[g.x,g.y];g.render()

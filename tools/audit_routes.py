@@ -8,7 +8,7 @@ Usage:
 
 Graph-only --check verifies mainland connections. With --physical it also
 requires foot/horse center and edge probes at <=10 units and rejects blocked
-wagon/trail samples. Rail clearance is reported separately.
+wagon/trail samples. Rail clearance is reported separately unless --include-rail is selected.
 """
 import argparse
 import hashlib
@@ -20,7 +20,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parent.parent
 sys.path.insert(0,str(ROOT))
 from frontier_routes import ROUTE_GRAPH, WAGON, RAIL
-from new_austellia import BRIDGES, TOWNS, MAJOR_TOWNS, ROADS, RAILS, is_water
+from new_austellia import BRIDGES, TOWNS, MAJOR_TOWNS, ROADS, RAILS, is_water, BRIDGE_DECKS
 from frontier_world import WAYSTATIONS, START_SPUR
 
 def audit():
@@ -53,12 +53,15 @@ def audit():
     # Don't treat a bridge as evidence of wagon connectivity if it belongs
     # to rail or its centerline can't be crossed by the player.
     bridges=[]
-    for i,(x,y,dx,dy,name,kind,width) in enumerate(BRIDGES):
+    for i,(record,deck) in enumerate(zip(BRIDGES,BRIDGE_DECKS)):
+        x,y,dx,dy,name,kind,width=record
         center=(x,y)
-        bank0=(x-dx*(width+135),y-dy*(width+135))
-        bank1=(x+dx*(width+135),y+dy*(width+135))
+        bank0=(x-deck.dx*(deck.half_length+25),y-deck.dy*(deck.half_length+25))
+        bank1=(x+deck.dx*(deck.half_length+25),y+deck.dy*(deck.half_length+25))
         bridges.append({"id":"crossing_%03d"%i,"water":name,"kind":kind,
                         "xy":[round(x,1),round(y,1)],
+                        "deck_half_length":deck.half_length,"deck_half_width":deck.half_width,
+                        "deck_corners":deck.corners,
                         "center_passable":not is_water(*center),
                         "entry_passable":not is_water(*bank0),
                         "exit_passable":not is_water(*bank1),
@@ -69,7 +72,7 @@ def audit():
     disconnected=[a["id"] for a in core if a["component"] is None
                   or a["needs_road_approach"] or a["component"]!=root_components[0]]
     geometry={"routes":[(r.id,r.kind,r.source,r.vertices) for r in graph.routes],
-              "bridges":BRIDGES}
+              "bridges":BRIDGES,"deck_frames":[vars(deck) for deck in BRIDGE_DECKS]}
     digest=hashlib.sha256(json.dumps(geometry,sort_keys=True).encode()).hexdigest()
     return {
         "schema":1,"milestone":"v2.9-map","phase":"clearance_validation",
@@ -187,7 +190,7 @@ def physical_audit(step=10,edges=True,routes=None,classify=None):
                           "blocked_ranges":ranges}
     return detail
 
-def acceptance_failures(result):
+def acceptance_failures(result,include_rail=False):
     """Keep graph acceptance separate from optional physical clearance gates."""
     failures=[]
     if result["graph"]["wagon_components"]!=1:failures.append("disconnected wagon graph")
@@ -196,7 +199,7 @@ def acceptance_failures(result):
         if station["distance_to_wagon"] is None or station["distance_to_wagon"]>180:
             failures.append("missing waystation approach: "+station["id"])
     for rid,entry in result.get("physical_collision",{}).items():
-        if entry["kind"]==RAIL:continue
+        if entry["kind"]==RAIL and not include_rail:continue
         if entry["sample_step"]>10 or not entry["edges_sampled"]:
             failures.append("incomplete physical sampling: "+rid)
         if entry["blocked"]:failures.append("blocked route: "+rid)
@@ -209,7 +212,9 @@ def main():
     parser.add_argument("--physical",action="store_true",help="Sample foot/horse collision at route centers and usable edges")
     parser.add_argument("--step",type=float,default=10,help="Maximum physical sample spacing (default 10 world units)")
     parser.add_argument("--centerline-only",action="store_true",help="Diagnostic only: omit edge probes")
+    parser.add_argument("--include-rail",action="store_true",help="Also require rail clearance in physical acceptance")
     args=parser.parse_args()
+    if args.include_rail and not args.physical:parser.error("--include-rail requires --physical")
     result=audit()
     if args.physical:
         if not math.isfinite(args.step) or args.step<=0:parser.error("--step must be positive and finite")
@@ -234,7 +239,7 @@ def main():
         dest.write_text(output,encoding="utf8")
         print("Wrote",dest)
     else:print(output)
-    failures=acceptance_failures(result)
+    failures=acceptance_failures(result,args.include_rail)
     if args.check and failures:
         print("Road network acceptance failed: "+"; ".join(failures),file=sys.stderr)
         return 1

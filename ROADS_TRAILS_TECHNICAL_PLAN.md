@@ -2,20 +2,21 @@
 
 **Companion specification:** [ROADS_TRAILS_LANDMARKS_MILESTONE.md](ROADS_TRAILS_LANDMARKS_MILESTONE.md)  
 **Milestone:** v2.9-map, GitHub issue #20 — prerequisite to autonomous travelers  
-**Plan status:** IMPLEMENTATION IN PROGRESS. Graphs, connectors, destinations and initial art exist; physical clearance is not yet complete.
+**Plan status:** IMPLEMENTATION IN PROGRESS. Sampled route clearance passes; bridge approach review and integrated acceptance remain open.
 **Date:** November 9, 2026  
 **Target:** Python 3 + Tkinter on low-end Archcraft/X11 hardware; no additional runtime dependencies  
 **Source of truth:** New Austellia world dimensions **60,000×40,960**, atlas source dimensions **1448×1086**, existing town/river/road/rail/bridge definitions
 
 
-**Current implementation snapshot (November 9):** Route graphs, authored secondary roads,
-24 destination trails, map overlays and initial destination art are implemented.
-The current continuation adds 10-unit foot/horse center-and-margin collision
-sampling and preserves distinct bridge approaches previously lost by distance-only
-deduplication. See [measured clearance progress](docs/ROAD_CLEARANCE_PROGRESS.md)
-and [the current audit](docs/road_audit.json). The integrated wagon/trail fine-clearance gate passes after five town-approach
-detours; rail collision, deck-art parity and integrated acceptance remain open.
-Unchecked items below remain requirements, not a claim of no implementation.
+**Current implementation snapshot (November 9):** Route graphs, secondary roads,
+24 destination trails, initial art and campsite rest are implemented. Shared
+immutable bridge frames now drive both painted and passable deck footprints.
+The 10-unit foot/horse center-and-margin audit passes for roads, trails and rail;
+CI requires rail clearance explicitly. Seven straight-line bridge-end probes
+still need individual approach review. See [current rail/bridge results](docs/RAIL_BRIDGE_PROGRESS.md)
+and [the current audit](docs/road_audit.json). Legacy-grid protection cleanup,
+representative captures, performance baselines and user ride acceptance remain
+open. Unchecked items below remain requirements, not a claim of no implementation.
 
 ## 0. Engineering decisions
 

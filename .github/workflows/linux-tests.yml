@@ -75,6 +75,9 @@ jobs:
       - name: v2.9-map phase 0-1 atlas route graph baseline
         run: python3 tests/route_geometry_test.py
 
+      - name: Shared bridge geometry, art and water safety
+        run: python3 tests/bridge_deck_test.py
+
       - name: Fine route clearance sampler and bridge junction regression
         run: python3 tests/route_clearance_test.py
 
@@ -84,8 +87,8 @@ jobs:
       - name: Camera-local route and destination art smoke test
         run: xvfb-run -a python3 tests/route_render_test.py
 
-      - name: Audit physical road and rail clearance (diagnostic)
-        run: python3 tools/audit_routes.py --physical --check --json /tmp/dust_debt_road_audit.json
+      - name: Require physical road, trail and rail clearance
+        run: python3 tools/audit_routes.py --physical --include-rail --check --json /tmp/dust_debt_road_audit.json
 
       - name: Preserve detailed route audit for development
         if: always()

@@ -2,7 +2,8 @@
 
 Measured November 9, 2026, continuing the milestone's Group 2 physical gate.
 The historical [Phase 0 findings](ROAD_CLEARANCE_FINDINGS.md) remain a baseline.
-Current machine-readable results are in [road_audit.json](road_audit.json).
+This page records the prior `0ad5c00` pass. See [rail/bridge progress](RAIL_BRIDGE_PROGRESS.md)
+for the current continuation and [road_audit.json](road_audit.json) for current measurements.
 
 ## Implemented in this continuation
 
@@ -37,7 +38,7 @@ separate; no routes or town positions were moved.
 The deduplication repair alone raised the crossing-record count from 19 to 47.
 After integrating four explicit GitHub-authored town decks, the current count
 is **51 crossing records**. These are not necessarily
-47 separate physical structures: overlapping river channels and approaches
+51 separate physical structures: overlapping river channels and approaches
 can share a location. Existing rendering and collision consume the same bridge
 records. Exact rendered deck width/length versus the passable footprint, acute
 crossing lengths and bank approaches still need their separate acceptance pass.
