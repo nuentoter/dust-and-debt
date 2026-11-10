@@ -1,0 +1,233 @@
+{
+  "schema": 1,
+  "milestone": "v2.9-map",
+  "stage": "phase_0_static_baseline",
+  "source": "new_austellia.py",
+  "audit_method": "Independent exact segment-intersection analysis in atlas-derived world coordinates. This static snapshot has NOT run Game.solid; regenerate runtime diagnostic with python tools/audit_routes.py --json docs/road_audit_runtime.json.",
+  "world": [
+    60000,
+    40960
+  ],
+  "input": {
+    "wagon_polylines": 13,
+    "rail_polylines": 4,
+    "sites": 34,
+    "waterways": 5,
+    "waystations": 13
+  },
+  "graph": {
+    "wagon_components": 6,
+    "components": [
+      {
+        "id": 0,
+        "routes": [
+          "wagon_00",
+          "wagon_06",
+          "wagon_07"
+        ]
+      },
+      {
+        "id": 1,
+        "routes": [
+          "wagon_01",
+          "wagon_08"
+        ]
+      },
+      {
+        "id": 2,
+        "routes": [
+          "wagon_02"
+        ]
+      },
+      {
+        "id": 3,
+        "routes": [
+          "wagon_03",
+          "wagon_04",
+          "wagon_05",
+          "wagon_09",
+          "wagon_10",
+          "wagon_12"
+        ]
+      },
+      {
+        "id": 4,
+        "routes": [
+          "wagon_11"
+        ]
+      },
+      {
+        "id": 5,
+        "routes": [
+          "starter_spur"
+        ]
+      }
+    ],
+    "rail_components": 2
+  },
+  "crossings": {
+    "road_segments_intersecting_waterway": 18,
+    "rail_segments_intersecting_waterway": 29,
+    "physical_collision_audited": false
+  },
+  "priority_review": [
+    {
+      "id": "galloway",
+      "name": "Galloway",
+      "kind": "town",
+      "road": "wagon_06",
+      "distance_world": 3,
+      "wagon_component": 0
+    },
+    {
+      "id": "saints_hollow",
+      "name": "Saint's Hollow",
+      "kind": "town",
+      "road": "wagon_02",
+      "distance_world": 0,
+      "wagon_component": 2
+    },
+    {
+      "id": "roan_creek",
+      "name": "Roan Creek",
+      "kind": "town",
+      "road": "wagon_03",
+      "distance_world": 0,
+      "wagon_component": 3
+    },
+    {
+      "id": "larkfield",
+      "name": "Larkfield",
+      "kind": "town",
+      "road": "wagon_08",
+      "distance_world": 6597,
+      "wagon_component": 1
+    },
+    {
+      "id": "saint_brigids",
+      "name": "Saint Brigid's Port",
+      "kind": "port",
+      "road": "wagon_11",
+      "distance_world": 5363,
+      "wagon_component": 4
+    },
+    {
+      "id": "iron_mesa",
+      "name": "Iron Mesa Fort",
+      "kind": "fort",
+      "road": "wagon_07",
+      "distance_world": 5817,
+      "wagon_component": 0
+    },
+    {
+      "id": "brimstone",
+      "name": "Brimstone Point",
+      "kind": "post",
+      "road": "wagon_07",
+      "distance_world": 9381,
+      "wagon_component": 0
+    },
+    {
+      "id": "mercy_flats",
+      "name": "Mercy Flats Ranch",
+      "kind": "ranch",
+      "road": "wagon_01",
+      "distance_world": 1782,
+      "wagon_component": 1
+    },
+    {
+      "id": "black_rock",
+      "name": "Black Rock Ranch",
+      "kind": "ranch",
+      "road": "wagon_11",
+      "distance_world": 0,
+      "wagon_component": 4
+    }
+  ],
+  "core_mainland": [
+    {
+      "id": "galloway",
+      "road": "wagon_06",
+      "distance_world": 3,
+      "wagon_component": 0
+    },
+    {
+      "id": "saints_hollow",
+      "road": "wagon_02",
+      "distance_world": 0,
+      "wagon_component": 2
+    },
+    {
+      "id": "roan_creek",
+      "road": "wagon_03",
+      "distance_world": 0,
+      "wagon_component": 3
+    },
+    {
+      "id": "blackwater_crossing",
+      "road": "wagon_01",
+      "distance_world": 0,
+      "wagon_component": 1
+    },
+    {
+      "id": "larkfield",
+      "road": "wagon_08",
+      "distance_world": 6597,
+      "wagon_component": 1
+    },
+    {
+      "id": "harpers_landing",
+      "road": "wagon_05",
+      "distance_world": 0,
+      "wagon_component": 3
+    },
+    {
+      "id": "valleyford",
+      "road": "wagon_08",
+      "distance_world": 0,
+      "wagon_component": 1
+    },
+    {
+      "id": "dustwell",
+      "road": "wagon_07",
+      "distance_world": 0,
+      "wagon_component": 0
+    },
+    {
+      "id": "riversend",
+      "road": "wagon_11",
+      "distance_world": 0,
+      "wagon_component": 4
+    },
+    {
+      "id": "saint_brigids",
+      "road": "wagon_11",
+      "distance_world": 5363,
+      "wagon_component": 4
+    },
+    {
+      "id": "bayou_haven",
+      "road": "wagon_09",
+      "distance_world": 0,
+      "wagon_component": 3
+    },
+    {
+      "id": "elmshade",
+      "road": "wagon_04",
+      "distance_world": 0,
+      "wagon_component": 3
+    }
+  ],
+  "known_exemptions": [
+    "calhoun_island",
+    "herons_key",
+    "drake_isles"
+  ],
+  "limitations": [
+    "Component links are geometric crossings, not guaranteed usable bridges.",
+    "No road/rail transfers assumed.",
+    "Baseline excludes future explicit connector geometry.",
+    "Starting spur remains isolated.",
+    "No full gameplay, collision or frame-performance verification."
+  ]
+}
