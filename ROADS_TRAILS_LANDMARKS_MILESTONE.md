@@ -14,8 +14,9 @@
 24 destination trails, initial art and campsite rest are implemented. Shared
 immutable bridge frames now drive both painted and passable deck footprints.
 The 10-unit foot/horse center-and-margin audit passes for roads, trails and rail;
-CI requires rail clearance explicitly. Seven straight-line bridge-end probes
-still need individual approach review. See [current rail/bridge results](docs/RAIL_BRIDGE_PROGRESS.md)
+CI requires rail clearance explicitly. All 50 bridge records pass scoped route-approach checks; the seven off-route
+tangent probes are documented in [bridge approach review](docs/BRIDGE_APPROACH_REVIEW.md).
+See [rail/bridge results](docs/RAIL_BRIDGE_PROGRESS.md)
 and [the current audit](docs/road_audit.json). Legacy-grid protection cleanup,
 representative captures, performance baselines and user ride acceptance remain
 open. Unchecked items below remain requirements, not a claim of no implementation.

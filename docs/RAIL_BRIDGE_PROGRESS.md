@@ -3,6 +3,10 @@
 November 9, 2026. Continues the [road clearance pass](ROAD_CLEARANCE_PROGRESS.md)
 from `0ad5c00`; current measurements are in [road_audit.json](road_audit.json).
 
+**Follow-up:** The seven approach probes have been resolved by
+[route-aware bridge review](BRIDGE_APPROACH_REVIEW.md). This page records the
+prior rail/footprint pass; use the follow-up for current approach validation.
+
 ## Changes
 
 - Moved river-hugging stretches of the Blackwater, Dustwell and Riversend rail

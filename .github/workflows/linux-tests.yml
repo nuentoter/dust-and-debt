@@ -75,6 +75,9 @@ jobs:
       - name: v2.9-map phase 0-1 atlas route graph baseline
         run: python3 tests/route_geometry_test.py
 
+      - name: Route-aware bridge approaches and failure detection
+        run: python3 tests/bridge_approach_test.py
+
       - name: Shared bridge geometry, art and water safety
         run: python3 tests/bridge_deck_test.py
 

@@ -19,7 +19,7 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parent.parent
 sys.path.insert(0,str(ROOT))
-from frontier_routes import ROUTE_GRAPH, WAGON, RAIL
+from frontier_routes import ROUTE_GRAPH, WAGON, RAIL, projection
 from new_austellia import BRIDGES, TOWNS, MAJOR_TOWNS, ROADS, RAILS, is_water, BRIDGE_DECKS
 from frontier_world import WAYSTATIONS, START_SPUR
 
@@ -147,7 +147,7 @@ def collision_reason(x,y,radius):
 def physical_audit(step=10,edges=True,routes=None,classify=None):
     """Probe foot/horse centerlines and margins, reporting exact failure context.
 
-    Rail collision remains diagnostic; rails cannot satisfy wagon access.
+    Rail collision is reported separately; rails cannot satisfy wagon access.
     Injected route/classifier fixtures support precise sampler regressions.
     """
     classify=classify or collision_reason
@@ -190,6 +190,83 @@ def physical_audit(step=10,edges=True,routes=None,classify=None):
                           "blocked_ranges":ranges}
     return detail
 
+def bridge_surface(x,y):
+    """Distinguish real ground/settlement anchors from a supported wet deck."""
+    from new_austellia import near_atlas_town,river_at,lake_at,coastal_water
+    if near_atlas_town(x,y,230) is not None:return 'settlement'
+    if not (river_at(x,y) or lake_at(x,y) or coastal_water(x,y)):return 'land'
+    return 'water' if is_water(x,y) else 'deck'
+
+
+def bridge_approach_audit(routes=None,decks=None,classify=None,surface=None,step=10):
+    """Validate every same-mode path through each deck, following actual bends.
+
+    Raw tangent probes remain diagnostic. A wet tangent within a painted route
+    footprint is a failure; an off-route tangent is retained with its distance.
+    """
+    from tools.bridge_approaches import route_lengths,deck_intervals,approach_anchor,crop_route,point_at
+    routes=ROUTE_GRAPH.routes if routes is None else tuple(routes)
+    decks=BRIDGE_DECKS if decks is None else tuple(decks)
+    surface=surface or bridge_surface
+    classify=classify or collision_reason
+    lengths={route.id:route_lengths(route) for route in routes}
+    results=[]
+    for deck in decks:
+        paths=[];related=[]
+        eligible=RAIL if deck.kind=='rail' else WAGON
+        for route in routes:
+            if route.kind!=eligible:continue
+            distances=lengths[route.id]
+            intervals=deck_intervals(deck,route,distances)
+            if not intervals:continue
+            related.append(route)
+            for start,end in intervals:
+                entry=approach_anchor(route,distances,start,-1,surface,step=step)
+                exit=approach_anchor(route,distances,end,1,surface,step=step)
+                cropped=crop_route(route,distances,entry['distance'],exit['distance'])
+                probes=physical_audit(step,True,(cropped,),classify)[route.id]
+                for failure in probes['first_failures']:
+                    index,hit=min(enumerate(zip(route.vertices,route.vertices[1:])),
+                                  key=lambda item:projection(failure['xy'],*item[1])[0])
+                    _,t,_=projection(failure['xy'],*hit)
+                    failure['crop_segment']=failure['segment']
+                    failure['segment']=index;failure['t']=t
+                supported=all(anchor['surface'] in ('land','settlement') for anchor in (entry,exit))
+                paths.append({'route_id':route.id,'kind':route.kind,'entry':entry,'exit':exit,
+                              'deck_entry':point_at(route,distances,start),
+                              'deck_exit':point_at(route,distances,end),
+                              'guard_distance':150,'entry_guard':start-entry['distance'],
+                              'exit_guard':exit['distance']-end,'sample_step':step,
+                              'samples':probes['samples'],'blocked':probes['blocked'],
+                              'actor_profiles':probes['actor_profiles'],
+                              'first_failures':probes['first_failures'],
+                              'passed':supported and probes['blocked']==0 and step<=10})
+        reviews=[]
+        for sign,label in ((-1,'entry'),(1,'exit')):
+            point=(deck.x+sign*deck.dx*(deck.half_length+25),
+                   deck.y+sign*deck.dy*(deck.half_length+25))
+            candidates=[(projection(point,a,b)[0],route.id,index,projection(point,a,b)[2],
+                         route_half_width(route))
+                        for route in related for index,(a,b) in enumerate(zip(route.vertices,route.vertices[1:]))]
+            nearest=min(candidates) if candidates else None
+            wet=surface(*point) in ('water','deck') and bool(classify(*point,11))
+            # The production classifier reports a water failure at a wet raw
+            # tangent. Fixtures can exercise a wet point without a real map.
+            status='clear'
+            if wet:status='off_route_tangent' if nearest and nearest[0]>nearest[4] else 'unsafe_route_tangent'
+            reviews.append({'end':label,'xy':point,'status':status,
+                            'nearest_route':nearest[1] if nearest else None,
+                            'distance_to_route':nearest[0] if nearest else None,
+                            'route_half_width':nearest[4] if nearest else None,
+                            'route_segment':nearest[2] if nearest else None,
+                            'projected_xy':nearest[3] if nearest else None})
+        passed=bool(paths) and all(path['passed'] for path in paths)
+        passed=passed and not any(item['status']=='unsafe_route_tangent' for item in reviews)
+        results.append({'passed':passed,'scope':'sampled_same_mode_route_approaches',
+                        'paths':paths,'tangent_reviews':reviews})
+    return results
+
+
 def acceptance_failures(result,include_rail=False):
     """Keep graph acceptance separate from optional physical clearance gates."""
     failures=[]
@@ -203,6 +280,12 @@ def acceptance_failures(result,include_rail=False):
         if entry["sample_step"]>10 or not entry["edges_sampled"]:
             failures.append("incomplete physical sampling: "+rid)
         if entry["blocked"]:failures.append("blocked route: "+rid)
+    for crossing in result['crossings'] if 'crossings' in result else ():
+        review=crossing.get('approach_validation')
+        if review is None and 'physical_collision' in result:
+            failures.append('missing bridge approach validation: '+crossing['id'])
+        elif review is not None and not review['passed']:
+            failures.append('unvalidated bridge approach: '+crossing['id'])
     return failures
 
 def main():
@@ -212,12 +295,14 @@ def main():
     parser.add_argument("--physical",action="store_true",help="Sample foot/horse collision at route centers and usable edges")
     parser.add_argument("--step",type=float,default=10,help="Maximum physical sample spacing (default 10 world units)")
     parser.add_argument("--centerline-only",action="store_true",help="Diagnostic only: omit edge probes")
+    parser.add_argument("--bridges",action="store_true",help="Validate route-aware bridge approaches without the full route scan")
     parser.add_argument("--include-rail",action="store_true",help="Also require rail clearance in physical acceptance")
     args=parser.parse_args()
     if args.include_rail and not args.physical:parser.error("--include-rail requires --physical")
     result=audit()
-    if args.physical:
+    if args.physical or args.bridges:
         if not math.isfinite(args.step) or args.step<=0:parser.error("--step must be positive and finite")
+    if args.physical:
         result['physical_collision']=physical_audit(args.step,not args.centerline_only)
         detail=result['physical_collision']
         total=sum(entry['samples'] for entry in detail.values())
@@ -232,6 +317,16 @@ def main():
                       (name,item['blocked'],item['reasons']['water'],
                        item['reasons']['ridge_or_rock'],item['reasons']['building']))
                 print('    first failures:',item['first_failures'][:3])
+    if args.physical or args.bridges:
+        reviews=bridge_approach_audit(step=args.step)
+        for crossing,review in zip(result['crossings'],reviews):
+            crossing['approach_validation']=review
+            crossing['physically_validated']=review['passed']
+            crossing['physical_validation_scope']=review['scope']
+        paths=[path for review in reviews for path in review['paths']]
+        print('Bridge approaches: %d/%d records passed, %d route paths, %d blocked probes' %
+              (sum(review['passed'] for review in reviews),len(reviews),len(paths),
+               sum(path['blocked'] for path in paths)))
     output=json.dumps(result,indent=2,sort_keys=True)+"\n"
     if args.json:
         dest=Path(args.json)
