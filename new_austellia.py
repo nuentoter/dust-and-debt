@@ -193,7 +193,14 @@ def build_bridges():
        crossings.append((*hit,water_name,route_type,width))
  return tuple(crossings)
 
-BRIDGES=build_bridges()
+# Additional explicitly authored wagon decks at known town river confluences.
+# These are visible physical bridges, not invisible collision exemptions.
+# The original intersection-derived rail/road bridges remain intact.
+BRIDGES=build_bridges()+(
+ (*P(648,510),1.,0.,"Blackwater Town Crossing","road",260),
+ (*P(1051,600),0.32,-0.947,"Harper River Crossing","road",170),
+ (*P(706,835),1.,0.,"Riversend East Bridge","road",210),
+)
 
 def bridge_at(x,y,margin=8):
  """Only the actual bridge deck across a river is passable."""
