@@ -20,7 +20,7 @@ class RouteGeometryTest(unittest.TestCase):
  def test_baseline_inventory(self):
   self.assertEqual(len(ROADS),13)
   self.assertEqual(len(RAILS),4)
-  self.assertEqual(len(TOWNS),35)
+  self.assertEqual(len(TOWNS),34)
   self.assertEqual(len(MAJOR_TOWNS),12)
   self.assertEqual(len(WAYSTATIONS),13)
   self.assertEqual(len(ROUTE_SOURCES),18)
