@@ -1,0 +1,5342 @@
+{
+  "crossings": [
+    {
+      "center_passable": true,
+      "entry_passable": false,
+      "exit_passable": false,
+      "id": "crossing_000",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Sable River",
+      "xy": [
+        25100.6,
+        19154.5
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_001",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Sable River",
+      "xy": [
+        26851.0,
+        19424.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_002",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Sable River",
+      "xy": [
+        26851.0,
+        19424.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_003",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Sable River",
+      "xy": [
+        26851.0,
+        19424.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_004",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Sable River",
+      "xy": [
+        26851.0,
+        19424.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_005",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Sable River",
+      "xy": [
+        19928.1,
+        19622.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_006",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Sable River",
+      "xy": [
+        26851.0,
+        19424.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_007",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Sable River",
+      "xy": [
+        26851.0,
+        19424.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_008",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Blackwater River",
+      "xy": [
+        27469.1,
+        11920.3
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": false,
+      "exit_passable": false,
+      "id": "crossing_009",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Blackwater River",
+      "xy": [
+        26851.0,
+        19424.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": false,
+      "exit_passable": false,
+      "id": "crossing_010",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Blackwater River",
+      "xy": [
+        26851.0,
+        19424.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": false,
+      "exit_passable": true,
+      "id": "crossing_011",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Blackwater River",
+      "xy": [
+        49863.0,
+        27729.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_012",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Blackwater River",
+      "xy": [
+        26851.0,
+        19424.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_013",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Blackwater River",
+      "xy": [
+        37421.1,
+        21632.5
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": false,
+      "id": "crossing_014",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Blackwater River",
+      "xy": [
+        26851.0,
+        19424.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": false,
+      "exit_passable": true,
+      "id": "crossing_015",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Blackwater River",
+      "xy": [
+        26851.0,
+        19424.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_016",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Blackwater River",
+      "xy": [
+        50174.2,
+        27915.2
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_017",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Blackwater River",
+      "xy": [
+        43429.6,
+        22941.5
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_018",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Blackwater River",
+      "xy": [
+        50364.7,
+        28029.2
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_019",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Blackwater River",
+      "xy": [
+        26851.0,
+        19424.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_020",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Blackwater River",
+      "xy": [
+        41593.2,
+        22393.7
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": false,
+      "exit_passable": false,
+      "id": "crossing_021",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Roan Creek",
+      "xy": [
+        43420.5,
+        22869.9
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_022",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Roan Creek",
+      "xy": [
+        47883.6,
+        5865.3
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_023",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Roan Creek",
+      "xy": [
+        44908.3,
+        15264.3
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_024",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Roan Creek",
+      "xy": [
+        44908.0,
+        15265.2
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_025",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Roan Creek",
+      "xy": [
+        43308.0,
+        21333.2
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_026",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Roan Creek",
+      "xy": [
+        43332.6,
+        21669.5
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": false,
+      "exit_passable": true,
+      "id": "crossing_027",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Riversend Channel",
+      "xy": [
+        29006.0,
+        31493.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": false,
+      "exit_passable": true,
+      "id": "crossing_028",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Riversend Channel",
+      "xy": [
+        29006.0,
+        31493.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_029",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Riversend Channel",
+      "xy": [
+        34870.3,
+        24447.3
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": false,
+      "exit_passable": false,
+      "id": "crossing_030",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Riversend Channel",
+      "xy": [
+        29006.0,
+        31493.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": false,
+      "exit_passable": true,
+      "id": "crossing_031",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Riversend Channel",
+      "xy": [
+        29006.0,
+        31493.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_032",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Riversend Channel",
+      "xy": [
+        30448.1,
+        30154.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_033",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Riversend Channel",
+      "xy": [
+        34552.0,
+        25074.7
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_034",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Riversend Channel",
+      "xy": [
+        31401.5,
+        29225.5
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": false,
+      "id": "crossing_035",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Riversend Channel",
+      "xy": [
+        29006.0,
+        31493.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": false,
+      "exit_passable": true,
+      "id": "crossing_036",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Riversend Channel",
+      "xy": [
+        29006.0,
+        31493.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_037",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Dustwell Wash",
+      "xy": [
+        17196.0,
+        29721.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": false,
+      "exit_passable": false,
+      "id": "crossing_038",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Dustwell Wash",
+      "xy": [
+        17196.0,
+        29721.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": false,
+      "exit_passable": false,
+      "id": "crossing_039",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Dustwell Wash",
+      "xy": [
+        21631.7,
+        30264.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_040",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Dustwell Wash",
+      "xy": [
+        29006.0,
+        31493.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_041",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Dustwell Wash",
+      "xy": [
+        29006.0,
+        31493.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_042",
+      "kind": "rail",
+      "physically_validated": false,
+      "water": "Dustwell Wash",
+      "xy": [
+        29006.0,
+        31493.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_043",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Dustwell Wash",
+      "xy": [
+        17196.0,
+        29721.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_044",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Dustwell Wash",
+      "xy": [
+        29006.0,
+        31493.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_045",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Dustwell Wash",
+      "xy": [
+        29006.0,
+        31493.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_046",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Dustwell Wash",
+      "xy": [
+        29006.0,
+        31493.0
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": false,
+      "exit_passable": true,
+      "id": "crossing_047",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Blackwater Town Crossing",
+      "xy": [
+        26851,
+        19235
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_048",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Harper River Crossing",
+      "xy": [
+        43550,
+        22630
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_049",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Riversend East Bridge",
+      "xy": [
+        29254,
+        31493
+      ]
+    },
+    {
+      "center_passable": true,
+      "entry_passable": true,
+      "exit_passable": true,
+      "id": "crossing_050",
+      "kind": "road",
+      "physically_validated": false,
+      "water": "Pineheart Creek Bridge",
+      "xy": [
+        47859,
+        6148
+      ]
+    }
+  ],
+  "graph": {
+    "disconnected_or_missing_road_core_ids": [],
+    "mainland_core_components": [
+      0
+    ],
+    "rail_components": 2,
+    "wagon_components": 1,
+    "wagon_routes": [
+      {
+        "component": 0,
+        "edges": 129,
+        "nodes": 119,
+        "routes": [
+          "blackwater_larkfield",
+          "brimstone_iron_mesa",
+          "cinder_creek_approach",
+          "galloway_blackwater",
+          "harpers_valleyford",
+          "iron_mesa_stonewall",
+          "larkfield_harpers",
+          "riversend_saint_brigids",
+          "saints_hollow_roan",
+          "starter_spur",
+          "valleyford_riversend",
+          "wagon_00",
+          "wagon_01",
+          "wagon_02",
+          "wagon_03",
+          "wagon_04",
+          "wagon_05",
+          "wagon_06",
+          "wagon_07",
+          "wagon_08",
+          "wagon_09",
+          "wagon_10",
+          "wagon_11",
+          "wagon_12"
+        ]
+      }
+    ]
+  },
+  "known_exemptions": [
+    "calhoun_island",
+    "herons_key",
+    "drake_isles"
+  ],
+  "milestone": "v2.9-map",
+  "notes": [
+    "Includes authored secondary roads and 24 foot/horse destination trails.",
+    "A visually drawn connection does not prove passage through terrain/building collision.",
+    "The original map's START_SPUR is tracked explicitly alongside its authored approach.",
+    "Rail track proximity does not count toward wagon connectivity.",
+    "This report makes no claims about existing game runtime frame rate."
+  ],
+  "phase": "clearance_validation",
+  "physical_collision": {
+    "blackwater_larkfield": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1043
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1043
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1043
+            }
+          },
+          "samples": 3129
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1043
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1043
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1043
+            }
+          },
+          "samples": 3129
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 30.0,
+      "kind": "wagon",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 6258
+    },
+    "brimstone_iron_mesa": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 779
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 779
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 779
+            }
+          },
+          "samples": 2337
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 779
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 779
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 779
+            }
+          },
+          "samples": 2337
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 30.0,
+      "kind": "wagon",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 4674
+    },
+    "camp_cedarheart": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 266
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 266
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 266
+            }
+          },
+          "samples": 798
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 266
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 266
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 266
+            }
+          },
+          "samples": 798
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 16.5,
+      "kind": "trail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 1596
+    },
+    "camp_cinder": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 270
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 270
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 270
+            }
+          },
+          "samples": 810
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 270
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 270
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 270
+            }
+          },
+          "samples": 810
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 16.5,
+      "kind": "trail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 1620
+    },
+    "camp_cypress": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 202
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 202
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 202
+            }
+          },
+          "samples": 606
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 202
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 202
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 202
+            }
+          },
+          "samples": 606
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 16.5,
+      "kind": "trail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 1212
+    },
+    "camp_dustwell": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 128
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 128
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 128
+            }
+          },
+          "samples": 384
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 128
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 128
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 128
+            }
+          },
+          "samples": 384
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 16.5,
+      "kind": "trail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 768
+    },
+    "camp_everwood": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 211
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 211
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 211
+            }
+          },
+          "samples": 633
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 211
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 211
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 211
+            }
+          },
+          "samples": 633
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 16.5,
+      "kind": "trail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 1266
+    },
+    "camp_graystone": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 450
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 450
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 450
+            }
+          },
+          "samples": 1350
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 450
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 450
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 450
+            }
+          },
+          "samples": 1350
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 16.5,
+      "kind": "trail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 2700
+    },
+    "camp_heartland": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 281
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 281
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 281
+            }
+          },
+          "samples": 843
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 281
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 281
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 281
+            }
+          },
+          "samples": 843
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 16.5,
+      "kind": "trail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 1686
+    },
+    "camp_redmesa": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 81
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 81
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 81
+            }
+          },
+          "samples": 243
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 81
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 81
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 81
+            }
+          },
+          "samples": 243
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 16.5,
+      "kind": "trail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 486
+    },
+    "camp_redthorn": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 303
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 303
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 303
+            }
+          },
+          "samples": 909
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 303
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 303
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 303
+            }
+          },
+          "samples": 909
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 16.5,
+      "kind": "trail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 1818
+    },
+    "camp_roan": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 153
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 153
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 153
+            }
+          },
+          "samples": 459
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 153
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 153
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 153
+            }
+          },
+          "samples": 459
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 16.5,
+      "kind": "trail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 918
+    },
+    "camp_sable": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 127
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 127
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 127
+            }
+          },
+          "samples": 381
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 127
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 127
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 127
+            }
+          },
+          "samples": 381
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 16.5,
+      "kind": "trail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 762
+    },
+    "camp_sundown": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 546
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 546
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 546
+            }
+          },
+          "samples": 1638
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 546
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 546
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 546
+            }
+          },
+          "samples": 1638
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 16.5,
+      "kind": "trail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 3276
+    },
+    "cinder_creek_approach": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 701
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 701
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 701
+            }
+          },
+          "samples": 2103
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 701
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 701
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 701
+            }
+          },
+          "samples": 2103
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 30.0,
+      "kind": "wagon",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 4206
+    },
+    "fish_blackwater": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 47
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 47
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 47
+            }
+          },
+          "samples": 141
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 47
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 47
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 47
+            }
+          },
+          "samples": 141
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 16.5,
+      "kind": "trail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 282
+    },
+    "fish_brigids": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 53
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 53
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 53
+            }
+          },
+          "samples": 159
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 53
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 53
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 53
+            }
+          },
+          "samples": 159
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 16.5,
+      "kind": "trail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 318
+    },
+    "fish_cypress": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 407
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 407
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 407
+            }
+          },
+          "samples": 1221
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 407
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 407
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 407
+            }
+          },
+          "samples": 1221
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 16.5,
+      "kind": "trail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 2442
+    },
+    "fish_dustwell": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 220
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 220
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 220
+            }
+          },
+          "samples": 660
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 220
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 220
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 220
+            }
+          },
+          "samples": 660
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 16.5,
+      "kind": "trail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 1320
+    },
+    "fish_frostvein_e": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 331
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 331
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 331
+            }
+          },
+          "samples": 993
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 331
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 331
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 331
+            }
+          },
+          "samples": 993
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 16.5,
+      "kind": "trail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 1986
+    },
+    "fish_frostvein_w": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 546
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 546
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 546
+            }
+          },
+          "samples": 1638
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 546
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 546
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 546
+            }
+          },
+          "samples": 1638
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 16.5,
+      "kind": "trail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 3276
+    },
+    "fish_harpers": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 128
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 128
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 128
+            }
+          },
+          "samples": 384
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 128
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 128
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 128
+            }
+          },
+          "samples": 384
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 16.5,
+      "kind": "trail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 768
+    },
+    "fish_northstar_e": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 259
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 259
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 259
+            }
+          },
+          "samples": 777
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 259
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 259
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 259
+            }
+          },
+          "samples": 777
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 16.5,
+      "kind": "trail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 1554
+    },
+    "fish_northstar_w": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 509
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 509
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 509
+            }
+          },
+          "samples": 1527
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 509
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 509
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 509
+            }
+          },
+          "samples": 1527
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 16.5,
+      "kind": "trail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 3054
+    },
+    "fish_riversend": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 264
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 264
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 264
+            }
+          },
+          "samples": 792
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 264
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 264
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 264
+            }
+          },
+          "samples": 792
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 16.5,
+      "kind": "trail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 1584
+    },
+    "fish_roan": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 138
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 138
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 138
+            }
+          },
+          "samples": 414
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 138
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 138
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 138
+            }
+          },
+          "samples": 414
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 16.5,
+      "kind": "trail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 828
+    },
+    "fish_sable": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 113
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 113
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 113
+            }
+          },
+          "samples": 339
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 113
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 113
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 113
+            }
+          },
+          "samples": 339
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 16.5,
+      "kind": "trail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 678
+    },
+    "galloway_blackwater": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1017
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1017
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1017
+            }
+          },
+          "samples": 3051
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1017
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1017
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1017
+            }
+          },
+          "samples": 3051
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 30.0,
+      "kind": "wagon",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 6102
+    },
+    "harpers_valleyford": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1363
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1363
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1363
+            }
+          },
+          "samples": 4089
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1363
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1363
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1363
+            }
+          },
+          "samples": 4089
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 30.0,
+      "kind": "wagon",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 8178
+    },
+    "iron_mesa_stonewall": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 612
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 612
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 612
+            }
+          },
+          "samples": 1836
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 612
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 612
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 612
+            }
+          },
+          "samples": 1836
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 30.0,
+      "kind": "wagon",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 3672
+    },
+    "larkfield_harpers": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 960
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 960
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 960
+            }
+          },
+          "samples": 2880
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 960
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 960
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 960
+            }
+          },
+          "samples": 2880
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 30.0,
+      "kind": "wagon",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 5760
+    },
+    "rail_00": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 2,
+          "lanes": {
+            "center": {
+              "blocked": 1,
+              "samples": 2710
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 2710
+            },
+            "right": {
+              "blocked": 1,
+              "samples": 2710
+            }
+          },
+          "samples": 8130
+        },
+        "16": {
+          "blocked": 3,
+          "lanes": {
+            "center": {
+              "blocked": 3,
+              "samples": 2710
+            }
+          },
+          "samples": 2710
+        }
+      },
+      "blocked": 5,
+      "blocked_ranges": [
+        {
+          "end_t": 0.15441176470588236,
+          "end_xy": [
+            18682.5,
+            14691.735
+          ],
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "building",
+          "samples": 1,
+          "segment": 0,
+          "start_t": 0.15441176470588236,
+          "start_xy": [
+            18682.5,
+            14691.735
+          ]
+        },
+        {
+          "end_t": 0.15441176470588236,
+          "end_xy": [
+            18682.167,
+            14690.273
+          ],
+          "lane": "right",
+          "offset": -1.5,
+          "radius": 11,
+          "reason": "building",
+          "samples": 1,
+          "segment": 0,
+          "start_t": 0.15441176470588236,
+          "start_xy": [
+            18682.167,
+            14690.273
+          ]
+        },
+        {
+          "end_t": 0.15441176470588236,
+          "end_xy": [
+            18682.5,
+            14691.735
+          ],
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 16,
+          "reason": "building",
+          "samples": 3,
+          "segment": 0,
+          "start_t": 0.14705882352941177,
+          "start_xy": [
+            18663.0,
+            14696.176
+          ]
+        }
+      ],
+      "edges_sampled": true,
+      "first_failures": [
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "building",
+          "segment": 0,
+          "t": 0.15441176470588236,
+          "xy": [
+            18682.5,
+            14691.735
+          ]
+        },
+        {
+          "lane": "right",
+          "offset": -1.5,
+          "radius": 11,
+          "reason": "building",
+          "segment": 0,
+          "t": 0.15441176470588236,
+          "xy": [
+            18682.167,
+            14690.273
+          ]
+        },
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 16,
+          "reason": "building",
+          "segment": 0,
+          "t": 0.14705882352941177,
+          "xy": [
+            18663.0,
+            14696.176
+          ]
+        },
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 16,
+          "reason": "building",
+          "segment": 0,
+          "t": 0.15073529411764705,
+          "xy": [
+            18672.75,
+            14693.956
+          ]
+        },
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 16,
+          "reason": "building",
+          "segment": 0,
+          "t": 0.15441176470588236,
+          "xy": [
+            18682.5,
+            14691.735
+          ]
+        }
+      ],
+      "half_width": 12.5,
+      "kind": "rail",
+      "reasons": {
+        "building": 5,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 10840
+    },
+    "rail_01": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 733,
+          "lanes": {
+            "center": {
+              "blocked": 245,
+              "samples": 3679
+            },
+            "left": {
+              "blocked": 244,
+              "samples": 3679
+            },
+            "right": {
+              "blocked": 244,
+              "samples": 3679
+            }
+          },
+          "samples": 11037
+        },
+        "16": {
+          "blocked": 246,
+          "lanes": {
+            "center": {
+              "blocked": 246,
+              "samples": 3679
+            }
+          },
+          "samples": 3679
+        }
+      },
+      "blocked": 979,
+      "blocked_ranges": [
+        {
+          "end_t": 0.8341968911917098,
+          "end_xy": [
+            24835.264,
+            18997.347
+          ],
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "samples": 13,
+          "segment": 3,
+          "start_t": 0.772020725388601,
+          "start_xy": [
+            24732.238,
+            18936.352
+          ]
+        },
+        {
+          "end_t": 0.8341968911917098,
+          "end_xy": [
+            24834.5,
+            18998.638
+          ],
+          "lane": "left",
+          "offset": 1.5,
+          "radius": 11,
+          "reason": "water",
+          "samples": 13,
+          "segment": 3,
+          "start_t": 0.772020725388601,
+          "start_xy": [
+            24731.474,
+            18937.643
+          ]
+        },
+        {
+          "end_t": 0.8341968911917098,
+          "end_xy": [
+            24836.028,
+            18996.056
+          ],
+          "lane": "right",
+          "offset": -1.5,
+          "radius": 11,
+          "reason": "water",
+          "samples": 13,
+          "segment": 3,
+          "start_t": 0.772020725388601,
+          "start_xy": [
+            24733.003,
+            18935.062
+          ]
+        },
+        {
+          "end_t": 0.807909604519774,
+          "end_xy": [
+            26516.571,
+            19373.288
+          ],
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "samples": 122,
+          "segment": 4,
+          "start_t": 0.12429378531073447,
+          "start_xy": [
+            25326.395,
+            19192.814
+          ]
+        },
+        {
+          "end_t": 0.807909604519774,
+          "end_xy": [
+            26516.346,
+            19374.771
+          ],
+          "lane": "left",
+          "offset": 1.5,
+          "radius": 11,
+          "reason": "water",
+          "samples": 121,
+          "segment": 4,
+          "start_t": 0.12994350282485875,
+          "start_xy": [
+            25336.007,
+            19195.788
+          ]
+        },
+        {
+          "end_t": 0.807909604519774,
+          "end_xy": [
+            26516.796,
+            19371.805
+          ],
+          "lane": "right",
+          "offset": -1.5,
+          "radius": 11,
+          "reason": "water",
+          "samples": 122,
+          "segment": 4,
+          "start_t": 0.12429378531073447,
+          "start_xy": [
+            25326.62,
+            19191.331
+          ]
+        },
+        {
+          "end_t": 0.19519519519519518,
+          "end_xy": [
+            27498.072,
+            19468.114
+          ],
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "samples": 32,
+          "segment": 5,
+          "start_t": 0.1021021021021021,
+          "start_xy": [
+            27189.468,
+            19447.075
+          ]
+        },
+        {
+          "end_t": 0.1981981981981982,
+          "end_xy": [
+            27507.925,
+            19470.289
+          ],
+          "lane": "left",
+          "offset": 1.5,
+          "radius": 11,
+          "reason": "water",
+          "samples": 33,
+          "segment": 5,
+          "start_t": 0.1021021021021021,
+          "start_xy": [
+            27189.366,
+            19448.572
+          ]
+        },
+        {
+          "end_t": 0.19519519519519518,
+          "end_xy": [
+            27498.174,
+            19466.618
+          ],
+          "lane": "right",
+          "offset": -1.5,
+          "radius": 11,
+          "reason": "water",
+          "samples": 32,
+          "segment": 5,
+          "start_t": 0.1021021021021021,
+          "start_xy": [
+            27189.57,
+            19445.579
+          ]
+        },
+        {
+          "end_t": 0.16165413533834586,
+          "end_xy": [
+            36936.365,
+            19334.079
+          ],
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "building",
+          "samples": 20,
+          "segment": 9,
+          "start_t": 0.09022556390977443,
+          "start_xy": [
+            36782.436,
+            19223.579
+          ]
+        },
+        {
+          "end_t": 0.15789473684210525,
+          "end_xy": [
+            36927.388,
+            19329.482
+          ],
+          "lane": "left",
+          "offset": 1.5,
+          "radius": 11,
+          "reason": "building",
+          "samples": 18,
+          "segment": 9,
+          "start_t": 0.09398496240601503,
+          "start_xy": [
+            36789.663,
+            19230.613
+          ]
+        },
+        {
+          "end_t": 0.16165413533834586,
+          "end_xy": [
+            36937.239,
+            19332.86
+          ],
+          "lane": "right",
+          "offset": -1.5,
+          "radius": 11,
+          "reason": "building",
+          "samples": 20,
+          "segment": 9,
+          "start_t": 0.09022556390977443,
+          "start_xy": [
+            36783.311,
+            19222.36
+          ]
+        },
+        {
+          "end_t": 0.8708487084870848,
+          "end_xy": [
+            43156.649,
+            22733.207
+          ],
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "samples": 50,
+          "segment": 11,
+          "start_t": 0.6900369003690037,
+          "start_xy": [
+            42722.159,
+            22508.096
+          ]
+        },
+        {
+          "end_t": 0.8708487084870848,
+          "end_xy": [
+            43155.959,
+            22734.539
+          ],
+          "lane": "left",
+          "offset": 1.5,
+          "radius": 11,
+          "reason": "water",
+          "samples": 51,
+          "segment": 11,
+          "start_t": 0.6863468634686347,
+          "start_xy": [
+            42712.601,
+            22504.834
+          ]
+        },
+        {
+          "end_t": 0.8708487084870848,
+          "end_xy": [
+            43157.339,
+            22731.875
+          ],
+          "lane": "right",
+          "offset": -1.5,
+          "radius": 11,
+          "reason": "water",
+          "samples": 49,
+          "segment": 11,
+          "start_t": 0.6937269372693727,
+          "start_xy": [
+            42731.716,
+            22511.358
+          ]
+        },
+        {
+          "end_t": 0.7137809187279152,
+          "end_xy": [
+            49693.717,
+            27434.477
+          ],
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "samples": 8,
+          "segment": 14,
+          "start_t": 0.6890459363957597,
+          "start_xy": [
+            49658.866,
+            27373.852
+          ]
+        },
+        {
+          "end_t": 0.7137809187279152,
+          "end_xy": [
+            49692.417,
+            27435.225
+          ],
+          "lane": "left",
+          "offset": 1.5,
+          "radius": 11,
+          "reason": "water",
+          "samples": 8,
+          "segment": 14,
+          "start_t": 0.6890459363957597,
+          "start_xy": [
+            49657.565,
+            27374.599
+          ]
+        },
+        {
+          "end_t": 0.7137809187279152,
+          "end_xy": [
+            49695.018,
+            27433.729
+          ],
+          "lane": "right",
+          "offset": -1.5,
+          "radius": 11,
+          "reason": "water",
+          "samples": 8,
+          "segment": 14,
+          "start_t": 0.6890459363957597,
+          "start_xy": [
+            49660.166,
+            27373.104
+          ]
+        },
+        {
+          "end_t": 0.8341968911917098,
+          "end_xy": [
+            24835.264,
+            18997.347
+          ],
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 16,
+          "reason": "water",
+          "samples": 13,
+          "segment": 3,
+          "start_t": 0.772020725388601,
+          "start_xy": [
+            24732.238,
+            18936.352
+          ]
+        },
+        {
+          "end_t": 0.807909604519774,
+          "end_xy": [
+            26516.571,
+            19373.288
+          ],
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 16,
+          "reason": "water",
+          "samples": 122,
+          "segment": 4,
+          "start_t": 0.12429378531073447,
+          "start_xy": [
+            25326.395,
+            19192.814
+          ]
+        },
+        {
+          "end_t": 0.19519519519519518,
+          "end_xy": [
+            27498.072,
+            19468.114
+          ],
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 16,
+          "reason": "water",
+          "samples": 32,
+          "segment": 5,
+          "start_t": 0.1021021021021021,
+          "start_xy": [
+            27189.468,
+            19447.075
+          ]
+        },
+        {
+          "end_t": 0.16541353383458646,
+          "end_xy": [
+            36944.466,
+            19339.895
+          ],
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 16,
+          "reason": "building",
+          "samples": 21,
+          "segment": 9,
+          "start_t": 0.09022556390977443,
+          "start_xy": [
+            36782.436,
+            19223.579
+          ]
+        },
+        {
+          "end_t": 0.8708487084870848,
+          "end_xy": [
+            43156.649,
+            22733.207
+          ],
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 16,
+          "reason": "water",
+          "samples": 50,
+          "segment": 11,
+          "start_t": 0.6900369003690037,
+          "start_xy": [
+            42722.159,
+            22508.096
+          ]
+        },
+        {
+          "end_t": 0.7137809187279152,
+          "end_xy": [
+            49693.717,
+            27434.477
+          ],
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 16,
+          "reason": "water",
+          "samples": 8,
+          "segment": 14,
+          "start_t": 0.6890459363957597,
+          "start_xy": [
+            49658.866,
+            27373.852
+          ]
+        }
+      ],
+      "edges_sampled": true,
+      "first_failures": [
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "segment": 3,
+          "t": 0.772020725388601,
+          "xy": [
+            24732.238,
+            18936.352
+          ]
+        },
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "segment": 3,
+          "t": 0.7772020725388601,
+          "xy": [
+            24740.824,
+            18941.435
+          ]
+        },
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "segment": 3,
+          "t": 0.7823834196891192,
+          "xy": [
+            24749.409,
+            18946.518
+          ]
+        },
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "segment": 3,
+          "t": 0.7875647668393783,
+          "xy": [
+            24757.995,
+            18951.601
+          ]
+        },
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "segment": 3,
+          "t": 0.7927461139896373,
+          "xy": [
+            24766.58,
+            18956.684
+          ]
+        },
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "segment": 3,
+          "t": 0.7979274611398963,
+          "xy": [
+            24775.166,
+            18961.767
+          ]
+        },
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "segment": 3,
+          "t": 0.8031088082901554,
+          "xy": [
+            24783.751,
+            18966.85
+          ]
+        },
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "segment": 3,
+          "t": 0.8082901554404145,
+          "xy": [
+            24792.337,
+            18971.933
+          ]
+        }
+      ],
+      "half_width": 12.5,
+      "kind": "rail",
+      "reasons": {
+        "building": 79,
+        "ridge_or_rock": 0,
+        "water": 900,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 14716
+    },
+    "rail_02": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 1433,
+          "lanes": {
+            "center": {
+              "blocked": 478,
+              "samples": 3267
+            },
+            "left": {
+              "blocked": 475,
+              "samples": 3267
+            },
+            "right": {
+              "blocked": 480,
+              "samples": 3267
+            }
+          },
+          "samples": 9801
+        },
+        "16": {
+          "blocked": 478,
+          "lanes": {
+            "center": {
+              "blocked": 478,
+              "samples": 3267
+            }
+          },
+          "samples": 3267
+        }
+      },
+      "blocked": 1911,
+      "blocked_ranges": [
+        {
+          "end_t": 0.8603896103896104,
+          "end_xy": [
+            19798.679,
+            30175.286
+          ],
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "samples": 241,
+          "segment": 6,
+          "start_t": 0.08116883116883117,
+          "start_xy": [
+            17441.536,
+            29763.857
+          ]
+        },
+        {
+          "end_t": 0.8474025974025974,
+          "end_xy": [
+            19759.135,
+            30169.906
+          ],
+          "lane": "left",
+          "offset": 1.5,
+          "radius": 11,
+          "reason": "water",
+          "samples": 237,
+          "segment": 6,
+          "start_t": 0.08116883116883117,
+          "start_xy": [
+            17441.278,
+            29765.335
+          ]
+        },
+        {
+          "end_t": 0.8701298701298701,
+          "end_xy": [
+            19828.401,
+            30178.951
+          ],
+          "lane": "right",
+          "offset": -1.5,
+          "radius": 11,
+          "reason": "water",
+          "samples": 244,
+          "segment": 6,
+          "start_t": 0.08116883116883117,
+          "start_xy": [
+            17441.794,
+            29762.379
+          ]
+        },
+        {
+          "end_t": 0.335243553008596,
+          "end_xy": [
+            21387.983,
+            30261.404
+          ],
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "samples": 101,
+          "segment": 7,
+          "start_t": 0.04871060171919771,
+          "start_xy": [
+            20390.562,
+            30250.802
+          ]
+        },
+        {
+          "end_t": 0.7621776504297995,
+          "end_xy": [
+            22874.14,
+            30277.201
+          ],
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "samples": 101,
+          "segment": 7,
+          "start_t": 0.47564469914040114,
+          "start_xy": [
+            21876.719,
+            30266.599
+          ]
+        },
+        {
+          "end_t": 0.335243553008596,
+          "end_xy": [
+            21387.967,
+            30262.904
+          ],
+          "lane": "left",
+          "offset": 1.5,
+          "radius": 11,
+          "reason": "water",
+          "samples": 100,
+          "segment": 7,
+          "start_t": 0.05157593123209169,
+          "start_xy": [
+            20400.52,
+            30252.408
+          ]
+        },
+        {
+          "end_t": 0.7679083094555874,
+          "end_xy": [
+            22894.073,
+            30278.913
+          ],
+          "lane": "left",
+          "offset": 1.5,
+          "radius": 11,
+          "reason": "water",
+          "samples": 103,
+          "segment": 7,
+          "start_t": 0.47564469914040114,
+          "start_xy": [
+            21876.703,
+            30268.099
+          ]
+        },
+        {
+          "end_t": 0.335243553008596,
+          "end_xy": [
+            21387.999,
+            30259.904
+          ],
+          "lane": "right",
+          "offset": -1.5,
+          "radius": 11,
+          "reason": "water",
+          "samples": 102,
+          "segment": 7,
+          "start_t": 0.045845272206303724,
+          "start_xy": [
+            20380.603,
+            30249.196
+          ]
+        },
+        {
+          "end_t": 0.7593123209169055,
+          "end_xy": [
+            22864.182,
+            30275.595
+          ],
+          "lane": "right",
+          "offset": -1.5,
+          "radius": 11,
+          "reason": "water",
+          "samples": 100,
+          "segment": 7,
+          "start_t": 0.47564469914040114,
+          "start_xy": [
+            21876.735,
+            30265.099
+          ]
+        },
+        {
+          "end_t": 0.8565400843881856,
+          "end_xy": [
+            28690.819,
+            31368.62
+          ],
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "samples": 35,
+          "segment": 9,
+          "start_t": 0.7130801687763713,
+          "start_xy": [
+            28375.637,
+            31244.241
+          ]
+        },
+        {
+          "end_t": 0.8565400843881856,
+          "end_xy": [
+            28690.268,
+            31370.016
+          ],
+          "lane": "left",
+          "offset": 1.5,
+          "radius": 11,
+          "reason": "water",
+          "samples": 35,
+          "segment": 9,
+          "start_t": 0.7130801687763713,
+          "start_xy": [
+            28375.087,
+            31245.636
+          ]
+        },
+        {
+          "end_t": 0.8565400843881856,
+          "end_xy": [
+            28691.369,
+            31367.225
+          ],
+          "lane": "right",
+          "offset": -1.5,
+          "radius": 11,
+          "reason": "water",
+          "samples": 34,
+          "segment": 9,
+          "start_t": 0.7172995780590717,
+          "start_xy": [
+            28385.458,
+            31246.503
+          ]
+        },
+        {
+          "end_t": 0.8603896103896104,
+          "end_xy": [
+            19798.679,
+            30175.286
+          ],
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 16,
+          "reason": "water",
+          "samples": 241,
+          "segment": 6,
+          "start_t": 0.08116883116883117,
+          "start_xy": [
+            17441.536,
+            29763.857
+          ]
+        },
+        {
+          "end_t": 0.335243553008596,
+          "end_xy": [
+            21387.983,
+            30261.404
+          ],
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 16,
+          "reason": "water",
+          "samples": 101,
+          "segment": 7,
+          "start_t": 0.04871060171919771,
+          "start_xy": [
+            20390.562,
+            30250.802
+          ]
+        },
+        {
+          "end_t": 0.7621776504297995,
+          "end_xy": [
+            22874.14,
+            30277.201
+          ],
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 16,
+          "reason": "water",
+          "samples": 101,
+          "segment": 7,
+          "start_t": 0.47564469914040114,
+          "start_xy": [
+            21876.719,
+            30266.599
+          ]
+        },
+        {
+          "end_t": 0.8565400843881856,
+          "end_xy": [
+            28690.819,
+            31368.62
+          ],
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 16,
+          "reason": "water",
+          "samples": 35,
+          "segment": 9,
+          "start_t": 0.7130801687763713,
+          "start_xy": [
+            28375.637,
+            31244.241
+          ]
+        }
+      ],
+      "edges_sampled": true,
+      "first_failures": [
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "segment": 6,
+          "t": 0.08116883116883117,
+          "xy": [
+            17441.536,
+            29763.857
+          ]
+        },
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "segment": 6,
+          "t": 0.08441558441558442,
+          "xy": [
+            17451.357,
+            29765.571
+          ]
+        },
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "segment": 6,
+          "t": 0.08766233766233766,
+          "xy": [
+            17461.179,
+            29767.286
+          ]
+        },
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "segment": 6,
+          "t": 0.09090909090909091,
+          "xy": [
+            17471.0,
+            29769.0
+          ]
+        },
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "segment": 6,
+          "t": 0.09415584415584416,
+          "xy": [
+            17480.821,
+            29770.714
+          ]
+        },
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "segment": 6,
+          "t": 0.09740259740259741,
+          "xy": [
+            17490.643,
+            29772.429
+          ]
+        },
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "segment": 6,
+          "t": 0.10064935064935066,
+          "xy": [
+            17500.464,
+            29774.143
+          ]
+        },
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "segment": 6,
+          "t": 0.1038961038961039,
+          "xy": [
+            17510.286,
+            29775.857
+          ]
+        }
+      ],
+      "half_width": 12.5,
+      "kind": "rail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 1911,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 13068
+    },
+    "rail_03": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 161,
+          "lanes": {
+            "center": {
+              "blocked": 54,
+              "samples": 1659
+            },
+            "left": {
+              "blocked": 53,
+              "samples": 1659
+            },
+            "right": {
+              "blocked": 54,
+              "samples": 1659
+            }
+          },
+          "samples": 4977
+        },
+        "16": {
+          "blocked": 54,
+          "lanes": {
+            "center": {
+              "blocked": 54,
+              "samples": 1659
+            }
+          },
+          "samples": 1659
+        }
+      },
+      "blocked": 215,
+      "blocked_ranges": [
+        {
+          "end_t": 0.8982035928143712,
+          "end_xy": [
+            29191.575,
+            31208.886
+          ],
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "samples": 54,
+          "segment": 6,
+          "start_t": 0.7395209580838323,
+          "start_xy": [
+            29480.853,
+            30766.003
+          ]
+        },
+        {
+          "end_t": 0.8982035928143712,
+          "end_xy": [
+            29190.319,
+            31208.066
+          ],
+          "lane": "left",
+          "offset": 1.5,
+          "radius": 11,
+          "reason": "water",
+          "samples": 53,
+          "segment": 6,
+          "start_t": 0.7425149700598802,
+          "start_xy": [
+            29474.139,
+            30773.539
+          ]
+        },
+        {
+          "end_t": 0.8982035928143712,
+          "end_xy": [
+            29192.831,
+            31209.707
+          ],
+          "lane": "right",
+          "offset": -1.5,
+          "radius": 11,
+          "reason": "water",
+          "samples": 54,
+          "segment": 6,
+          "start_t": 0.7395209580838323,
+          "start_xy": [
+            29482.109,
+            30766.823
+          ]
+        },
+        {
+          "end_t": 0.8982035928143712,
+          "end_xy": [
+            29191.575,
+            31208.886
+          ],
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 16,
+          "reason": "water",
+          "samples": 54,
+          "segment": 6,
+          "start_t": 0.7395209580838323,
+          "start_xy": [
+            29480.853,
+            30766.003
+          ]
+        }
+      ],
+      "edges_sampled": true,
+      "first_failures": [
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "segment": 6,
+          "t": 0.7395209580838323,
+          "xy": [
+            29480.853,
+            30766.003
+          ]
+        },
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "segment": 6,
+          "t": 0.7425149700598802,
+          "xy": [
+            29475.395,
+            30774.359
+          ]
+        },
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "segment": 6,
+          "t": 0.7455089820359282,
+          "xy": [
+            29469.937,
+            30782.716
+          ]
+        },
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "segment": 6,
+          "t": 0.7485029940119761,
+          "xy": [
+            29464.479,
+            30791.072
+          ]
+        },
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "segment": 6,
+          "t": 0.7514970059880239,
+          "xy": [
+            29459.021,
+            30799.428
+          ]
+        },
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "segment": 6,
+          "t": 0.7544910179640718,
+          "xy": [
+            29453.563,
+            30807.784
+          ]
+        },
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "segment": 6,
+          "t": 0.7574850299401198,
+          "xy": [
+            29448.105,
+            30816.141
+          ]
+        },
+        {
+          "lane": "center",
+          "offset": 0.0,
+          "radius": 11,
+          "reason": "water",
+          "segment": 6,
+          "t": 0.7604790419161677,
+          "xy": [
+            29442.647,
+            30824.497
+          ]
+        }
+      ],
+      "half_width": 12.5,
+      "kind": "rail",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 215,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 6636
+    },
+    "riversend_saint_brigids": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 547
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 547
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 547
+            }
+          },
+          "samples": 1641
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 547
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 547
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 547
+            }
+          },
+          "samples": 1641
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 30.0,
+      "kind": "wagon",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 3282
+    },
+    "saints_hollow_roan": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1344
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1344
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1344
+            }
+          },
+          "samples": 4032
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1344
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1344
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1344
+            }
+          },
+          "samples": 4032
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 30.0,
+      "kind": "wagon",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 8064
+    },
+    "starter_spur": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 190
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 190
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 190
+            }
+          },
+          "samples": 570
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 190
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 190
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 190
+            }
+          },
+          "samples": 570
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 19.0,
+      "kind": "wagon",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 1140
+    },
+    "valleyford_riversend": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1295
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1295
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1295
+            }
+          },
+          "samples": 3885
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1295
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1295
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1295
+            }
+          },
+          "samples": 3885
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 30.0,
+      "kind": "wagon",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 7770
+    },
+    "wagon_00": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1322
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1322
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1322
+            }
+          },
+          "samples": 3966
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1322
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1322
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1322
+            }
+          },
+          "samples": 3966
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 50.0,
+      "kind": "wagon",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 7932
+    },
+    "wagon_01": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1343
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1343
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1343
+            }
+          },
+          "samples": 4029
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1343
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1343
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1343
+            }
+          },
+          "samples": 4029
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 50.0,
+      "kind": "wagon",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 8058
+    },
+    "wagon_02": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 813
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 813
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 813
+            }
+          },
+          "samples": 2439
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 813
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 813
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 813
+            }
+          },
+          "samples": 2439
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 50.0,
+      "kind": "wagon",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 4878
+    },
+    "wagon_03": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 962
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 962
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 962
+            }
+          },
+          "samples": 2886
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 962
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 962
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 962
+            }
+          },
+          "samples": 2886
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 50.0,
+      "kind": "wagon",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 5772
+    },
+    "wagon_04": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1737
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1737
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1737
+            }
+          },
+          "samples": 5211
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1737
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1737
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1737
+            }
+          },
+          "samples": 5211
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 50.0,
+      "kind": "wagon",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 10422
+    },
+    "wagon_05": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1043
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1043
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1043
+            }
+          },
+          "samples": 3129
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1043
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1043
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1043
+            }
+          },
+          "samples": 3129
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 50.0,
+      "kind": "wagon",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 6258
+    },
+    "wagon_06": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1393
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1393
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1393
+            }
+          },
+          "samples": 4179
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1393
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1393
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1393
+            }
+          },
+          "samples": 4179
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 50.0,
+      "kind": "wagon",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 8358
+    },
+    "wagon_07": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1600
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1600
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1600
+            }
+          },
+          "samples": 4800
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1600
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1600
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1600
+            }
+          },
+          "samples": 4800
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 50.0,
+      "kind": "wagon",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 9600
+    },
+    "wagon_08": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1201
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1201
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1201
+            }
+          },
+          "samples": 3603
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1201
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1201
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1201
+            }
+          },
+          "samples": 3603
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 50.0,
+      "kind": "wagon",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 7206
+    },
+    "wagon_09": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1226
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1226
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1226
+            }
+          },
+          "samples": 3678
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1226
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1226
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1226
+            }
+          },
+          "samples": 3678
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 50.0,
+      "kind": "wagon",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 7356
+    },
+    "wagon_10": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 827
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 827
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 827
+            }
+          },
+          "samples": 2481
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 827
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 827
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 827
+            }
+          },
+          "samples": 2481
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 50.0,
+      "kind": "wagon",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 4962
+    },
+    "wagon_11": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1500
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1500
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1500
+            }
+          },
+          "samples": 4500
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1500
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1500
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1500
+            }
+          },
+          "samples": 4500
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 50.0,
+      "kind": "wagon",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 9000
+    },
+    "wagon_12": {
+      "actor_profiles": {
+        "11": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1404
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1404
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1404
+            }
+          },
+          "samples": 4212
+        },
+        "16": {
+          "blocked": 0,
+          "lanes": {
+            "center": {
+              "blocked": 0,
+              "samples": 1404
+            },
+            "left": {
+              "blocked": 0,
+              "samples": 1404
+            },
+            "right": {
+              "blocked": 0,
+              "samples": 1404
+            }
+          },
+          "samples": 4212
+        }
+      },
+      "blocked": 0,
+      "blocked_ranges": [],
+      "edges_sampled": true,
+      "first_failures": [],
+      "half_width": 50.0,
+      "kind": "wagon",
+      "reasons": {
+        "building": 0,
+        "ridge_or_rock": 0,
+        "water": 0,
+        "world_bounds": 0
+      },
+      "sample_step": 10,
+      "samples": 8424
+    }
+  },
+  "schema": 1,
+  "sites": [
+    {
+      "component": 0,
+      "distance_to_wagon": 2.7,
+      "id": "galloway",
+      "kind": "town",
+      "name": "Galloway",
+      "nearest_wagon_route": "wagon_06",
+      "needs_road_approach": false,
+      "xy": [
+        18315,
+        14823
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "saints_hollow",
+      "kind": "town",
+      "name": "Saint's Hollow",
+      "nearest_wagon_route": "wagon_02",
+      "needs_road_approach": false,
+      "xy": [
+        31285,
+        10598
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "roan_creek",
+      "kind": "town",
+      "name": "Roan Creek",
+      "nearest_wagon_route": "wagon_03",
+      "needs_road_approach": false,
+      "xy": [
+        43798,
+        11541
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "hollow_bend",
+      "kind": "post",
+      "name": "Hollow Bend",
+      "nearest_wagon_route": "wagon_04",
+      "needs_road_approach": false,
+      "xy": [
+        44876,
+        15237
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "blackwater_crossing",
+      "kind": "city",
+      "name": "Blackwater Crossing",
+      "nearest_wagon_route": "wagon_01",
+      "needs_road_approach": false,
+      "xy": [
+        26851,
+        19424
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "larkfield",
+      "kind": "town",
+      "name": "Larkfield",
+      "nearest_wagon_route": "blackwater_larkfield",
+      "needs_road_approach": false,
+      "xy": [
+        36588,
+        19084
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "harpers_landing",
+      "kind": "town",
+      "name": "Harper's Landing",
+      "nearest_wagon_route": "wagon_05",
+      "needs_road_approach": false,
+      "xy": [
+        43467,
+        22894
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "valleyford",
+      "kind": "town",
+      "name": "Valleyford",
+      "nearest_wagon_route": "wagon_08",
+      "needs_road_approach": false,
+      "xy": [
+        33605,
+        24968
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "dustwell",
+      "kind": "town",
+      "name": "Dustwell",
+      "nearest_wagon_route": "wagon_07",
+      "needs_road_approach": false,
+      "xy": [
+        17196,
+        29721
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "riversend",
+      "kind": "town",
+      "name": "Riversend",
+      "nearest_wagon_route": "wagon_11",
+      "needs_road_approach": false,
+      "xy": [
+        29006,
+        31493
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "saint_brigids",
+      "kind": "port",
+      "name": "Saint Brigid's Port",
+      "nearest_wagon_route": "riversend_saint_brigids",
+      "needs_road_approach": false,
+      "xy": [
+        33936,
+        33605
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "bayou_haven",
+      "kind": "town",
+      "name": "Bayou Haven",
+      "nearest_wagon_route": "wagon_09",
+      "needs_road_approach": false,
+      "xy": [
+        50097,
+        28136
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "elmshade",
+      "kind": "settlement",
+      "name": "Elmshade",
+      "nearest_wagon_route": "wagon_04",
+      "needs_road_approach": false,
+      "xy": [
+        54406,
+        17840
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "pineheart",
+      "kind": "post",
+      "name": "Pineheart Trading Post",
+      "nearest_wagon_route": "wagon_03",
+      "needs_road_approach": false,
+      "xy": [
+        47942,
+        5356
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 89.2,
+      "id": "cinder_ridge",
+      "kind": "mine",
+      "name": "Cinder Ridge Camp",
+      "nearest_wagon_route": "cinder_creek_approach",
+      "needs_road_approach": false,
+      "xy": [
+        7251,
+        10410
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "silvervein",
+      "kind": "mine",
+      "name": "Silvervein Mine",
+      "nearest_wagon_route": "wagon_01",
+      "needs_road_approach": false,
+      "xy": [
+        22749,
+        8750
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 611.0,
+      "id": "iron_mesa",
+      "kind": "fort",
+      "name": "Iron Mesa Fort",
+      "nearest_wagon_route": "brimstone_iron_mesa",
+      "needs_road_approach": false,
+      "xy": [
+        9365,
+        18594
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "stonewall",
+      "kind": "fort",
+      "name": "Stonewall Fort",
+      "nearest_wagon_route": "wagon_06",
+      "needs_road_approach": false,
+      "xy": [
+        15580,
+        20819
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "brimstone",
+      "kind": "post",
+      "name": "Brimstone Point",
+      "nearest_wagon_route": "brimstone_iron_mesa",
+      "needs_road_approach": false,
+      "xy": [
+        2859,
+        22140
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "bearclaw",
+      "kind": "tower",
+      "name": "Bearclaw Lookout",
+      "nearest_wagon_route": "wagon_12",
+      "needs_road_approach": false,
+      "xy": [
+        54489,
+        21347
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "mercy_flats",
+      "kind": "ranch",
+      "name": "Mercy Flats Ranch",
+      "nearest_wagon_route": "galloway_blackwater",
+      "needs_road_approach": false,
+      "xy": [
+        25069,
+        14973
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "prairie_view",
+      "kind": "ranch",
+      "name": "Prairie View Ranch",
+      "nearest_wagon_route": "wagon_08",
+      "needs_road_approach": false,
+      "xy": [
+        27265,
+        23874
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "black_rock",
+      "kind": "ranch",
+      "name": "Black Rock Ranch",
+      "nearest_wagon_route": "wagon_11",
+      "needs_road_approach": false,
+      "xy": [
+        21008,
+        25232
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "rattlers_rest",
+      "kind": "ruin",
+      "name": "Rattler's Rest",
+      "nearest_wagon_route": "wagon_07",
+      "needs_road_approach": false,
+      "xy": [
+        11934,
+        28627
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "old_kestrel",
+      "kind": "ruin",
+      "name": "Old Kestrel Mill",
+      "nearest_wagon_route": "wagon_10",
+      "needs_road_approach": false,
+      "xy": [
+        42721,
+        30286
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 38.0,
+      "id": "widows_pass",
+      "kind": "pass",
+      "name": "Widow's Pass",
+      "nearest_wagon_route": "wagon_02",
+      "needs_road_approach": false,
+      "xy": [
+        29213,
+        2866
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "silver_mine",
+      "kind": "mine",
+      "name": "Lone Pine Mine",
+      "nearest_wagon_route": "wagon_11",
+      "needs_road_approach": false,
+      "xy": [
+        23287,
+        27382
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 3761.6,
+      "id": "frostvein_lake",
+      "kind": "lake",
+      "name": "Frostvein Lake",
+      "nearest_wagon_route": "wagon_01",
+      "needs_road_approach": false,
+      "xy": [
+        20843,
+        5507
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 3371.6,
+      "id": "northstar_lake",
+      "kind": "lake",
+      "name": "Northstar Lake",
+      "nearest_wagon_route": "saints_hollow_roan",
+      "needs_road_approach": false,
+      "xy": [
+        39779,
+        9316
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 1676.6,
+      "id": "highfalls",
+      "kind": "waterfall",
+      "name": "Highfalls",
+      "nearest_wagon_route": "wagon_03",
+      "needs_road_approach": false,
+      "xy": [
+        49848,
+        10636
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "driftwood_springs",
+      "kind": "spring",
+      "name": "Driftwood Springs",
+      "nearest_wagon_route": "wagon_06",
+      "needs_road_approach": false,
+      "xy": [
+        18605,
+        18255
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 5278.1,
+      "id": "calhoun_island",
+      "kind": "island",
+      "name": "Calhoun Island",
+      "nearest_wagon_route": "wagon_10",
+      "needs_road_approach": false,
+      "xy": [
+        43798,
+        35453
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 7672.7,
+      "id": "herons_key",
+      "kind": "island",
+      "name": "Heron's Key",
+      "nearest_wagon_route": "wagon_10",
+      "needs_road_approach": false,
+      "xy": [
+        47362,
+        36396
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 8189.8,
+      "id": "drake_isles",
+      "kind": "island",
+      "name": "Drake Isles",
+      "nearest_wagon_route": "wagon_12",
+      "needs_road_approach": false,
+      "xy": [
+        54986,
+        35001
+      ]
+    }
+  ],
+  "source": {
+    "bridge_records": 51,
+    "geometry_sha256": "5fe76c2160acab94d0ff84d3b734a2f6b5ea4d60c81f994880f67f308a468010",
+    "rail_polylines": 4,
+    "route_records": 52,
+    "site_count": 34,
+    "starter_spur": [
+      [
+        4650,
+        2980
+      ],
+      [
+        6000,
+        4300
+      ]
+    ],
+    "trail_polylines": 24,
+    "wagon_polylines": 13,
+    "waystations": 13
+  },
+  "waystations": [
+    {
+      "component": 0,
+      "distance_to_wagon": 2.7,
+      "id": "galloway_depot",
+      "kind": "waystation",
+      "name": "Galloway Depot",
+      "nearest_wagon_route": "wagon_06",
+      "needs_road_approach": false,
+      "xy": [
+        18315,
+        14823
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "saints_hollow_post",
+      "kind": "waystation",
+      "name": "Saint Hollow Post",
+      "nearest_wagon_route": "wagon_02",
+      "needs_road_approach": false,
+      "xy": [
+        31285,
+        10598
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "roan_creek_post",
+      "kind": "waystation",
+      "name": "Roan Creek Post",
+      "nearest_wagon_route": "wagon_03",
+      "needs_road_approach": false,
+      "xy": [
+        43798,
+        11541
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "hollow_bend_post",
+      "kind": "waystation",
+      "name": "Hollow Bend Post",
+      "nearest_wagon_route": "wagon_04",
+      "needs_road_approach": false,
+      "xy": [
+        44876,
+        15237
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "blackwater_station",
+      "kind": "waystation",
+      "name": "Blackwater Station",
+      "nearest_wagon_route": "wagon_01",
+      "needs_road_approach": false,
+      "xy": [
+        26851,
+        19424
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "larkfield_depot",
+      "kind": "waystation",
+      "name": "Larkfield Depot",
+      "nearest_wagon_route": "blackwater_larkfield",
+      "needs_road_approach": false,
+      "xy": [
+        36588,
+        19084
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "harpers_ferry",
+      "kind": "waystation",
+      "name": "Harper Ferry Post",
+      "nearest_wagon_route": "wagon_05",
+      "needs_road_approach": false,
+      "xy": [
+        43467,
+        22894
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "valleyford_post",
+      "kind": "waystation",
+      "name": "Valleyford Post",
+      "nearest_wagon_route": "wagon_08",
+      "needs_road_approach": false,
+      "xy": [
+        33605,
+        24968
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "dustwell_camp",
+      "kind": "waystation",
+      "name": "Dustwell Camp",
+      "nearest_wagon_route": "wagon_07",
+      "needs_road_approach": false,
+      "xy": [
+        17196,
+        29721
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "riversend_post",
+      "kind": "waystation",
+      "name": "Riversend Station",
+      "nearest_wagon_route": "wagon_11",
+      "needs_road_approach": false,
+      "xy": [
+        29006,
+        31493
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "saint_brigids_post",
+      "kind": "waystation",
+      "name": "Saint Brigid Port",
+      "nearest_wagon_route": "riversend_saint_brigids",
+      "needs_road_approach": false,
+      "xy": [
+        33936,
+        33605
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "bayou_haven_post",
+      "kind": "waystation",
+      "name": "Bayou Haven Post",
+      "nearest_wagon_route": "wagon_09",
+      "needs_road_approach": false,
+      "xy": [
+        50097,
+        28136
+      ]
+    },
+    {
+      "component": 0,
+      "distance_to_wagon": 0.0,
+      "id": "pineheart_post",
+      "kind": "waystation",
+      "name": "Pineheart Trading Post",
+      "nearest_wagon_route": "wagon_03",
+      "needs_road_approach": false,
+      "xy": [
+        47942,
+        5356
+      ]
+    }
+  ],
+  "world": [
+    60000,
+    40960
+  ]
+}

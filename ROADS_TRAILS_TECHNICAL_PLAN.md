@@ -2,10 +2,20 @@
 
 **Companion specification:** [ROADS_TRAILS_LANDMARKS_MILESTONE.md](ROADS_TRAILS_LANDMARKS_MILESTONE.md)  
 **Milestone:** v2.9-map, GitHub issue #20 — prerequisite to autonomous travelers  
-**Plan status:** IMPLEMENTATION PLAN ONLY. This commit does **not** alter world geometry, gameplay, or graphics.  
+**Plan status:** IMPLEMENTATION IN PROGRESS. Graphs, connectors, destinations and initial art exist; physical clearance is not yet complete.
 **Date:** November 9, 2026  
 **Target:** Python 3 + Tkinter on low-end Archcraft/X11 hardware; no additional runtime dependencies  
 **Source of truth:** New Austellia world dimensions **60,000×40,960**, atlas source dimensions **1448×1086**, existing town/river/road/rail/bridge definitions
+
+
+**Current implementation snapshot (November 9):** Route graphs, authored secondary roads,
+24 destination trails, map overlays and initial destination art are implemented.
+The current continuation adds 10-unit foot/horse center-and-margin collision
+sampling and preserves distinct bridge approaches previously lost by distance-only
+deduplication. See [measured clearance progress](docs/ROAD_CLEARANCE_PROGRESS.md)
+and [the current audit](docs/road_audit.json). The integrated wagon/trail fine-clearance gate passes after five town-approach
+detours; rail collision, deck-art parity and integrated acceptance remain open.
+Unchecked items below remain requirements, not a claim of no implementation.
 
 ## 0. Engineering decisions
 
@@ -409,4 +419,4 @@ Every phase is a separate **mergeable** group. GitHub-first: push to `main`, run
 
 This technical plan is executable once each group is translated into commits. Actual milestone completion requires **12/12 mainland towns, 13/13 waystations, 12+ fishing banks, 12+ camps, 100% checked road/river bridges, no unexplained disconnected road graph, normal + low-detail route visibility, passing regression CI, and user long-ride acceptance**.
 
-**Not done yet:** baseline graph measurements, route repairs, new bank/camp coordinates, actual route graphics, tests, benchmarks and hardware validation. Do not describe those as implemented before their corresponding commits and checks.
+**Remaining:** clear the measured road/rail obstructions; verify deck art against collision, full approach/pad clearance, representative captures and performance baselines; complete green CI and hardware/long-ride acceptance. See the current implementation snapshot above for work already delivered.

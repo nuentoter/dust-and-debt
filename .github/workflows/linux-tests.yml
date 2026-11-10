@@ -75,6 +75,9 @@ jobs:
       - name: v2.9-map phase 0-1 atlas route graph baseline
         run: python3 tests/route_geometry_test.py
 
+      - name: Fine route clearance sampler and bridge junction regression
+        run: python3 tests/route_clearance_test.py
+
       - name: Fishing, camp and road route integration
         run: python3 tests/route_destinations_test.py
 

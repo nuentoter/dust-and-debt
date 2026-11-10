@@ -103,7 +103,7 @@ ROADS_SRC=(
  ((178,277),(256,309),(315,329),(370,356),(405,342),(442,352),(442,392)),
  ((549,232),(568,278),(600,324),(648,370),(614,419),(608,468),(648,515)),
  ((705,77),(707,157),(755,281)),
- ((1157,142),(1150,209),(1166,264),(1057,306)),
+ ((1157,142),(1150,209),(1166,264),(1075,306),(1057,306)),
  ((1057,306),(1057,278),(1080,278),(1102,361),(1083,404),(1124,442),(1189,464),(1313,473)),
  ((1083,404),(1115,435),(1140,455),(1091,481),(1049,607)),
  ((442,392),(438,453),(449,484),(482,516),(470,564),(376,552),(344,613)),
@@ -122,12 +122,12 @@ ROADS=tuple(path(p) for p in ROADS_SRC)
 # hand-painted parcel's outbound START_SPUR terminal (world coordinates).
 SECONDARY_ROADS_SRC=(
  ("galloway_blackwater",((442,392),(519,386),(605,397),(580,352),(600,324))),
- ("blackwater_larkfield",((648,515),(680,485),(730,489),(810,479),(883,506))),
- ("larkfield_harpers",((883,506),(930,525),(980,550),(1030,560),(1065,573),(1049,607))),
+ ("blackwater_larkfield",((648,515),(680,485),(730,489),(810,479),(873,505),(883,506))),
+ ("larkfield_harpers",((883,506),(891,506),(900,515),(930,525),(980,550),(1030,560),(1065,573),(1049,607))),
  ("saints_hollow_roan",((755,281),(840,335),(930,352),(1057,306))),
  ("harpers_valleyford",((1049,607),(1070,574),(1025,575),(965,628),(908,674),(811,662))),
  ("valleyford_riversend",((811,662),(740,688),(716,745),(765,780),(748,806),(760,837),(700,835))),
- ("riversend_saint_brigids",((700,835),(755,855),(819,891))),
+ ("riversend_saint_brigids",((700,835),(715,835),(755,855),(819,891))),
  ("iron_mesa_stonewall",((238,505),(260,524),(318,536),(376,552))),
  ("brimstone_iron_mesa",((69,587),(130,571),(180,532),(238,505))),
 )
@@ -188,7 +188,12 @@ def build_bridges():
     for a,b in zip(route,route[1:]):
      for c,d in zip(water,water[1:]):
       hit=_crossing(a,b,c,d)
-      if hit and not any(math.hypot(hit[0]-p[0],hit[1]-p[1])<180
+      # Nearby crossings and different approach headings need their own
+      # decks. A 180-unit distance-only merge erased road spans beside rail
+      # bridges and the second arm of bends at town river junctions.
+      if hit and not any(math.hypot(hit[0]-p[0],hit[1]-p[1])<1e-4
+                         and abs(hit[2]*p[2]+hit[3]*p[3])>1-1e-6
+                         and p[4]==water_name and p[5]==route_type
                          for p in crossings):
        crossings.append((*hit,water_name,route_type,width))
  return tuple(crossings)
