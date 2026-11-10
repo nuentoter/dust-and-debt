@@ -61,7 +61,9 @@ def main():
   with patch("audio_system.shutil.which",return_value=None):
    audio=AudioDirector(assets_path=tmp)
    assert audio.backend=="none"
-   assert audio._music_file("title") is None  # No fabricated score.
+   assert audio._music_file("title").endswith("Forsaken to This Land.m4a")
+   audio.set_music_enabled(True);audio.set_music_state("title")
+   assert audio.music_process is None  # No player; never fabricate audio.
   game.SAVE=os.path.join(tmp,"save.json")
   root=tk.Tk();root.withdraw()
   g=game.Game(root)
