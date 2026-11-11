@@ -12,10 +12,17 @@ from cinder_creek_gfx import (ZONE_BOUNDS, STARTER_BUILDINGS, inside_art,
                              select_world_image,validate_starter_geometry)
 from game import BUILDINGS,Game
 
-assert ZONE_BOUNDS==(0,0,2400,1600)
-assert inside_art(0,0) and inside_art(2399,1599)
-assert not inside_art(2400,0) and not inside_art(-1,100)
+assert ZONE_BOUNDS==(0,0,4800,3200)
+assert inside_art(0,0) and inside_art(4799,3199)
+assert not inside_art(4800,0) and not inside_art(-1,100)
 assert validate_starter_geometry(BUILDINGS)
+assert (ROOT/'assets'/'world.png').is_file()
+# Check the real source PNG dimensions without a Pillow test dependency.
+import struct
+with (ROOT/'assets'/'world.png').open('rb') as source:
+    header=source.read(24)
+assert header[:8]==b'\\x89PNG\\r\\n\\x1a\\n'
+assert struct.unpack('>II',header[16:24])==ZONE_BOUNDS[2:]
 assert not validate_starter_geometry([("Sheriff",321,300,196,130)])
 
 with tempfile.TemporaryDirectory() as folder:
