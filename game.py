@@ -4,6 +4,7 @@ Runtime: Python 3 and Tk 8.6 (tkinter), no pip modules required.
 """
 import tkinter as tk
 import tkinter.font as tkfont
+from render_cache import RetainedCanvas
 from tkinter import messagebox
 import os, math, random, json, time, textwrap, sys, shutil
 from dataclasses import dataclass
@@ -119,7 +120,8 @@ class Game:
  def __init__(self,root):
   self.root=root;root.title('DUST & DEBT | Presentation & Reliability v2.9')
   root.resizable(False,False)
-  self.canvas=tk.Canvas(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
+  canvas_class=RetainedCanvas if os.environ.get('DUST_AND_DEBT_RETAINED_CANVAS')=='1' else tk.Canvas
+  self.canvas=canvas_class(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
   self.world=tk.PhotoImage(file=os.path.join(ASSETS,'world.png'))
   self.titleimg=tk.PhotoImage(file=os.path.join(ASSETS,'title.png'))
@@ -2564,7 +2566,14 @@ class Game:
   self.draw_text(480,500,'STORY COMPLETE  •  ENTER TO CONTINUE FREE ROAM',14,'#f3cd8e',True,anchor='center')
 
  def render(self):
-  self.canvas.delete('all')
+  if isinstance(self.canvas, RetainedCanvas):
+   self.canvas.begin_frame()
+   try:self._render_frame(clear=False)
+   finally:self.canvas.end_frame()
+  else:self._render_frame(clear=True)
+
+ def _render_frame(self,clear=True):
+  if clear:self.canvas.delete('all')
   self.audio.service()
   if self.screen=='title':
    self.audio.set_music_state('title')
