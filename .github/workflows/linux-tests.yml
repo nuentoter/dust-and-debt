@@ -81,6 +81,9 @@ jobs:
       - name: Persistent text fonts and HUD heading bounds
         run: xvfb-run -a python3 tests/text_rendering_test.py
 
+      - name: GFX-02 Cinder Creek art and geometry regression
+        run: xvfb-run -a python3 tests/cinder_creek_gfx_test.py
+
       - name: GFX-01 retained Canvas regression
         run: xvfb-run -a python3 tests/render_cache_test.py
 
