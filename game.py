@@ -3,6 +3,7 @@
 Runtime: Python 3 and Tk 8.6 (tkinter), no pip modules required.
 """
 import tkinter as tk
+import tkinter.font as tkfont
 from tkinter import messagebox
 import os, math, random, json, time, textwrap, sys, shutil
 from dataclasses import dataclass
@@ -14,14 +15,14 @@ from combat_progression import WEAPONS, DIFFICULTIES, available_weapons, normal_
 from enemy_tactics import ARCHETYPES, archetype, morale, should_surrender, movement, cover_goal
 from natural_terrain import ROCKS
 from frontier_destinations import DESTINATIONS,draw_destinations,draw_destination_map
-from frontier_route_art import draw_scaled_routes
+from frontier_route_art import draw_scaled_routes,draw_starter_spur
 from horse_riding import step_motion, TROT_SPEED, GALLOP_SPEED
 from frontier_chapters import CHAPTERS,CHAPTER_BY_ID,node_for,available_chapter
 import deadwood_pulp as pulp
 from road_events import (EVENT_TYPES,EVENT_TITLES,offer_for_day,nearby_station,
                         dispatch_rumor,safe_event_position,nearest_landmark)
 from frontier_world import (WORLD_WIDTH,WORLD_HEIGHT,SECTOR_W,SECTOR_H,SECTOR_NAMES,
- BIOME_PALETTES,BIOME_GRID,LANDMARKS,START_SPUR,MAP_RECT,
+ BIOME_PALETTES,BIOME_GRID,LANDMARKS,MAP_RECT,
  region_at,biome_at,near_landmark,landmark_by_key,road_at,map_view,
  point_on_map,world_from_map,draw_map_background,draw_landmark,
  WAYSTATIONS,near_waystation,waystation_by_key,draw_waystations)
@@ -135,7 +136,7 @@ class Game:
   self.audio=AudioDirector(bell=root.bell,assets_path=os.path.join(ASSETS,'audio'))
   self.keys=set();self.mouse=(VW//2,VH//2);self.mouse_down=False
   self.screen='title';self.fullscreen=False
-  self.font='DejaVu Sans';self.last=time.monotonic();self.frame=0
+  self.font='DejaVu Sans';self.text_fonts={};self.last=time.monotonic();self.frame=0
   self.reset()
   root.bind('<KeyPress>',self.key_down);root.bind('<KeyRelease>',self.key_up)
   root.bind('<Motion>',lambda e:setattr(self,'mouse',(e.x,e.y)))
@@ -1917,8 +1918,24 @@ class Game:
    if not collided and b[4]>0:kept.append(b)
   self.bullets=kept
 
+ def text_font(self,size,bold=False):
+  # Keep named fonts alive across canvas.delete('all'); reuse their Tk resources.
+  key=(self.font,size,bool(bold))
+  if key not in self.text_fonts:
+   self.text_fonts[key]=tkfont.Font(root=self.root,family=self.font,size=size,
+                                  weight='bold' if bold else 'normal')
+  return self.text_fonts[key]
+
+ def fit_text(self,text,width,size=11,min_size=9,bold=False):
+  for candidate in range(size,min_size-1,-1):
+   if self.text_font(candidate,bold).measure(text)<=width:return text,candidate
+  font=self.text_font(min_size,bold)
+  if font.measure('…')>width:return '',min_size
+  while text and font.measure(text+'…')>width:text=text[:-1]
+  return text+'…',min_size
+
  def draw_text(self,x,y,s,size=13,color='#ead8b3',bold=False,anchor='nw',shadow=True,width=None):
-  font=(self.font,size,'bold' if bold else 'normal')
+  font=self.text_font(size,bold)
   if shadow:self.canvas.create_text(x+1,y+2,text=s,fill='#211912',font=font,anchor=anchor,width=width)
   self.canvas.create_text(x,y,text=s,fill=color,font=font,anchor=anchor,width=width)
  def panel(self,x,y,w,h,fill='#221c18',edge='#b68b54'):
@@ -2003,11 +2020,7 @@ class Game:
   c=self.canvas
   draw_ground(c,self.camx,self.camy,VW,VH)
   draw_landforms(c,self.camx,self.camy,VW,VH)
-  # The starting region connects to the first new trade-route crossroads.
-  (x1,y1),(x2,y2)=START_SPUR
-  if self.camx-80<x2 and self.camy-80<y2 and self.camx+VW+80>x1 and self.camy+VH+80>y1:
-   c.create_line(x1-self.camx,y1-self.camy,x2-self.camx,y2-self.camy,fill='#b9a276',width=38)
-   c.create_line(x1-self.camx,y1-self.camy,x2-self.camx,y2-self.camy,fill='#d3b789',width=2,dash=(12,16))
+  draw_starter_spur(c,self.camx,self.camy,VW,VH)
 
  def draw_expansion_markers(self):
   # Camera-local sprites for gatherable items, campfires, and side-job clues.
@@ -2155,7 +2168,9 @@ class Game:
   self.draw_text(346,88,'2: WEAPON  F6: '+self.difficulty.upper()+'  F7: AIM '+('ON' if self.aim_assist else 'OFF'),9,'#c9b49a')
   self.panel(631,13,315,86)
   hours=int(self.clock);mins=int((self.clock-hours)*60)
-  self.draw_text(642,20,f'{hours%12 or 12}:{mins:02d} {"AM" if hours<12 else "PM"}  |  {self.region_name(self.x,self.y).upper()}',11,'#e2c48f',True)
+  heading=f'{hours%12 or 12}:{mins:02d} {"AM" if hours<12 else "PM"}  |  {self.region_name(self.x,self.y).upper()}'
+  heading,heading_size=self.fit_text(heading,292,bold=True)
+  self.draw_text(642,20,heading,heading_size,'#e2c48f',True)
   stars='★'*min(5,math.ceil(self.wanted))
   self.draw_text(642,43,self.law_status+' '+(stars if stars else '—'),15,'#e7a16b' if stars else '#b9a78b',True)
   self.draw_text(642,69,'H: HORSE   L: LASSO   G: TIE',10,'#e9d6b2')

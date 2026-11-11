@@ -10,6 +10,8 @@ from dataclasses import dataclass
 
 MAP_WIDTH,MAP_HEIGHT=1448.,1086.
 WORLD_WIDTH,WORLD_HEIGHT=60000.,40960.
+# Preserved starter exit in world units, shared by graph, masks and renderers.
+START_SPUR=((4650,2980),(6000,4300))
 def P(x,y):return (round(x*WORLD_WIDTH/MAP_WIDTH),round(y*WORLD_HEIGHT/MAP_HEIGHT))
 def path(points):return tuple(P(*v) for v in points)
 
@@ -134,7 +136,7 @@ SECONDARY_ROADS_SRC=(
 )
 SECONDARY_ROADS=tuple((key,path(points)) for key,points in SECONDARY_ROADS_SRC)
 SECONDARY_ROADS+=(("cinder_creek_approach",
- ((6000,4300),*path(((122,167),(145,215),(178,277))))),)
+ (START_SPUR[-1],*path(((122,167),(145,215),(178,277))))),)
 
 # Authored last-mile paths (source-map pixels): fishing banks and established
 # camp clearings. These are narrow *foot/horse* trails, not wagon shortcuts.
@@ -552,10 +554,9 @@ def draw_atlas(canvas,view,rect):
   x2=min(rx+rw,sx+rwx*rw/vw);y2=min(ry+rh,sy+rhy*rh/vh)
   if x2>x1 and y2>y1:
    canvas.create_oval(x1,y1,x2,y2,fill='#7ba2a8',outline='#536f75',width=2)
- for points in ROADS:draw_route(points,'#9c7656',2,(5,6))
- for _,points in SECONDARY_ROADS:draw_route(points,'#b48d61',1.5,(4,7))
- for _,_,_,pts in TRAILS:draw_route(pts,'#8d7156',1,(2,6))
- for points in RAILS:draw_route(points,'#a45546',3,(4,3))
+ # Runtime import avoids a module cycle: route art reads atlas source data.
+ from frontier_route_art import draw_scaled_routes
+ draw_scaled_routes(canvas,view,rect)
  for key,name,tx,ty,kind in TOWNS:
   if not vis((tx,ty)):continue
   sx,sy=scr((tx,ty))

@@ -1,6 +1,6 @@
 # Dust & Debt — Development Roadmap: v2.4 → v3.0
 
-**Updated:** November 9, 2026  
+**Updated:** November 10, 2026
 **Current playable source:** v2.9 development preview — Presentation & Reliability  
 **Release target:** v3.0 — Living Frontier  
 **Operating model:** GitHub-first development, one milestone at a time; user pulls the current main branch when desired.
@@ -59,7 +59,7 @@ v3.0 Living Frontier Release        #14
   comprehensive verification • release packaging
 ```
 
-**Navigation-first decision (November 9, 2026):** Implement [v2.9-map Roads, Trails & Landmarks #20](https://github.com/nuentoter/dust-and-debt/issues/20) before any new autonomous traveler system. Engineering checklist: [ROADS_TRAILS_LANDMARKS_MILESTONE.md](ROADS_TRAILS_LANDMARKS_MILESTONE.md). Technical build plan: [ROADS_TRAILS_TECHNICAL_PLAN.md](ROADS_TRAILS_TECHNICAL_PLAN.md). New mainland connectors, 24 fishing/camp access trails, a shared road/rail/trail graph, campsite rests, and unified minimap/full-atlas graphics are implemented. The strict 20-unit wagon-road collision gate, rail water crossings, mounted lateral-width testing, and the user's long ride remain review items.
+**Navigation-first decision (November 9, 2026):** Implement [v2.9-map Roads, Trails & Landmarks #20](https://github.com/nuentoter/dust-and-debt/issues/20) before any new autonomous traveler system. Engineering checklist: [ROADS_TRAILS_LANDMARKS_MILESTONE.md](ROADS_TRAILS_LANDMARKS_MILESTONE.md). Technical build plan: [ROADS_TRAILS_TECHNICAL_PLAN.md](ROADS_TRAILS_TECHNICAL_PLAN.md). New mainland connectors, 24 fishing/camp access trails, a shared road/rail/trail graph, campsite rests, and unified minimap/full-atlas graphics are implemented. The 10-unit foot/horse center-and-margin gate passes for roads, trails and rail; scoped bridge approaches also pass. Presentation polish, hardware measurements and the user's long ride remain open.
 
 ## Milestone map
 
@@ -102,6 +102,6 @@ Each milestone should be considered complete only after its issue checklist is s
 
 ## Next implementation
 
-**Current v2.9-map continuation:** Phantom-grid terrain protection is removed, with authored routes/starter clearance preserved. [The visual/performance baseline](docs/map_review/README.md) contains 18 Normal/Low captures, retained before captures and measured render/import/memory/graph data. All route and bridge gates remain clear. Next: unify starter-spur scaled-map drawing, profile rendering and address the documented seam, sparse forest, ridge/road ambiguity and label/HUD readability before hardware/user-ride signoff. Traveler AI remains deferred.
+**Current v2.9-map presentation phase:** [Starter route consistency, font reuse and HUD bounds](docs/presentation_review/README.md) are implemented and profiled. One starter-spur definition now feeds world, masks, graph, minimap and both atlas modes. The physical/bridge audit remains clear. Next: ridge/forest/seam visual clarity, settlement label/prompt crowding and further Canvas profiling before hardware/user-ride signoff. Traveler AI remains deferred.
 
 **Earlier terrain backlog: [v2.8-map Rivers, Ridges & Stone](https://github.com/nuentoter/dust-and-debt/issues/19)**, with initial organic terrain, ridges, rock collision, visual washes and regression checks committed; final playability, CI and art verification remain open. See [NATURAL_TERRAIN_MILESTONE.md](NATURAL_TERRAIN_MILESTONE.md). Resume [v2.8 Combat & Character Progression](https://github.com/nuentoter/dust-and-debt/issues/12) after the terrain pass. Weapon profiles, earned unlocks/perks, damage difficulty, aim assistance, and initial enemy archetypes/cover/morale/shot warnings have been committed. Automated validation, balancing and low-spec playtesting remain open. New Austellia geography and v2.7 story routes are implemented. The original M4A soundtrack playback mapping is committed; binary recordings must be supplied to the game's music directory. Finish the remaining illustrated map packaging/art polish in [#17](https://github.com/nuentoter/dust-and-debt/issues/17), and investigate silent audio on the owner's Archcraft computer under [Audio Sprint #15](https://github.com/nuentoter/dust-and-debt/issues/15).

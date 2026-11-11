@@ -10,7 +10,7 @@
 **Implementation architecture and staged commits:** [ROADS_TRAILS_TECHNICAL_PLAN.md](ROADS_TRAILS_TECHNICAL_PLAN.md)
 
 
-**Current implementation snapshot (November 9):** Route graphs, secondary roads,
+**Current implementation snapshot (November 10):** Route graphs, secondary roads,
 24 destination trails, initial art and campsite rest are implemented. Shared
 immutable bridge frames now drive both painted and passable deck footprints.
 The 10-unit foot/horse center-and-margin audit passes for roads, trails and rail;
@@ -19,8 +19,9 @@ tangent probes are documented in [bridge approach review](docs/BRIDGE_APPROACH_R
 See [rail/bridge results](docs/RAIL_BRIDGE_PROGRESS.md)
 and [the current audit](docs/road_audit.json). Legacy-grid protection is retired.
 [Visual/performance review](docs/map_review/README.md) provides 18 Normal/Low
-captures, retained before captures and measured Xvfb/graph baselines. Starter-spur scaled-map parity, rendering
-profiling, documented visual polish, real-hardware checks and user ride acceptance
+captures, retained before captures and measured Xvfb/graph baselines. [Presentation progress](docs/presentation_review/README.md) unifies starter-spur
+drawing across world/scaled maps and adds persistent fonts plus bounded HUD headings.
+Further rendering profiling, documented visual polish, real-hardware checks and user ride acceptance
 remain open. Unchecked items below remain requirements, not a claim of no implementation.
 
 ## 1. Goal and player experience

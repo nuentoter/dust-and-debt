@@ -8,7 +8,7 @@
 **Source of truth:** New Austellia world dimensions **60,000×40,960**, atlas source dimensions **1448×1086**, existing town/river/road/rail/bridge definitions
 
 
-**Current implementation snapshot (November 9):** Route graphs, secondary roads,
+**Current implementation snapshot (November 10):** Route graphs, secondary roads,
 24 destination trails, initial art and campsite rest are implemented. Shared
 immutable bridge frames now drive both painted and passable deck footprints.
 The 10-unit foot/horse center-and-margin audit passes for roads, trails and rail;
@@ -17,8 +17,9 @@ tangent probes are documented in [bridge approach review](docs/BRIDGE_APPROACH_R
 See [rail/bridge results](docs/RAIL_BRIDGE_PROGRESS.md)
 and [the current audit](docs/road_audit.json). Legacy-grid protection is retired.
 [Visual/performance review](docs/map_review/README.md) provides 18 Normal/Low
-captures, retained before captures and measured Xvfb/graph baselines. Starter-spur scaled-map parity, rendering
-profiling, documented visual polish, real-hardware checks and user ride acceptance
+captures, retained before captures and measured Xvfb/graph baselines. [Presentation progress](docs/presentation_review/README.md) unifies starter-spur
+drawing across world/scaled maps and adds persistent fonts plus bounded HUD headings.
+Further rendering profiling, documented visual polish, real-hardware checks and user ride acceptance
 remain open. Unchecked items below remain requirements, not a claim of no implementation.
 
 ## 0. Engineering decisions
@@ -40,7 +41,7 @@ remain open. Unchecked items below remain requirements, not a claim of no implem
 | `WATERWAYS`, `LAKES`, `COAST_POLYGON`, `BRIDGES`, `bridge_at`, `is_water` | `new_austellia.py` | Water collision is geometric and bridge-limited. A road visually painted across water is **not** guaranteed passable |
 | `draw_local_geography()` | `new_austellia.py` | Currently renders rivers/lakes, 100-world-unit wagon roads, rails and bridge decks in a fixed order; route strokes must migrate without double-drawing |
 | `draw_atlas()` | `new_austellia.py` | World-map vector map draws its own road/rail strokes; when an illustrated PNG is available, full-map display currently bypasses this vector route layer |
-| `ROAD_X`, `ROAD_Y`, `START_SPUR`, `road_at()`, `WAYSTATIONS` | `frontier_world.py` | Legacy grid constants are deprecated and have no runtime effect. Authored route masks and the preserved starter spur protect terrain; spur art remains separately drawn |
+| `ROAD_X`, `ROAD_Y`, `START_SPUR`, `road_at()`, `WAYSTATIONS` | `frontier_world.py` | Legacy grid constants are deprecated and have no runtime effect. Authored route masks and the preserved starter spur protect terrain; spur world/scaled painters share the canonical atlas tuple |
 | `near_protected()`, `ROCKS`, `landform_solid()` | `natural_terrain.py` | Rocks are generated and filtered once at module import. New protected route corridors must be defined **before** rock filtering or via a compatible override |
 | `Game.solid()` (line ~236), `can_move()`, `move_actor()` | `game.py` | Water, rock/cliff, then building checks. Test the precise player-radius/horse steps used in the game |
 | `draw_far_terrain()` and `draw_world()` (~1993, ~2063) | `game.py` | Scene order is terrain → atlas geography → old parcel overlay → towns/landmarks/waystations → decoration → actors. Route art must respect this |
@@ -391,8 +392,8 @@ Every phase is a separate **mergeable** group. GitHub-first: push to `main`, run
 **Files:** `frontier_route_art.py`, `game.py`, `new_austellia.py`, `tests/route_render_test.py`  
 **Tasks**
 - [ ] Migrate the in-world routes and bridges to a unified, layered renderer.
-- [ ] Replace minimap legacy grid with authored routes.
-- [ ] Overlay new trail/route graphics on both illustrated and vector maps.
+- [x] Replace minimap legacy grid with authored routes, including the shared starter spur.
+- [x] Overlay new trail/route graphics on both illustrated and vector maps; starter-source/clipping tests cover both modes.
 - [ ] Add biome-specific shoulders/ruts and restrained route/landmark details.
 - [ ] Verify F8 Normal/Low, screens, interior overlays and path readability.
 

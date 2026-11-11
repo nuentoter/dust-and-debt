@@ -75,6 +75,12 @@ jobs:
       - name: v2.9-map phase 0-1 atlas route graph baseline
         run: python3 tests/route_geometry_test.py
 
+      - name: Starter world/minimap/vector/illustrated map consistency
+        run: xvfb-run -a python3 tests/starter_route_test.py
+
+      - name: Persistent text fonts and HUD heading bounds
+        run: xvfb-run -a python3 tests/text_rendering_test.py
+
       - name: Authored route masks and retired terrain grid
         run: python3 tests/route_mask_test.py
 

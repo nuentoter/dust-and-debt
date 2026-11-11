@@ -104,13 +104,14 @@ timber, fishing pads and camp silhouettes in Low. They also expose remaining
 presentation work:
 
 - The starter artwork still has a visible rectangular edge despite feathering.
-- `START_SPUR` remains separately drawn in the world and is absent from the
-  scaled atlas/minimap route layer; unify that adapter without moving the path.
+- Follow-up: [starter-route unification](../presentation_review/README.md) now
+  includes that spur in the scaled atlas/minimap layers without moving it.
 - Larkfield and Dustwell have crowded NPC labels, signs and interaction prompts.
 - Everwood views remain visually sparse for a forest; biome art needs attention.
 - Ridge contour bands can resemble an oversized road, while the minimap correctly
   shows no route through the restored solid ridge. Add clearer landform cues.
-- Long region names can exceed the top-right HUD panel width.
+- Follow-up: [bounded HUD headings](../presentation_review/README.md) fix the
+  long-region overflow shown in these historical captures.
 - Rendering needs profiling and real-hardware verification before adding detail.
 
 These are findings for the next polish pass, not visual approval. User long-ride

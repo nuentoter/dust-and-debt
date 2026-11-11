@@ -1,0 +1,44 @@
+{
+  "source_commit": "2cafd9089640911938d42df7f4ad582e7b493e0d",
+  "game_sources_dirty": true,
+  "python": "3.14.9",
+  "scope": "cProfile-instrumented; 9 views x 2 detail modes x (1 warmup + 2 measured renders)",
+  "total_profile_seconds": 9.513087767000004,
+  "functions": {
+    "render": {
+      "calls": 54,
+      "self_seconds": 0.002255636,
+      "cumulative_seconds": 7.174335330000001
+    },
+    "draw_hud": {
+      "calls": 54,
+      "self_seconds": 0.034845748,
+      "cumulative_seconds": 4.289663205
+    },
+    "draw_world": {
+      "calls": 54,
+      "self_seconds": 0.004268918,
+      "cumulative_seconds": 2.758055395
+    },
+    "draw_text": {
+      "calls": 870,
+      "self_seconds": 0.014717935000000001,
+      "cumulative_seconds": 3.805360239
+    },
+    "canvas_create_text": {
+      "calls": 1848,
+      "self_seconds": 0.0051480350000000005,
+      "cumulative_seconds": 4.192243568
+    },
+    "named_font_init": {
+      "calls": 9,
+      "self_seconds": 0.000137395,
+      "cumulative_seconds": 0.00047651100000000005
+    },
+    "tkinter_python_initializers": {
+      "calls": 20,
+      "self_seconds": 0.00032155800000000005,
+      "cumulative_seconds": 1.978866418
+    }
+  }
+}
