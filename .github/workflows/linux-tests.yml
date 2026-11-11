@@ -81,6 +81,9 @@ jobs:
       - name: Persistent text fonts and HUD heading bounds
         run: xvfb-run -a python3 tests/text_rendering_test.py
 
+      - name: GFX-01 retained Canvas regression
+        run: xvfb-run -a python3 tests/render_cache_test.py
+
       - name: Authored route masks and retired terrain grid
         run: python3 tests/route_mask_test.py
 
