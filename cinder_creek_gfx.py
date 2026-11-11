@@ -5,7 +5,7 @@ actor drawing, collisions, doors and mission triggers remain authoritative.
 """
 import os
 
-ZONE_BOUNDS = (0, 0, 2400, 1600)
+ZONE_BOUNDS = (0, 0, 4800, 3200)
 ART_RELATIVE_PATH = os.path.join("gfx02", "cinder_creek", "world_gfx02.png")
 BASE_RELATIVE_PATH = "world.png"
 
