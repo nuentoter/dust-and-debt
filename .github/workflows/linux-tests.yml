@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install Tk and virtual display
-        run: sudo apt-get update && sudo apt-get install -y python3-tk xvfb
+        run: sudo apt-get update && sudo apt-get install -y python3-tk xvfb python3-pil
       - name: Verify game data
         run: python3 game.py --self-test
       - name: Audio process cleanup and silent test regression
@@ -80,6 +80,12 @@ jobs:
 
       - name: Persistent text fonts and HUD heading bounds
         run: xvfb-run -a python3 tests/text_rendering_test.py
+
+      - name: GFX-02 build artwork from actual source PNG
+        run: python3 tools/build_cinder_creek_scene.py
+
+      - name: GFX-02 Cinder Creek art and geometry regression
+        run: xvfb-run -a python3 tests/cinder_creek_gfx_test.py
 
       - name: GFX-01 retained Canvas regression
         run: xvfb-run -a python3 tests/render_cache_test.py

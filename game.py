@@ -5,6 +5,7 @@ Runtime: Python 3 and Tk 8.6 (tkinter), no pip modules required.
 import tkinter as tk
 import tkinter.font as tkfont
 from render_cache import RetainedCanvas
+from cinder_creek_gfx import select_world_image, validate_starter_geometry
 from tkinter import messagebox
 import os, math, random, json, time, textwrap, sys, shutil
 from dataclasses import dataclass
@@ -123,7 +124,8 @@ class Game:
   canvas_class=RetainedCanvas if os.environ.get('DUST_AND_DEBT_RETAINED_CANVAS')=='1' else tk.Canvas
   self.canvas=canvas_class(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
-  self.world=tk.PhotoImage(file=os.path.join(ASSETS,'world.png'))
+  assert validate_starter_geometry(BUILDINGS), 'Cinder Creek authored building positions changed'
+  self.world=tk.PhotoImage(file=select_world_image(ASSETS, os.environ.get('DUST_AND_DEBT_GFX02')=='1'))
   self.titleimg=tk.PhotoImage(file=os.path.join(ASSETS,'title.png'))
   self.mapimg=tk.PhotoImage(file=os.path.join(ASSETS,'map.png'))
   self.mapthumb=self.mapimg.subsample(4,4)
