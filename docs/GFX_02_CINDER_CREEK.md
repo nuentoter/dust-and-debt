@@ -6,7 +6,7 @@ This is the first step toward the uploaded **A Western Tale** 16×16 Western
 pixel-art style guide. The generated village mockup is *visual reference only*,
 not game-coordinate-aligned artwork. Inserting it directly would move doors,
 roads, collision silhouettes and mission locations. The production renderer
-therefore stays anchored to the existing 2400×1600 Cinder Creek source image.
+therefore stays anchored to the existing 4800×3200 original-world source image.
 
 ## What this changes
 
