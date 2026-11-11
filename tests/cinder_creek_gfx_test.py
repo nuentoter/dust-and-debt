@@ -21,7 +21,7 @@ assert (ROOT/'assets'/'world.png').is_file()
 import struct
 with (ROOT/'assets'/'world.png').open('rb') as source:
     header=source.read(24)
-assert header[:8]==b'\\x89PNG\\r\\n\\x1a\\n'
+assert header[:8]==bytes((137,80,78,71,13,10,26,10))
 assert struct.unpack('>II',header[16:24])==ZONE_BOUNDS[2:]
 assert not validate_starter_geometry([("Sheriff",321,300,196,130)])
 
