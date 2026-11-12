@@ -84,6 +84,9 @@ jobs:
       - name: GFX-02 build artwork from actual source PNG
         run: python3 tools/build_cinder_creek_scene.py
 
+      - name: GFX-02 original reference sheet sprite import checks
+        run: python3 tests/cinder_creek_sheet_art_test.py
+
       - name: GFX-02 architectural sprite bake checks
         run: python3 tests/cinder_creek_buildings_test.py
 
