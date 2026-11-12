@@ -89,3 +89,29 @@ parity and street-level prop placement are later steps.
 The new art replaces only the starter image already used by game.py; all
 other map terrain and existing v2.9 road, trail and collision layers remain
 unchanged. We do not change save compatibility or player progression.
+
+
+## Real tileset artwork import (third iteration)
+
+The game can now **use cut-out pixels from the supplied A Western Tale reference sheet**, instead of having Pillow draw simulated roofs and storefronts.
+
+An eight-sprite transparent PNG pack has been prepared from the user's uploaded sheet. Its files belong in `assets/gfx02/cinder_creek/sprites/`, with names:
+
+```text
+saloon.png   store.png   smithy.png  house.png
+stable.png   church.png  sheriff.png inn.png
+```
+
+**Install the provided sprite ZIP at the repository root** (it has the correct directory paths), then run:
+
+```sh
+python3 tools/build_cinder_creek_scene.py --require-sheet
+DUST_AND_DEBT_RETAINED_CANVAS=1 DUST_AND_DEBT_GFX02=1 ./Play_Dust_and_Debt.sh
+```
+
+`--require-sheet` is important: it refuses to silently substitute the geometric artwork when the eight image files are not installed. Without this flag the CI build, which does not include the separately supplied PNG sprite pack, safely falls back to procedural art. The JSON build manifest records `art_source` (either `user_supplied_sheet` or `procedural_fallback`) and lists the buildings repainted from source sprites.
+
+The imported sprites are resized with nearest-neighbor sampling and alpha composited within the existing collision rectangles: sheriff=sheriff, saloon=saloon, general store=store, doctor=church, stable=stable, hotel=inn, station=smithy with a STATION placard, cabin/outpost=house, ranch=stable. These replacements are deliberately **art-only**: doors, NPCs, prompts, and missions are unchanged. Some asset reuse is temporary until unique sprites are available. A simple matching dirt patch hides the old geometric roof under transparent sprite edges.
+
+The sprites are a separate downloadable binary pack, not committed to this PR. A newly pulled branch alone **will not** display the uploaded sheet: install the ZIP and regenerate the artwork locally. For redistribution of the game assets, check the original sheet's reuse rights.
+
