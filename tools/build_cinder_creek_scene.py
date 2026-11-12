@@ -12,6 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from cinder_creek_gfx import STARTER_BUILDINGS, ZONE_BOUNDS
+from tools.cinder_creek_buildings import paint_buildings
 
 try:
     from PIL import Image, ImageDraw
@@ -116,6 +117,7 @@ def bake():
         elif kind=="cactus":cactus(draw,x,y)
         else:flowers(draw,x,y,i+337)
         counts[kind]+=1
+    building_count=paint_buildings(image)
     OUT.mkdir(parents=True,exist_ok=True)
     destination=OUT/"world_gfx02.png"
     image.save(destination,optimize=True)
@@ -127,8 +129,10 @@ def bake():
         "size":[width,height],
         "seed":1889,
         "decor_counts":counts,
+        "redrawn_buildings":building_count,
+        "building_names":[row[0] for row in STARTER_BUILDINGS],
         "geometry_changes":False,
-        "notes":"Deterministic first-pass decoration bake, not the final painted tileset.",
+        "notes":"Deterministic coordinate-aligned Western building and terrain art. Further authored tileset work remains.",
     }
     (OUT/"build_manifest.json").write_text(json.dumps(manifest,indent=2)+"\n")
     print("Built",destination)
