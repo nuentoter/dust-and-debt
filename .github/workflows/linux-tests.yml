@@ -84,6 +84,12 @@ jobs:
       - name: GFX-02 build artwork from actual source PNG
         run: python3 tools/build_cinder_creek_scene.py
 
+      - name: Validate GFX asset rules and baked scene
+        run: python3 tools/validate_graphics_assets.py
+
+      - name: Test graphical asset rule enforcement
+        run: python3 tests/graphics_asset_rules_test.py
+
       - name: GFX-02 original reference sheet sprite import checks
         run: python3 tests/cinder_creek_sheet_art_test.py
 
