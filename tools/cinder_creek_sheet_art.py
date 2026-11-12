@@ -67,10 +67,14 @@ def _ground_patch(image, box, seed, feather=GROUND_MARGIN):
     x, y, w, h = box
     if w <= 0 or h <= 0:
         raise ValueError("Invalid building footprint")
-    margin = feather + 12
+    # Legacy art left a dark rectangular outline up to ~10 px beyond the
+    # building. Fully repaint that halo before the feather starts.
+    halo = 12
+    margin = halo + feather + 12
     colour = _terrain_color(image, x, y, w, h, margin)
-    left, top = max(0, x - feather), max(0, y - feather)
-    right, bottom = min(image.width, x + w + feather), min(image.height, y + h + feather)
+    extent = halo + feather
+    left, top = max(0, x - extent), max(0, y - extent)
+    right, bottom = min(image.width, x + w + extent), min(image.height, y + h + extent)
     if left >= right or top >= bottom:
         return
     rng = random.Random(seed)
@@ -85,7 +89,7 @@ def _ground_patch(image, box, seed, feather=GROUND_MARGIN):
             dx = max(x - px, px - (x + w - 1), 0)
             dy = max(y - py, py - (y + h - 1), 0)
             dist = max(dx, dy)
-            t = max(0.0, min(1.0, 1.0 - dist / feather))
+            t = max(0.0, min(1.0, 1.0 - max(0, dist - halo) / feather))
             blend = t * t * (3.0 - 2.0 * t)
             if blend <= 0:
                 continue
