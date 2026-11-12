@@ -149,8 +149,8 @@ def paint_buildings(image, buildings=STARTER_BUILDINGS):
             raise ValueError("Building extends beyond source map: "+name)
         scheme=SCHEMES[name]
         _roof(draw,x,y,w,h,scheme,1889+index*101)
+        _porch(draw,x,y,w,h,scheme)
         _front(draw,x,y,w,h,name,scheme)
         _special(draw,x,y,w,h,name,scheme)
-        _porch(draw,x,y,w,h,scheme)
         count+=1
     return count
