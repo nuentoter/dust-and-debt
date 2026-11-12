@@ -21,7 +21,7 @@ with tempfile.TemporaryDirectory() as folder:
     bogus=root/"bad_rules.json"
     rules["world"]["starter_dimensions"]=[2400,1600]
     bogus.write_text(json.dumps(rules))
-    assert any("dimensions" in item for item in validate_rules(bogus))
+    assert any("geometry" in item for item in validate_rules(bogus))
     rules["world"]["starter_dimensions"]=[4800,3200]
     rules["pixel_sampling"]="bilinear"
     bogus.write_text(json.dumps(rules))
