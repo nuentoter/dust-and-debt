@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "style": "Dust & Debt western pixel-art",
+  "base_tile_pixels": 16,
+  "pixel_sampling": "nearest",
+  "source_assets": {
+    "format": "PNG",
+    "transparency": "RGBA with meaningful transparent pixels",
+    "naming": "lowercase_snake_case",
+    "required_metadata": [
+      "id", "kind", "source", "rights", "anchor", "native_dimensions"
+    ]
+  },
+  "world": {
+    "starter_origin": [0, 0],
+    "starter_dimensions": [4800, 3200],
+    "geometry_source": "game.BUILDINGS and authored route data",
+    "static_art": "offline prebaked PNG",
+    "geometry_may_change_with_art": false
+  },
+  "render_layers": [
+    "terrain",
+    "ground_decoration",
+    "building_ground_shadow",
+    "static_building",
+    "ground_props",
+    "actors",
+    "front_occluders",
+    "weather_and_lighting",
+    "hud"
+  ],
+  "building": {
+    "anchor": "south_center",
+    "fit": "preserve_aspect_ratio",
+    "collision": "existing_gameplay_rectangles",
+    "ground": "sample_outside_footprint_then_feather",
+    "shadow": "source_alpha_mask",
+    "shadow_offset": [5, 6],
+    "shadow_max_alpha": 76
+  },
+  "characters": {
+    "main_character_native_frame": [32, 48],
+    "horse_native_frame": [48, 64],
+    "direction_order": ["s", "sw", "w", "nw", "n", "ne", "e", "se"],
+    "frame_anchor": "feet_bottom_center",
+    "animations": {
+      "idle": 4,
+      "walk": 6,
+      "run": 8
+    }
+  },
+  "acceptance": {
+    "requires_alpha_qa": true,
+    "requires_coordinate_regression": true,
+    "requires_in_game_capture": true,
+    "requires_hardware_performance_check": true,
+    "requires_rights_review_before_distribution": true
+  }
+}
