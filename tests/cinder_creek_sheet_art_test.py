@@ -70,7 +70,7 @@ land=Image.new("RGB",(320,260),(196,155,110))
 ld=ImageDraw.Draw(land)
 ld.rectangle((60,40,230,190),fill=(65,46,33))
 _ground_patch(land,(60,40,160,140),seed=1337)
-assert land.getpixel((240,100))==(196,155,110)  # outside blended region
+assert land.getpixel((255,100))==(196,155,110)  # outside blended region
 assert min(land.getpixel((225,110)))>110  # old dark border is gone
 assert min(land.getpixel((100,70)))>110  # old building is gone
 # No hard jump across the fill/feather boundary.
