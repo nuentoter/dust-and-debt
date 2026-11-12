@@ -102,7 +102,7 @@ saloon.png   store.png   smithy.png  house.png
 stable.png   church.png  sheriff.png inn.png
 ```
 
-**Install the provided sprite ZIP at the repository root** (it has the correct directory paths), then run:
+**Install the provided sprite ZIP at the repository root** (it has the correct directory paths). Alternatively, run `python3 tools/extract_western_sheet.py '/path/to/A Western Tale_ Village Tileset.png'` to extract the same eight sprites directly from the original user-supplied PNG. Then run:
 
 ```sh
 python3 tools/build_cinder_creek_scene.py --require-sheet
