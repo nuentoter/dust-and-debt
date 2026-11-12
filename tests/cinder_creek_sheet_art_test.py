@@ -8,6 +8,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from PIL import Image, ImageDraw
 from cinder_creek_gfx import STARTER_BUILDINGS
+from tools.extract_western_sheet import remove_sheet_background
 from tools.cinder_creek_sheet_art import (REQUIRED_SPRITES,SPRITE_BY_BUILDING,
     paint_sheet_buildings,sprites_available)
 
@@ -35,4 +36,14 @@ with tempfile.TemporaryDirectory() as temp:
     assert base.getpixel((400,380)) != before.getpixel((400,380))
     assert base.getpixel((1210,1380)) != before.getpixel((1210,1380))
     assert set(SPRITE_BY_BUILDING.values())==set(REQUIRED_SPRITES)
+# A background-connected dark matte becomes transparent, while an enclosed
+# dark window survives inside a roof.
+fixture=Image.new("RGBA",(16,16),(8,18,23,255))
+drawer=ImageDraw.Draw(fixture)
+drawer.rectangle((3,3,12,12),fill=(145,75,42,255))
+drawer.rectangle((6,6,9,9),fill=(10,20,25,255))
+cut=remove_sheet_background(fixture)
+assert cut.size==(10,10)
+assert cut.getpixel((0,0))[3]==255
+assert cut.getpixel((4,4))[3]==255
 print("Cinder Creek real-sheet art tests OK")
