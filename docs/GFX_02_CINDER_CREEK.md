@@ -115,3 +115,40 @@ The imported sprites are resized with nearest-neighbor sampling and alpha compos
 
 The sprites are a separate downloadable binary pack, not committed to this PR. A newly pulled branch alone **will not** display the uploaded sheet: install the ZIP and regenerate the artwork locally. For redistribution of the game assets, check the original sheet's reuse rights.
 
+
+
+## Fourth iteration — integrated shadows, art standards and QA
+
+A user screenshot of the imported sprites revealed the old geometric lot outline,
+flat rectangle-shaped shadow and inconsistent sprite stretching. This update
+corrects the **baking pipeline**, not gameplay:
+
+- Samples source terrain beyond the original building and its baked shadow.
+  Clears the full old roof/halo, then blends replacement dirt into surrounding
+  land over a feathered outer region, instead of drawing a hard-edged lot.
+- Uses the imported sprite's **alpha mask** to place a small warm-brown shadow
+  at offset (+5,+6). Transparent corners no longer receive square shadows.
+- Trims transparent padding, preserves the source aspect ratio, and places
+  building fronts at the south/bottom of their existing gameplay footprint.
+- Rejects blank, entirely opaque or otherwise malformed source-sprite PNGs
+  when a pack is present. When no pack is installed, the explicit procedural
+  fallback remains available, but `--require-sheet` blocks that fallback.
+- Adds a machine-readable `assets/gfx02/asset_rules.json`, the project-wide
+  `docs/GRAPHICS_ASSET_STANDARD.md`, and reusable validation command
+  `tools/validate_graphics_assets.py`.
+- Adds visual-seam/shadow/pivot test cases and CI validation.
+
+To try the latest build using your already installed sheet sprites:
+
+```sh
+git pull --ff-only origin graphics/gfx-02-building-art
+python3 tools/build_cinder_creek_scene.py --require-sheet
+python3 tools/validate_graphics_assets.py --require-sheet
+DUST_AND_DEBT_RETAINED_CANVAS=1 DUST_AND_DEBT_GFX02=1 ./Play_Dust_and_Debt.sh
+```
+
+**Important:** source sprite proportions now remain correct, so some buildings
+will appear narrower within their previously oversized collision footprints.
+That is intentional for visual quality but requires inspection of nearby door
+prompts and the walkable visual boundary. The graphical image is still
+experimental until local play/screenshot review establishes acceptance.
