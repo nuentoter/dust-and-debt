@@ -49,6 +49,31 @@ A comparative run is simply:
 DUST_AND_DEBT_RETAINED_CANVAS=1 ./Play_Dust_and_Debt.sh
 ```
 
+
+## GFX-02 architecture pass (second iteration)
+
+The offline builder now paints **ten coordinate-aligned buildings** in richer
+Western pixel art via `tools/cinder_creek_buildings.py`. Each building gets
+shingled roof courses, color-specific clapboard fronts, framed windows,
+wooden porch surfaces, a centered entrance and a fitted name sign. A stable,
+rail station, sheriff and doctor also receive distinguishing architectural
+markings. Shapes remain inside the preserved building rectangles; no collision,
+NPC, quest or door positions have moved. These are newly drawn assets, not
+cropped from the illustrative style reference or town mockup.
+
+Rebuild after pulling the branch:
+
+```sh
+python3 tools/build_cinder_creek_scene.py
+DUST_AND_DEBT_GFX02=1 DUST_AND_DEBT_RETAINED_CANVAS=1 ./Play_Dust_and_Debt.sh
+```
+
+The builder overwrites its own `world_gfx02.png` and records
+`redrawn_buildings` and `building_names` in the manifest. The game remains
+opt-in. This is a noticeably more complete architectural pass, but not yet a
+hand-authored tile atlas or foreground canopy/roof sorting system. Full style
+parity and street-level prop placement are later steps.
+
 ## Acceptance gates
 
 - [ ] Compare standard and GFX02 renders at the sheriff, saloon, general
