@@ -6,3 +6,6 @@ venv/
 save*.json
 *.save
 .DS_Store
+
+# Licensed/review-source art packs and generated preview PNGs stay local.
+assets/forsaken_v1/
