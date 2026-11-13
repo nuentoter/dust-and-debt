@@ -4,6 +4,7 @@
 Run once on a development machine with Pillow installed. Runtime still needs
 only Python and Tk. Never moves, resizes or invents gameplay collision.
 """
+import argparse
 import json
 import random
 import sys
@@ -12,6 +13,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from cinder_creek_gfx import STARTER_BUILDINGS, ZONE_BOUNDS
+from tools.cinder_creek_buildings import paint_buildings
+from tools.cinder_creek_sheet_art import paint_sheet_buildings, sprites_available, DEFAULT_SPRITES
 
 try:
     from PIL import Image, ImageDraw
@@ -97,7 +100,9 @@ def texture(draw,width,height,rng):
         n=rng.randint(1,3)
         draw.line((x,y,x+n,y),fill=colors[rng.randrange(len(colors))],width=1)
 
-def bake():
+def bake(sprite_dir=DEFAULT_SPRITES, require_sheet=False):
+    if require_sheet and not sprites_available(sprite_dir):
+        raise SystemExit('Missing extracted sheet sprites at '+str(sprite_dir)+'; unpack the sprite ZIP at the repository root')
     image=Image.open(SOURCE).convert("RGB")
     width,height=image.size
     if (width,height)!=ZONE_BOUNDS[2:]:
@@ -116,6 +121,8 @@ def bake():
         elif kind=="cactus":cactus(draw,x,y)
         else:flowers(draw,x,y,i+337)
         counts[kind]+=1
+    sheet_buildings=paint_sheet_buildings(image,sprite_dir)
+    building_count=len(sheet_buildings) if sheet_buildings else paint_buildings(image)
     OUT.mkdir(parents=True,exist_ok=True)
     destination=OUT/"world_gfx02.png"
     image.save(destination,optimize=True)
@@ -127,12 +134,25 @@ def bake():
         "size":[width,height],
         "seed":1889,
         "decor_counts":counts,
+        "redrawn_buildings":building_count,
+        "art_source":"user_supplied_sheet" if sheet_buildings else "procedural_fallback",
+        "sheet_sprite_buildings":sheet_buildings,
+        "ground_replacement":"feathered terrain sample with old shadow halo cleared",
+        "building_shadows":"sprite_alpha",
+        "building_anchor":"south_center",
+        "image_sampling":"nearest",
+        "art_rules":"assets/gfx02/asset_rules.json",
+        "building_names":[row[0] for row in STARTER_BUILDINGS],
         "geometry_changes":False,
-        "notes":"Deterministic first-pass decoration bake, not the final painted tileset.",
+        "notes":"Deterministic coordinate-aligned Western building and terrain art. Further authored tileset work remains.",
     }
     (OUT/"build_manifest.json").write_text(json.dumps(manifest,indent=2)+"\n")
     print("Built",destination)
     print(json.dumps(manifest,indent=2))
 
 if __name__=="__main__":
-    bake()
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--sprite-dir',type=Path,default=DEFAULT_SPRITES)
+    parser.add_argument('--require-sheet',action='store_true',help='Fail rather than use procedural fallback')
+    args=parser.parse_args()
+    bake(args.sprite_dir,args.require_sheet)
