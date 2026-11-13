@@ -125,7 +125,7 @@ class Game:
   self.canvas=canvas_class(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
   assert validate_starter_geometry(BUILDINGS), 'Cinder Creek authored building positions changed'
-  self.world=tk.PhotoImage(file=select_world_image(ASSETS, os.environ.get('DUST_AND_DEBT_GFX02')=='1'))
+  self.world=tk.PhotoImage(file=select_world_image(ASSETS, os.environ.get('DUST_AND_DEBT_GFX02')=='1', os.environ.get('DUST_AND_DEBT_FORSAKEN_V1')=='1'))
   self.titleimg=tk.PhotoImage(file=os.path.join(ASSETS,'title.png'))
   self.mapimg=tk.PhotoImage(file=os.path.join(ASSETS,'map.png'))
   self.mapthumb=self.mapimg.subsample(4,4)
