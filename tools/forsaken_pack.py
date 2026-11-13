@@ -136,7 +136,17 @@ def extract_terrain_candidates(pack=PACK):
     records=[]
     for index,(name,x,y) in enumerate(TERRAIN_SAMPLES):
         crop=board.crop((x-55,y-55,x+55,y+55))
-        tile=crop.resize((64,64),Image.Resampling.NEAREST)
+        # Use explicit integer nearest-neighbour pixel lookup. This avoids
+        # native Pillow resize backend failures on some Linux CI images and
+        # retains deterministic pixel-art source sampling.
+        tile=Image.new("RGB",(64,64))
+        source_pixels=crop.load()
+        output_pixels=tile.load()
+        for row in range(64):
+            sy=min(109,(row*110)//64)
+            for col in range(64):
+                sx=min(109,(col*110)//64)
+                output_pixels[col,row]=source_pixels[sx,sy]
         tile.save(out/(name+".png"))
         atlas.paste(tile,((index%4)*64,(index//4)*64))
         pix=tile.load()
