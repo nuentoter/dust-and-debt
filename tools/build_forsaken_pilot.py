@@ -293,9 +293,37 @@ def bake_pilot(pack=PACK,source=None):
     tiles={name:Image.open(tiles_dir/(name+".png")).convert("RGB")
            for name in TILE_IDS}
     pilot,changed,protected=make_pilot(world,tiles)
+    # Mandatory human-visible proof: this is the real 960x600 starting
+    # viewport, not a distant test region. Refuse to ship a blank visual
+    # change and save a side-by-side image for inspection.
+    view=(218,310,1178,910)
+    old_frame=world.crop(view)
+    new_frame=pilot.crop(view)
+    old_px=old_frame.load()
+    new_px=new_frame.load()
+    visibly_changed=0
+    max_delta=0
+    for sy in range(600):
+        for sx in range(960):
+            old=old_px[sx,sy]
+            new=new_px[sx,sy]
+            delta=max(abs(new[i]-old[i]) for i in range(3))
+            max_delta=max(max_delta,delta)
+            if delta>=18:
+                visibly_changed+=1
+    if visibly_changed<2500 or max_delta<25:
+        raise RuntimeError(
+            "Forsaken pilot would look unchanged at the actual starting "
+            "camera: only %s pixels visibly changed (max delta %s). "
+            "Check base image, exclusion masks and source pack."
+            % (visibly_changed,max_delta))
+    comparison=Image.new("RGB",(1920,600))
+    comparison.paste(old_frame,(0,0))
+    comparison.paste(new_frame,(960,0))
     output=pack/"runtime"/"world_forsaken.png"
     output.parent.mkdir(parents=True,exist_ok=True)
     pilot.save(output,optimize=True)
+    comparison.save(pack/"runtime"/"before_after_starter.png")
     protected.save(pack/"runtime"/"route_protection_mask.png")
     (pack/"runtime"/"pilot_manifest.json").write_text(json.dumps({
         "milestone":"GFX-03 terrain pilot only","source":str(world_source),
@@ -304,6 +332,8 @@ def bake_pilot(pack=PACK,source=None):
         "pilot_regions":[list(region) for region in PILOT_REGIONS],
         "texture_strength":0.78,
         "visibly_repaints_starter_camera":True,
+        "visible_starter_pixels":visibly_changed,
+        "starter_max_channel_delta":max_delta,
         "roads_and_buildings_preserved":True,
         "roads_illustration_replaced":False,
         "gameplay_geometry_modified":False,
