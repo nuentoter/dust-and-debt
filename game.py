@@ -2625,7 +2625,32 @@ class Game:
  def draw_help(self):
   self.panel(190,52,580,506)
   self.draw_text(216,95,'HOW TO SURVIVE THE FRONTIER',19,'#efc58a',True)
-  controls=[('WASD / ARROWS','Move'),('SHIFT','Sprint / gallop'),('MOUSE CLICK','Aim and shoot'),('SPACE / R','Fire / reload'),('Q','Dead Eye'),('2 / F6 / F7','Weapon / difficulty / aim assist'),('E / SHIFT+E','Interact / enter buildings'),('H','Mount / dismount Whiskey'),('B','Accept bounty near sheriff'),('L','Aim at outlaw with mouse, throw lasso'),('G','Hogtie roped outlaw (on foot)'),('E BY TIED TARGET','Pick up captive'),('E BY SHERIFF','Deliver prisoner alive (on foot)'),('1','Health tonic'),('M / J','Map / journal (TAB and Enter choose map towns)'),('F / T','Gather / camp'),('P','Take or collect paid work'),('N / U','Waystation road jobs / rumors'),('Y','Regional stories at Galloway / Roan Creek'),('I','Work ledger and horse condition'),('V / O','Sound effects / original soundtrack'),('F5','Save game'),('F8','Graphics / sound settings'),('F11','Fullscreen'),('ESC / F1','Pause / help')]
+  bind=lambda action:self.bindings[action].upper().replace('_',' ')
+  controls=[
+   (' / '.join(bind(a) for a in ('move_up','move_down','move_left','move_right')),'Move (arrows also work)'),
+   (bind('sprint'),'Sprint / gallop'),
+   ('MOUSE / '+bind('shoot'),'Aim and shoot'),
+   (bind('reload'),'Reload'),
+   (bind('dead_eye'),'Dead Eye'),
+   (bind('weapon')+' / F6 / F7','Weapon / difficulty / aim assist'),
+   (bind('interact')+' / SHIFT+'+bind('interact'),'Interact / enter buildings'),
+   (bind('horse'),'Mount / dismount Whiskey'),
+   (bind('bounty'),'Accept bounty near sheriff'),
+   (bind('lasso'),'Aim at outlaw; throw lasso'),
+   (bind('hogtie'),'Hogtie outlaw (on foot)'),
+   (bind('interact')+' BY TIED TARGET','Pick up captive'),
+   (bind('interact')+' BY SHERIFF','Deliver prisoner alive'),
+   (bind('tonic'),'Health tonic'),
+   (bind('map')+' / '+bind('journal'),'Map / journal'),
+   (bind('gather')+' / '+bind('camp'),'Gather / camp'),
+   (bind('work'),'Paid work'),
+   (bind('road_job')+' / '+bind('rumor'),'Road jobs / rumors'),
+   (bind('story'),'Regional stories'),
+   (bind('ledger'),'Work ledger / horse condition'),
+   (bind('sound_toggle')+' / '+bind('music_toggle'),'Effects / original soundtrack'),
+   ('F5 / F11','Save game / fullscreen'),
+   ('ESC / F1','Pause / help; Options remaps')
+  ]
   for i,(k,v) in enumerate(controls):
    yy=127+i*16
    self.draw_text(218,yy,k,11,'#f4d59e',True)
