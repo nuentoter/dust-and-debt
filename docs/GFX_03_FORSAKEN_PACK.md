@@ -131,3 +131,42 @@ railroad ballast. Its manifest explicitly marks every item
 They require alpha cleanup, directional matching, junction tiling, and a
 road connectivity QA pass first. The initial playable terrain pilot
 preserves the existing roads exactly.
+
+## Milestone 3 — Visible starter-town art correction
+
+The first GFX-03 pilot only changed distant, lightly tinted soil pixels; it
+could look **identical to the legacy map** from the starting camera. That was
+not acceptable as a graphics integration. The bake now:
+
+- Paints approved terrain texture strongly over existing earth-coloured ground
+  in the starter camera and approach areas, with an 80px feather. The road,
+  rail, water, and old building exclusion logic remains in place.
+- Extracts **ten** actual Gothic building sprites from the *approved* D01
+  source sheet. A largest-component matte removes the dark presentation
+  background and decorative frame lines; original building footprints are
+  replaced with texture before overlay. The visible building is anchored
+  south-centre, while gameplay collision and NPC positions stay untouched.
+- Refuses to save a world if fewer than 2,500 starter-camera pixels differ
+  by 18 RGB levels or the maximum channel difference is below 25.
+- Writes `assets/forsaken_v1/runtime/before_after_starter.png` as a
+  **1920×600** before/after crop. The left half shows the legacy starter
+  camera; the right half shows the actual new baked scene.
+- Writes extracted transparent building sprites to
+  `assets/forsaken_v1/prepared/D01` and records placement bounds in the
+  pilot manifest.
+
+Install/rebuild (after updating the graphics branch):
+
+```sh
+python3 tools/forsaken_pack.py --validate --extract-candidates
+python3 tools/build_forsaken_pilot.py --pilot
+xdg-open assets/forsaken_v1/runtime/before_after_starter.png
+DUST_AND_DEBT_FORSAKEN_V1=1 DUST_AND_DEBT_RETAINED_CANVAS=1 ./Play_Dust_and_Debt.sh
+```
+
+**Visual review still required:** extraction uses approximate D01 pixel
+silhouettes rather than individually hand-authored transparent source art.
+At some storefronts the preserved collision rectangle may extend beyond the
+new visual wall. Check approaches, signs, road margins, building fronts and
+old-shadow removal before accepting the composition or merging this PR.
+The wider map still has the old artwork outside the pilot regions.
