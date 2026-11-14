@@ -253,8 +253,29 @@ def _erase_old_art(image,rect,ground,protected_mask=None):
 def paint_forsaken_buildings(image,pack=PACK,buildings=STARTER_BUILDINGS,protected_mask=None):
     """Replace old Cinder Creek structures without changing gameplay rects."""
     pack=Path(pack)
-    directory=extract_building_sprites(pack)
+    # Production no longer uses silhouette() on charcoal concept boards.
+    # It destroyed dark walls and left box mattes in real Cinder Creek captures.
+    directory=pack/"game_ready"/"buildings"
+    required={stem for stem,_ in CROPS.values()}
+    missing=sorted(name for name in required
+                   if not (directory/(name+".png")).is_file())
+    if missing:
+        print("Forsaken D01: clean sprites pending; preserving legacy buildings:",
+              ", ".join(missing))
+        return []
     from PIL import Image as PILImage
+    for stem in required:
+        with PILImage.open(directory/(stem+".png")) as src:
+            if src.mode!="RGBA":
+                raise ValueError("Hand-cleaned building must be RGBA: "+stem)
+            alpha=src.getchannel("A")
+            if alpha.getextrema()!=(0,255):
+                raise ValueError("No true transparent exterior/opaque interior: "+stem)
+            if src.width<16 or src.height<16:
+                raise ValueError("Sprite is too small: "+stem)
+            if any(r==255 and g==0 and b==255 and a>0
+                   for r,g,b,a in src.getdata()):
+                raise ValueError("Visible magenta matte remains in "+stem)
     ground=PILImage.open(pack/"prepared"/"A01"/"bleached_dirt.png").convert("RGB")
     if ground.size!=(64,64):
         raise ValueError("Prepare A01 64px seamless ground before buildings")
