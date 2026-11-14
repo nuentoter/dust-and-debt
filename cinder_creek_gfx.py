@@ -24,11 +24,33 @@ STARTER_BUILDINGS = (
     ("Ranch", 1470, 850, 160, 125),
 )
 
-def select_world_image(assets_root, enabled=False):
-    """Return an existing PNG, falling back to the legacy art."""
+def select_world_image(assets_root, enabled=False, forsaken_enabled=False):
+    """Load only a dimension-checked, explicitly prepared Forsaken world.
+
+    Source presentation boards are never loaded as world images. The new
+    world image is opt-in and must pass art and route review before placement.
+    """
     legacy = os.path.join(assets_root, BASE_RELATIVE_PATH)
     upgraded = os.path.join(assets_root, ART_RELATIVE_PATH)
+    if forsaken_enabled:
+        candidate = os.path.join(assets_root, "forsaken_v1", "runtime", "world_forsaken.png")
+        if _verified_world_png(candidate):
+            return candidate
     return upgraded if enabled and os.path.isfile(upgraded) else legacy
+
+
+def _verified_world_png(path):
+    """Read PNG header without adding a library to the game runtime."""
+    import struct
+    try:
+        with open(path, "rb") as source:
+            header = source.read(24)
+        return (len(header) == 24 and
+                header[:8] == bytes((137,80,78,71,13,10,26,10)) and
+                header[12:16] == b"IHDR" and
+                struct.unpack(">II", header[16:24]) == ZONE_BOUNDS[2:])
+    except (OSError, ValueError, struct.error):
+        return False
 
 def validate_starter_geometry(buildings):
     """Prevent accidental drift between art protection and game coordinates."""
