@@ -11,6 +11,7 @@ import os, math, random, json, time, textwrap, sys, shutil
 from dataclasses import dataclass
 from working_frontier import work_offer, shop_prices, daily_stock
 from audio_system import AudioDirector
+from lasso_targeting import LASSO_RANGE, throw_segment, choose_target
 from save_schema import SAVE_SCHEMA,validate_save,migrate_save
 from natural_terrain import draw_ground,draw_landforms,landform_solid,hash32,noise
 from combat_progression import WEAPONS, DIFFICULTIES, available_weapons, normal_weapon, normal_difficulty, incoming_damage, aim_vector, earned_perks, perk_reload_multiplier, perk_incoming_multiplier, perk_deadeye_regen
@@ -461,23 +462,15 @@ class Game:
   if self.field_prisoner or self.bounty_state() in ('roped','hogtied','carried','surrendered'):
    self.notify('Secure or deliver your current prisoner first.',3);return False
   self.lasso_cooldown=1.2
-  mx,my=self.mouse;ax=mx+self.camx-self.x;ay=my+self.camy-self.y
-  length=math.hypot(ax,ay)
-  if length<8:ax,ay=self.facing;length=math.hypot(ax,ay)
-  ux,uy=ax/max(length,.01),ay/max(length,.01)
-  fx,fy=self.x+ux*15,self.y+uy*15
-  tx,ty=self.x+ux*235,self.y+uy*235
+  mx,my=self.mouse
+  pointer=(mx+self.camx,my+self.camy)
+  start,tip,direction,length,pointer_distance=throw_segment(
+   (self.x,self.y),pointer,self.facing)
+  fx,fy=start;tx,ty=tip
   candidates=[a for a in self.actors if not a.dead and (a.kind=='bandit' or
               (a.kind=='bounty_target' and self.bounty_state()=='hunting'))]
-  hits=[]
-  for a in candidates:
-   projection=(a.x-fx)*ux+(a.y-fy)*uy
-   sideways=abs((a.x-fx)*uy-(a.y-fy)*ux)
-   if 0<=projection<=220 and sideways<=26 and self.line_of_fire(fx,fy,a.x,a.y):
-    hits.append((projection,a))
-  if hits:
-   # If both are in the aim corridor, prefer the named wanted target.
-   target=min(hits,key=lambda hit:(0 if hit[1].kind=='bounty_target' else 1,hit[0]))[1]
+  target=choose_target(start,tip,direction,length,pointer,candidates,self.line_of_fire)
+  if target:
    self.lasso_visual=[fx,fy,target.x,target.y,.48]
    if target.kind=='bounty_target':
     self.contract['status']='roped';self.contract['rope_timer']=8.0
@@ -488,7 +481,7 @@ class Game:
    self.notify('LASSO HIT! Dismount and press G nearby to hogtie.',4);self.audio.cue('lasso')
    return True
   self.lasso_visual=[fx,fy,tx,ty,.3]
-  self.notify('Lasso missed. Aim at an outlaw within range.',2)
+  self.notify('Lasso missed. Point at an outlaw within '+str(int(LASSO_RANGE))+' units.',2)
   return False
 
  def surrender_outlaw(self,a):
@@ -2508,7 +2501,7 @@ class Game:
  def draw_help(self):
   self.panel(190,52,580,506)
   self.draw_text(216,95,'HOW TO SURVIVE THE FRONTIER',19,'#efc58a',True)
-  controls=[('WASD / ARROWS','Move'),('SHIFT','Sprint / gallop'),('MOUSE CLICK','Aim and shoot'),('SPACE / R','Fire / reload'),('Q','Dead Eye'),('2 / F6 / F7','Weapon / difficulty / aim assist'),('E / SHIFT+E','Interact / enter buildings'),('H','Mount / dismount Whiskey'),('B','Accept bounty near sheriff'),('L','Lasso wanted targets or bandits'),('G','Hogtie roped outlaw (on foot)'),('E BY TIED TARGET','Pick up captive'),('E BY SHERIFF','Deliver prisoner alive (on foot)'),('1','Health tonic'),('M / J','Map / journal (TAB and Enter choose map towns)'),('F / T','Gather / camp'),('P','Take or collect paid work'),('N / U','Waystation road jobs / rumors'),('Y','Regional stories at Galloway / Roan Creek'),('I','Work ledger and horse condition'),('V / O','Sound effects / original soundtrack'),('F5','Save game'),('F8','Graphics / sound settings'),('F11','Fullscreen'),('ESC / F1','Pause / help')]
+  controls=[('WASD / ARROWS','Move'),('SHIFT','Sprint / gallop'),('MOUSE CLICK','Aim and shoot'),('SPACE / R','Fire / reload'),('Q','Dead Eye'),('2 / F6 / F7','Weapon / difficulty / aim assist'),('E / SHIFT+E','Interact / enter buildings'),('H','Mount / dismount Whiskey'),('B','Accept bounty near sheriff'),('L','Aim at outlaw with mouse, throw lasso'),('G','Hogtie roped outlaw (on foot)'),('E BY TIED TARGET','Pick up captive'),('E BY SHERIFF','Deliver prisoner alive (on foot)'),('1','Health tonic'),('M / J','Map / journal (TAB and Enter choose map towns)'),('F / T','Gather / camp'),('P','Take or collect paid work'),('N / U','Waystation road jobs / rumors'),('Y','Regional stories at Galloway / Roan Creek'),('I','Work ledger and horse condition'),('V / O','Sound effects / original soundtrack'),('F5','Save game'),('F8','Graphics / sound settings'),('F11','Fullscreen'),('ESC / F1','Pause / help')]
   for i,(k,v) in enumerate(controls):
    yy=127+i*16
    self.draw_text(218,yy,k,11,'#f4d59e',True)
