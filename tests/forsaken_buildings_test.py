@@ -21,6 +21,16 @@ assert alpha.getextrema()==(255,255) or alpha.getextrema()==(0,255)
 assert cut.getchannel("A").getbbox() is not None
 assert cut.height<100  # disconnected framing removed
 
+# A facade split from the roof by an entirely dark horizontal porch must
+# remain part of the same exported building, not vanish under matte flood.
+split=Image.new("RGB",(140,110),(14,18,19))
+sd=ImageDraw.Draw(split)
+sd.rectangle((30,15,105,65),fill=(95,74,63))
+sd.rectangle((25,74,110,100),fill=(114,81,61))
+split_sprite=silhouette(split)
+assert split_sprite.height>=80,split_sprite.size
+assert split_sprite.getpixel((5,75))[3]==255,split_sprite.size
+
 # Clear the original building picture without touching surrounding road
 # pixels, and never move/resize the gameplay footprint.
 world=Image.new("RGB",(190,150),(170,132,99))
