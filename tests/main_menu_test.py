@@ -72,6 +72,11 @@ def main():
   assert 'w' in g.keys
   g.key_up(Key('z'))
   assert 'w' not in g.keys
+  # UI-specific map keys stay usable even if Z is remapped to movement.
+  g.map_open=True;g.map_zoom=False
+  tap(g,'z')
+  assert g.map_zoom
+  g.map_open=False
   assert g.save(manual=True)
   # A completed save must not be wiped by an accidental New Game click.
   fresh=game.Game(root)
