@@ -7,10 +7,11 @@ autotiles. The exported 4800x3200 pilot is opt-in.
 """
 import argparse
 import json
+import math
 import sys
 from pathlib import Path
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -230,7 +231,14 @@ def make_pilot(source, tiles, regions=PILOT_REGIONS, draw_routes=True,
     protected=route_exclusion_mask(size,buildings,draw_routes)
     image=source.copy()
     mask_px=protected.load()
+    # Soften ONLY the editable side of protected roads and building areas.
+    # The unblurred mask still forbids changing protected pixels entirely.
+    safe_edge=protected.filter(ImageFilter.GaussianBlur(22)).load()
     source_px=source.load()
+    warp_x=[round(13*math.sin(i/91)+7*math.sin(i/207+1.2))
+            for i in range(size[0])]
+    warp_y=[round(11*math.sin(i/117)+9*math.sin(i/249+2.1))
+            for i in range(size[1])]
     changed=0
     significant=0
     preview_regions=[]
@@ -266,12 +274,16 @@ def make_pilot(source, tiles, regions=PILOT_REGIONS, draw_routes=True,
                 feather=feather*feather*(3.0-2.0*feather)
                 if feather<=0:
                     continue
-                tint=texture[x%TILE_SIZE,y%TILE_SIZE]
+                # Warp the phase continuously so an illustrative 64px source
+                # swatch does not repeat as a checkerboard every 64 pixels.
+                tx=(x+warp_x[x]+warp_y[y]//3)%TILE_SIZE
+                ty=(y+warp_y[y]+warp_x[x]//4)%TILE_SIZE
+                tint=texture[tx,ty]
                 # Use approved texture DETAIL, not its average grayscale/
                 # muddy color. Direct blending painted a huge gray square
                 # over the town; subtract the tile mean to preserve the
                 # original ground material and road-adjacent hue.
-                alpha=0.92*feather
+                alpha=0.48*feather*(safe_edge[x,y]/255.0)
                 output=tuple(max(0,min(255,round(
                     original + alpha*(tint[i]-tile_mean[i]))))
                     for i,original in enumerate((r,g,b)))
@@ -342,7 +354,9 @@ def bake_pilot(pack=PACK,source=None):
         "gothic_buildings_painted":gothic_buildings,
         "building_count":len(gothic_buildings),
         "pilot_regions":[list(region) for region in PILOT_REGIONS],
-        "texture_strength":0.92,
+        "texture_strength":0.48,
+        "edge_feather_px":22,
+        "phase_warp":"continuous world-space offsets, no fixed 64px repeating grid",
         "texture_method":"mean-centred detail, no rectangular palette replacement",
         "visibly_repaints_starter_camera":True,
         "visible_starter_pixels":visibly_changed,
