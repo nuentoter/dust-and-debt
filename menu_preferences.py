@@ -77,6 +77,8 @@ def translate(key,bindings):
     key=normalized_key(key)
     for action,assigned in bindings.items():
         if key==assigned:return DEFAULT_KEYS[action]
+    # Old keys really stop working after reassignment, including WASD.
+    if key in DEFAULT_KEYS.values():return "__unbound__"
     return key
 
 def load_preferences(path):
