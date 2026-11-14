@@ -45,6 +45,19 @@ assert world.getpixel((55,70))!=(50,42,34)
 assert world.getpixel((75,70))!=(50,42,34)
 assert world.getpixel((55,70))!=(118,98,85)  # not a tiled gray square
 
+# A route-only protection mask permits clearing the old 12px shadow
+# outside the collider, while preserving an explicitly marked nearby road.
+shadow=Image.new("RGB",(190,150),(188,149,108))
+sd=ImageDraw.Draw(shadow)
+sd.rectangle((49,49,110,110),fill=(48,35,29))
+route_mask=Image.new("L",shadow.size,255)
+ImageDraw.Draw(route_mask).rectangle((25,0,37,149),fill=0)
+before=shadow.copy()
+_erase_old_art(shadow,(50,50,60,60),ground,route_mask)
+assert shadow.getpixel((49,68))!=before.getpixel((49,68))
+assert shadow.getpixel((31,68))==before.getpixel((31,68))
+assert shadow.getpixel((10,10))==before.getpixel((10,10))
+
 assert len(STARTER_BUILDINGS)==10
 assert set(name for name,*_ in STARTER_BUILDINGS)==set(CROPS)
 print("GFX-03 D01 matte, alpha and road-safe building replacement tests OK")
