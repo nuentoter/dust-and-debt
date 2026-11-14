@@ -1008,6 +1008,8 @@ class Game:
   # remappable combat actions; never strand the player in a conversation.
   key=(raw if (raw in ('1','2','3','4') and (self.choice_dialog or self.shop_open))
        or (raw in ('space','return') and self.dialog)
+       or (self.map_open and raw in ('z','up','down','left','right','w','a','s','d','escape','tab','return'))
+       or (self.interior and raw=='k')
        else translate(raw,self.bindings))
   if key=='__unbound__':return
   first=key not in self.keys;self.keys.add(key)
