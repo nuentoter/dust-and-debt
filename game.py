@@ -983,7 +983,19 @@ class Game:
  def enemies_remaining(self,tag):return sum(not a.dead and a.kind=='mission_'+tag for a in self.actors)
 
  def key_down(self,e):
-  key=e.keysym.lower();first=key not in self.keys;self.keys.add(key)
+  raw=normalized_key(e.keysym)
+  if self.screen=='options':
+   self.handle_options_key(raw);return
+  if self.screen=='title':
+   if raw in ('up','down'):
+    self.menu_index=(self.menu_index+(1 if raw=='down' else -1))%4;return
+   if raw in ('return','kp_enter','space'):
+    self.menu_action(self.menu_index);return
+   if raw=='escape':self.quit()
+   return
+  key=translate(raw,self.bindings)
+  if key=='__unbound__':return
+  first=key not in self.keys;self.keys.add(key)
   if not first:return
   if key=='q' and self.screen=='playing' and not self.dialog and not self.interior and not self.map_open and not self.journal_open:
    self.deadeye_active=not self.deadeye_active and self.deadeye>0
@@ -1022,11 +1034,7 @@ class Game:
    return
   if key=='f11':
    self.fullscreen=not self.fullscreen;self.root.attributes('-fullscreen',self.fullscreen);return
-  if self.screen=='title':
-   if key in ('return','space','n'):self.new_game()
-   elif key in ('l','c') and os.path.exists(SAVE):self.continue_game()
-   elif key=='escape':self.quit()
-   return
+  if self.screen=='title':return
   if self.screen=='death':
    if key in ('return','space'):self.respawn()
    elif key=='escape':self.screen='title'
@@ -1108,20 +1116,36 @@ class Game:
   elif key=='space':self.fire()
   elif key=='f5':self.save(manual=True)
 
- def key_up(self,e):self.keys.discard(e.keysym.lower())
+ def key_up(self,e):self.keys.discard(translate(e.keysym,self.bindings))
  def click(self,e):
   if self.screen=='title':
-   if 397<e.y<458:self.new_game()
-   elif 467<e.y<515 and os.path.exists(SAVE):self.continue_game()
+   for i in range(4):
+    if 340+i*47<=e.y<383+i*47 and 330<=e.x<=630:
+     self.menu_index=i;self.menu_action(i);break
+  elif self.screen=='options':
+   if 155<=e.y<=201:
+    if 245<=e.x<=475:self.options_tab='audio';self.options_index=0
+    elif 484<=e.x<=714:self.options_tab='controls';self.options_index=0
+   elif 225<=e.y<465:
+    index=((e.y-227)//64 if self.options_tab=='audio'
+           else (e.y-223)//21+self.controls_offset)
+    count=3 if self.options_tab=='audio' else len(DEFAULT_KEYS)
+    if 0<=index<count:
+     self.options_index=index
+     if self.options_tab=='audio':
+      if e.x>=610:self.change_volume(index,1)
+      elif e.x<=410:self.change_volume(index,-1)
+     elif e.x>610:
+      self.rebinding=list(DEFAULT_KEYS)[index]
+      self.options_error='PRESS NEW KEY — ESC CANCELS'
+   elif e.y>=520:self.close_options()
   elif self.screen=='playing' and self.map_open and not self.interior:
    self.set_waypoint_from_map(e.x,e.y)
   elif self.screen=='playing' and not self.interior and not self.dialog and not self.map_open and not self.journal_open:
    self.mouse_down=True;self.mouse=(e.x,e.y);self.fire()
   elif self.screen in ('death','ending'):self.key_down(type('E',(),{'keysym':'Return'})())
  def new_game(self):
-  sound=self.audio.enabled;music=self.audio.music_enabled
-  self.reset();self.audio.enabled=sound;self.sound_on=sound
-  self.audio.set_music_enabled(music)
+  self.reset();self.apply_preferences()
   self.screen='playing';self.say('NARRATOR',['1889. The borderlands have no patience for saints.','Your name is Jesse Vale. You have $35, six rounds, and a horse named Whiskey.','Sheriff Bell is looking for someone with nothing left to lose. Find him at the jail.']);self.save()
  def continue_game(self):
   self.reset()
@@ -1193,6 +1217,7 @@ class Game:
     for a in [a for a in self.actors if a.kind=='mission_'+tag][:eliminated]:a.dead=True
    self.restore_road_escort()
    self.update_npc_schedules()
+   if self.preferences_loaded:self.apply_preferences()
    self.screen='playing';self.safe_timer=18.;self.notify('Recovered backup save. Press F5 to restore primary.' if self.loaded_backup else 'Loaded last save from disk. F5 saves manually.',5)
   except (OSError,ValueError,TypeError,KeyError) as ex:
    # Never overwrite a damaged save by quietly starting a new game.
