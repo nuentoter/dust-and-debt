@@ -993,7 +993,11 @@ class Game:
     self.menu_action(self.menu_index);return
    if raw=='escape':self.quit()
    return
-  key=translate(raw,self.bindings)
+  # Dialogue/shop number choices and confirm keys are UI controls, not
+  # remappable combat actions; never strand the player in a conversation.
+  key=(raw if (raw in ('1','2','3','4') and (self.choice_dialog or self.shop_open))
+       or (raw in ('space','return') and self.dialog)
+       else translate(raw,self.bindings))
   if key=='__unbound__':return
   first=key not in self.keys;self.keys.add(key)
   if not first:return
@@ -1013,7 +1017,10 @@ class Game:
    elif key=='3':self.context_hints=not self.context_hints
    elif key=='4':
     self.sound_on=not self.sound_on;self.audio.enabled=self.sound_on
-   elif key=='5':self.audio.set_music_enabled(not self.audio.music_enabled)
+    self.store_preferences()
+   elif key=='5':
+    self.audio.set_music_enabled(not self.audio.music_enabled)
+    self.store_preferences()
    elif key=='escape':self.settings_open=False
    elif key=='f5':self.save(manual=True)
    self.keys.discard(key);return
@@ -1027,11 +1034,11 @@ class Game:
   if key=='v' and self.screen in ('title','playing','paused'):
    self.sound_on=not self.sound_on;self.audio.enabled=self.sound_on
    self.notify('SOUND EFFECTS '+('ON' if self.sound_on else 'OFF')+' ('+self.audio.backend+')',2)
-   self.sound_cue('menu');return
+   self.sound_cue('menu');self.store_preferences();return
   if key=='o' and self.screen in ('title','playing','paused'):
    self.audio.set_music_enabled(not self.audio.music_enabled)
    self.notify('RECORDED SOUNDTRACK '+('ON' if self.audio.music_enabled else 'OFF')+' ('+self.audio.backend+')',3)
-   return
+   self.store_preferences();return
   if key=='f11':
    self.fullscreen=not self.fullscreen;self.root.attributes('-fullscreen',self.fullscreen);return
   if self.screen=='title':return
