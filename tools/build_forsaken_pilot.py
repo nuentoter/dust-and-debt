@@ -317,8 +317,12 @@ def bake_pilot(pack=PACK,source=None):
     # passing that mask here blocked shadow cleanup and left L-shaped borders.
     route_only=route_exclusion_mask(pilot.size,buildings=())
     gothic_buildings=paint_forsaken_buildings(pilot,pack,protected_mask=route_only)
-    if len(gothic_buildings)!=len(STARTER_BUILDINGS):
-        raise RuntimeError("Forsaken building art incomplete: "+str(len(gothic_buildings)))
+    # Do not fail the terrain bake or composite experimental source-board
+    # crops when the manually cleaned D01 PNGs have not been supplied.
+    # The original building illustrations remain until all clean RGBA files
+    # are present. This is intentionally an all-or-nothing import gate.
+    if gothic_buildings and len(gothic_buildings)!=len(STARTER_BUILDINGS):
+        raise RuntimeError("Partially integrated D01 art is forbidden")
     # Mandatory human-visible proof: this is the real 960x600 starting
     # viewport, not a distant test region. Refuse to ship a blank visual
     # change and save a side-by-side image for inspection.
@@ -357,6 +361,8 @@ def bake_pilot(pack=PACK,source=None):
         "changed_terrain_pixels":changed,
         "gothic_buildings_painted":gothic_buildings,
         "building_count":len(gothic_buildings),
+        "building_import_mode":"manual_approved_rgba_only",
+        "legacy_buildings_preserved":not bool(gothic_buildings),
         "pilot_regions":[list(region) for region in PILOT_REGIONS],
         "texture_strength":0.48,
         "edge_feather_px":22,
