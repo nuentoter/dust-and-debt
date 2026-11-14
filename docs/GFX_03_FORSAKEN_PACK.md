@@ -67,3 +67,54 @@ player/building visual anchors and collision review are complete.
 The source art is conceptually approved, not automatically pixel-perfect.
 Texture samples have measurable edge discontinuities. Treat technical
 validation and release approval separately from artistic approval.
+
+## Milestone 2 — Seam-checked terrain and protected Cinder Creek pilot
+
+This phase deliberately makes a **playable terrain pilot**, rather than
+claiming the presentation-board road tiles are production-ready.
+
+After installing the graphics ZIP and updating this branch:
+
+```sh
+python3 tools/forsaken_pack.py --validate --extract-candidates
+python3 tools/build_forsaken_pilot.py --seam-tiles
+python3 tests/forsaken_pilot_test.py
+python3 tools/build_forsaken_pilot.py --pilot
+DUST_AND_DEBT_FORSAKEN_V1=1 DUST_AND_DEBT_RETAINED_CANVAS=1 ./Play_Dust_and_Debt.sh
+```
+
+Output:
+- `assets/forsaken_v1/prepared/A01/`: 12 processed 64×64
+  seam-matched terrain textures and machine-readable pixel-boundary reports
+- `assets/forsaken_v1/runtime/world_forsaken.png`: opt-in 4800×3200
+  **terrain-only** game-map pilot, selected by the environment variable
+- `assets/forsaken_v1/runtime/route_protection_mask.png`: white editable,
+  black excluded areas; generated from canonical roads, trails, rails, starter
+  town road corridors and existing building footprints
+- `assets/forsaken_v1/runtime/pilot_manifest.json`: traceable changes and
+  explicit pending checks
+
+**Scope constraints:**
+- The nine approved boards remain local source/reference images.
+- The pilot **does not draw new road sprites**. Roads, rails, trails, water
+  and building geometry are protected, because the illustrated A02 road
+  board does not yet contain validated transparent tiles.
+- Texture samples are converted to equal-edge 64×64 repeating textures,
+  but **not full 16×16 directional/autotile terrain**. They remain under
+  visual acceptance; seam-equality alone does not imply beautiful repetition.
+- The pilot applies subtle texture variation only to pixels that look like
+  existing dusty soil, within three conservative trial regions. It changes
+  *no* gameplay coordinates, pathing or collision.
+- The authoritative original map and `DUST_AND_DEBT_GFX02` fallback remain
+  usable. If the pilot isn't built, the game falls back safely.
+- Do not merge as a final whole-world texture overhaul until we have local
+  gameplay screenshots, full 16px autotiles, the A02 road/rail atlas, and
+  legacy starter town/route masking review.
+
+### Checking the pilot
+
+Capture before/after at the starter town edge, the road northeast of the
+stable, and the three trial areas. Report any obvious rectangle, road seam,
+washed-out ground, texture repetition, or frame-time regression. Before
+merging, run `xvfb-run -a python3 tools/benchmark_renderer.py --frames 24`
+on the target laptop and compare with the previous renderer settings.
