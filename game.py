@@ -2626,16 +2626,60 @@ class Game:
 
  def draw_title(self):
   self.canvas.create_image(0,0,image=self.titleimg,anchor='nw')
-  self.draw_text(480,84,'DUST & DEBT',58,'#f3dbaf',True,anchor='center')
-  self.draw_text(480,162,'AN ORIGINAL TOP-DOWN WESTERN ADVENTURE',14,'#f2b777',True,anchor='center')
-  self.draw_text(480,280,'ONE HORSE. SIX BULLETS. A TERRITORY FULL OF TROUBLE.',16,'#e5cdaf',True,anchor='center')
-  self.panel(308,371,344,151,'#261e19','#d2a369')
-  self.draw_text(480,393,'ENTER  /  CLICK  —  NEW GAME',16,'#f6d5a0',True,anchor='center')
-  if os.path.exists(SAVE):self.draw_text(480,473,'L  /  CLICK  —  CONTINUE',16,'#f0c28a',True,anchor='center')
-  else:self.draw_text(480,473,'NO SAVED GAME YET',13,'#8c806e',anchor='center')
-  self.draw_text(480,536,'O: ORIGINAL SOUNDTRACK '+('ON' if self.audio.music_enabled else 'OFF')+'   •   PLAYER: '+self.audio.backend.upper(),10,'#f3d09c',True,anchor='center')
-  self.draw_text(480,550,'RECORDINGS: '+str(self.audio.soundtrack_count())+' / 12',10,'#f3d09c',True,anchor='center')
-  self.draw_text(480,569,VERSION+'  •  Linux  •  Python + Tkinter',11,'#d6b38e',anchor='center')
+  self.draw_text(480,77,'DUST & DEBT',58,'#f3dbaf',True,anchor='center')
+  self.draw_text(480,154,'AN ORIGINAL FRONTIER ADVENTURE',14,'#f2b777',True,anchor='center')
+  self.draw_text(480,244,'ONE HORSE. SIX BULLETS. A TERRITORY FULL OF TROUBLE.',15,'#ead0a8',True,anchor='center')
+  self.panel(308,320,344,224,'#261e19','#d2a369')
+  choices=('NEW GAME','CONTINUE','OPTIONS','QUIT')
+  for i,label in enumerate(choices):
+   y=350+i*47
+   available=i!=1 or os.path.isfile(SAVE) or os.path.isfile(SAVE+'.bak')
+   color='#f8ddab' if i==self.menu_index and available else '#dec098' if available else '#8f8171'
+   if i==self.menu_index:
+    self.canvas.create_rectangle(325,y-10,635,y+27,outline='#daa764',width=2)
+    self.draw_text(350,y,'›',19,'#efd3a5',True)
+   self.draw_text(480,y,label,18,color,True,anchor='center')
+  self.draw_text(480,559,'UP / DOWN: SELECT     ENTER: CONFIRM     MOUSE: CLICK',10,'#e2c699',True,anchor='center')
+  if self.options_error:self.draw_text(480,582,self.options_error,11,'#efa983',True,anchor='center')
+
+ def draw_options(self):
+  self.canvas.create_image(0,0,image=self.titleimg,anchor='nw')
+  self.canvas.create_rectangle(0,0,VW,VH,fill='#17130f',stipple='gray50',outline='')
+  self.panel(167,45,626,509,'#251e18','#d5ab74')
+  self.draw_text(480,70,'OPTIONS',35,'#f5d9aa',True,anchor='center')
+  self.draw_text(480,117,'KEYBOARD CONTROLS & AUDIO',12,'#e0c09a',True,anchor='center')
+  self.canvas.create_rectangle(245,155,475,201,outline='#d3a66c' if self.options_tab=='audio' else '#695744',width=3)
+  self.canvas.create_rectangle(484,155,714,201,outline='#d3a66c' if self.options_tab=='controls' else '#695744',width=3)
+  self.draw_text(360,170,'VOLUME',16,'#f0d4a5',True,anchor='center')
+  self.draw_text(599,170,'REMAP CONTROLS',16,'#f0d4a5',True,anchor='center')
+  if self.options_tab=='audio':
+   for i,(name,label) in enumerate((('master_volume','MASTER'),('music_volume','MUSIC'),('effects_volume','EFFECTS'))):
+    y=250+i*64
+    value=getattr(self.audio,name)
+    if i==self.options_index:
+     self.canvas.create_rectangle(205,y-12,753,y+38,outline='#cda06a')
+    self.draw_text(237,y,label,15,'#efd5ad',True)
+    self.canvas.create_rectangle(418,y-2,637,y+18,fill='#493c2e',outline='#a78a69')
+    self.canvas.create_rectangle(420,y,420+215*value,y+16,fill='#d7a668',outline='')
+    self.draw_text(714,y,str(int(round(value*100)))+'%',15,'#f3d9aa',True,anchor='e')
+   self.draw_text(480,472,'UP / DOWN: SELECT     LEFT / RIGHT: 5% ADJUST',12,'#f1d3a3',True,anchor='center')
+  else:
+   actions=list(DEFAULT_KEYS)
+   visible=actions[self.controls_offset:self.controls_offset+12]
+   for i,action in enumerate(visible):
+    index=self.controls_offset+i;y=227+i*21
+    if index==self.options_index:
+     self.canvas.create_rectangle(211,y-2,750,y+19,outline='#a78356')
+    self.draw_text(224,y,CONTROL_LABELS[action],12,'#e8cfa5',True)
+    self.draw_text(736,y,self.bindings[action].upper().replace('_',' '),12,'#f5d7a0',True,anchor='e')
+   self.draw_text(480,493,'UP / DOWN: SELECT   ENTER: REBIND   PGUP / PGDN: PAGE',10,'#e2cbac',True,anchor='center')
+  if self.rebinding:
+   self.canvas.create_rectangle(250,228,711,332,fill='#382a20',outline='#e5b97d',width=3)
+   self.draw_text(480,247,'PRESS A KEY FOR '+CONTROL_LABELS[self.rebinding].upper(),13,'#f5d7a0',True,anchor='center')
+   self.draw_text(480,291,'ESC CANCELS • DUPLICATES ARE BLOCKED',11,'#e4c19a',True,anchor='center')
+  if self.options_error:
+   self.draw_text(480,518,self.options_error[:76],10,'#e9a982',True,anchor='center')
+  self.draw_text(480,538,'TAB: CHANGE SECTION    ESC: BACK / SAVE',11,'#ebd09f',True,anchor='center')
 
  def draw_settings(self):
   self.panel(235,135,490,330,'#201b18','#d2a56c')
@@ -2687,9 +2731,11 @@ class Game:
  def _render_frame(self,clear=True):
   if clear:self.canvas.delete('all')
   self.audio.service()
-  if self.screen=='title':
+  if self.screen in ('title','options'):
    self.audio.set_music_state('title')
-   self.draw_title();return
+   if self.screen=='title':self.draw_title()
+   else:self.draw_options()
+   return
   if self.screen=='death':self.draw_death();return
   if self.screen=='ending':self.draw_ending();return
   if self.interior:
