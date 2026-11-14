@@ -1,9 +1,9 @@
 ## Main Menu & Preferences (November 2026)
 
-The title screen now has **NEW GAME**, **CONTINUE**, **OPTIONS**, and **QUIT**. Use Up/Down + Enter, or click a menu entry. Continue is displayed disabled until a valid save file exists (the loader still performs validation and can use an existing backup).
+The title screen now has **NEW GAME**, **CONTINUE**, **OPTIONS**, and **QUIT**. Use Up/Down + Enter, or click a menu entry. Continue is displayed disabled until a primary or backup save file exists (the loader still validates before loading). New Game asks for confirmation when progress exists so an accidental click does not overwrite it.
 
 **Options contains only two groups for this milestone:**
-- **Volume:** Master, Music and Sound Effects (0–100%, 5% steps). Choose a row with Up/Down, then adjust with Left/Right.
+- **Volume:** Master, Music and Sound Effects (0–100%, 5% steps). Choose a row with Up/Down, then adjust with Left/Right or click a position on its volume bar.
 - **Remap Controls:** Tab switches to the Controls page; Up/Down selects a gameplay action, Enter captures the next key, Esc cancels that capture, and Page Up/Page Down scroll. Duplicate action bindings and essential menu/system keys are reserved rather than silently overlapping. Mouse clicks can select entries and initiate remapping. Existing arrow-key movement and left mouse firing remain available alongside the remappable primary keyboard actions.
 
 **Esc** backs out of Options and saves settings. Preferences persist independently of story saves in `~/.local/share/dust-and-debt/preferences.json`; starting a New Game won't erase them. Settings are also saved immediately when changed. If writing the file fails, the Options screen displays an error. Master/Music/Effects volume levels feed the existing AudioDirector (ffplay/mpv on Linux); music adjustments affect the currently playing soundtrack, not any generated replacement music.
