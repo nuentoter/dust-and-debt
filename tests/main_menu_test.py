@@ -73,6 +73,17 @@ def main():
   g.key_up(Key('z'))
   assert 'w' not in g.keys
   assert g.save(manual=True)
+  # A completed save must not be wiped by an accidental New Game click.
+  fresh=game.Game(root)
+  tap(fresh,'Return')
+  assert fresh.menu_confirm_new and fresh.screen=='title'
+  tap(fresh,'n')
+  assert fresh.screen=='title' and not fresh.menu_confirm_new
+  tap(fresh,'Return')
+  assert fresh.menu_confirm_new
+  tap(fresh,'y')
+  assert fresh.screen=='playing'
+  fresh.audio.stop()
   # A second instance simulates the next game launch.
   h=game.Game(root)
   assert h.bindings['move_up']=='z'
