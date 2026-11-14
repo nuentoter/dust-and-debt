@@ -114,7 +114,7 @@ def extract_building_sprites(pack=PACK):
     return dest
 
 
-def _erase_old_art(image,rect,ground):
+def _erase_old_art(image,rect,ground,protected_mask=None):
     """Replace historical rooftop within its footprint, feather outside it.
 
     No large opaque squares: a textured sample is feathered over just a
@@ -129,8 +129,11 @@ def _erase_old_art(image,rect,ground):
     bottom=min(image.height,y+h+spread)
     src=image.load()
     earth=ground.load()
+    protect=protected_mask.load() if protected_mask is not None else None
     for py in range(top,bottom):
         for px in range(left,right):
+            if protect is not None and protect[px,py]==0 and not (x<=px<x+w and y<=py<y+h):
+                continue
             dx=max(x-px,px-(x+w-1),0)
             dy=max(y-py,py-(y+h-1),0)
             distance=max(dx,dy)
@@ -143,7 +146,7 @@ def _erase_old_art(image,rect,ground):
                              for a,b in zip(original,texture))
 
 
-def paint_forsaken_buildings(image,pack=PACK,buildings=STARTER_BUILDINGS):
+def paint_forsaken_buildings(image,pack=PACK,buildings=STARTER_BUILDINGS,protected_mask=None):
     """Replace old Cinder Creek structures without changing gameplay rects."""
     pack=Path(pack)
     directory=extract_building_sprites(pack)
@@ -164,7 +167,7 @@ def paint_forsaken_buildings(image,pack=PACK,buildings=STARTER_BUILDINGS):
         sprite=sprite.resize((sw,sh),PILImage.Resampling.NEAREST)
         left=x+(w-sw)//2
         top=y+h-sh
-        _erase_old_art(image,(x,y,w,h),ground)
+        _erase_old_art(image,(x,y,w,h),ground,protected_mask)
         image.paste(sprite,(left,top),sprite)
         painted.append({"name":name,"world_anchor":[x+w//2,y+h],
                         "sprite_bounds":[left,top,sw,sh]})
