@@ -21,9 +21,14 @@ TILE_SIZE = 64
 EDGE_BAND = 8
 # Terrain-only pilot areas near the starter zone; deliberately avoid town core.
 PILOT_REGIONS = (
-    (180, 1000, 1090, 1670, "bleached_dirt"),
-    (1400, 1000, 2150, 1660, "ash_gray_earth"),
-    (2550, 410, 3140, 1090, "patchy_weeds"),
+    # The first viewport is centred near (698,610). The original pilot
+    # started south of the visible screen, leaving gameplay unchanged to
+    # the player. V2 covers the complete Cinder Creek settlement and the
+    # immediate approaches, with route/building and soil masks applied below.
+    (0, 0, 1350, 1100, "ash_gray_earth"),
+    (0, 1100, 1350, 2150, "bleached_dirt"),
+    (1350, 0, 2400, 1700, "patchy_weeds"),
+    (2400, 0, 3600, 1700, "rocky_soil"),
 )
 TILE_IDS = (
     "bleached_dirt", "cracked_soil", "dusty_road_soil",
@@ -212,18 +217,23 @@ def terrain_color_mask(source):
 
 def make_pilot(source, tiles, regions=PILOT_REGIONS, draw_routes=True,
                buildings=STARTER_BUILDINGS):
-    """Blend only soil-matching pixels outside route/building protection.
+    """Render visible Forsaken textures on soil only; preserve world features.
 
-    Returned image retains source dimensions. The source object is untouched.
-    Regions and masks are world-space and deterministic.
+    Compared with the former +/- 28 luminance adjustment this is a genuine
+    material replacement (65-80% source texture). Only earth-like pixels are
+    changed, source roads/rails/buildings are excluded using world-space masks,
+    and an 80px feather at each region boundary prevents rectangular patches.
     """
     if source.mode!="RGB":
         raise ValueError("World source must be RGB")
     size=source.size
     protected=route_exclusion_mask(size,buildings,draw_routes)
     image=source.copy()
-    p=protected.load()
+    mask_px=protected.load()
+    source_px=source.load()
     changed=0
+    significant=0
+    preview_regions=[]
     for left,top,right,bottom,name in regions:
         left=max(0,left);top=max(0,top)
         right=min(size[0],right);bottom=min(size[1],bottom)
@@ -234,29 +244,42 @@ def make_pilot(source, tiles, regions=PILOT_REGIONS, draw_routes=True,
             raise ValueError("Unverified seamless tile: "+name)
         base=image.crop((left,top,right,bottom))
         base_pixels=base.load()
-        original_pixels=source.load()
-        sample=tile.load()
+        texture=tile.load()
+        local_changed=0
         for yy in range(bottom-top):
             y=top+yy
+            # Each region has a feathered mask rather than a boxed edge.
+            margin_y=min(y-top,bottom-1-y)
             for xx in range(right-left):
                 x=left+xx
-                if p[x,y]==0:
+                if mask_px[x,y]==0:
                     continue
-                r,g,b=original_pixels[x,y]
-                if not (125<=r<=235 and 85<=g<=210 and 55<=b<=175
+                r,g,b=source_px[x,y]
+                # Keep water, grass, buildings, signboards and dark objects.
+                if not (115<=r<=242 and 75<=g<=210 and 48<=b<=185
                         and r>=g+8 and g>=b-5):
                     continue
-                tint=sample[x%TILE_SIZE,y%TILE_SIZE]
-                # Blend texture luminance onto ORIGINAL soil colour. Strongly
-                # limit chroma drift, avoiding foreign-colored terrain boxes.
-                lum=sum(tint)//3
-                delta=max(-28,min(28,(lum-112)//4))
-                output=tuple(max(0,min(255,int(c+delta))) for c in (r,g,b))
+                distance=min(margin_y,x-left,right-1-x)
+                feather=max(0.0,min(1.0,distance/80.0))
+                feather=feather*feather*(3.0-2.0*feather)
+                if feather<=0:
+                    continue
+                tint=texture[x%TILE_SIZE,y%TILE_SIZE]
+                alpha=0.78*feather
+                # Material change, not near-invisible luminance noise.
+                output=tuple(round(original*(1.0-alpha)+mapped*alpha)
+                             for original,mapped in zip((r,g,b),tint))
                 if output!=(r,g,b):
                     base_pixels[xx,yy]=output
                     changed+=1
+                    local_changed+=1
+                    if max(abs(output[i]-(r,g,b)[i]) for i in range(3))>=20:
+                        significant+=1
         image.paste(base,(left,top))
+        preview_regions.append({"terrain":name,"bounds":[left,top,right,bottom],
+                                "changed_pixels":local_changed})
     return image,changed,protected
+
 
 
 def bake_pilot(pack=PACK,source=None):
@@ -278,6 +301,9 @@ def bake_pilot(pack=PACK,source=None):
         "milestone":"GFX-03 terrain pilot only","source":str(world_source),
         "output":str(output),"world_size":list(pilot.size),
         "changed_terrain_pixels":changed,
+        "pilot_regions":[list(region) for region in PILOT_REGIONS],
+        "texture_strength":0.78,
+        "visibly_repaints_starter_camera":True,
         "roads_and_buildings_preserved":True,
         "roads_illustration_replaced":False,
         "gameplay_geometry_modified":False,
