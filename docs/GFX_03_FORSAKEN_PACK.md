@@ -199,3 +199,42 @@ acceptable art direction:
 Validation: run the graphics test suite and inspect
 `assets/forsaken_v1/runtime/before_after_starter.png`. Do not claim this is
 visually accepted until it has been rebuilt and reviewed on the user machine.
+
+## GFX-03 visual correction 2 — review of November 13, 10:19 PM captures
+
+The comparison showed remaining severe artifacts:
+
+- Pale repeating 64px terrain texture **checkerboard patches** along north/west
+  parts of Cinder Creek and next to the railway/roads.
+- Lower parts of several storefront and stable sprites removed by the
+  **near-black-background flood fill**. Only their rooftop remained.
+- Thin L-shaped black outlines and hard-edged tan building footprints.
+
+This change addresses the actual rendering causes:
+
+1. A01 now samples its original 64px swatches at **smoothly warped world
+   coordinates**, so the same motif is not repeated at fixed 64px intervals.
+   The original earth's colour is kept, tint strength is reduced, and the
+   protected route/building mask is blurred *only on editable pixels* to soften
+   the surrounding boundary. No original route pixels are altered.
+2. D01 export recovers facade rows disconnected from the largest roof
+   component by shadowed porches. This fixes the roof-only extraction that
+   created empty lower halves of buildings.
+3. Building cleanup uses a **28px feathered ground reconstruction**, sampling
+   actual surrounding original soil beyond the old shadow rather than drawing
+   a tan rectangle within the collider.
+4. Regression tests explicitly cover detached facade recovery and preservation
+   of the outside of protected building/road areas.
+
+These are procedural, best-effort fixes to imperfect board artwork, not a
+substitute for truly authored transparent sprite assets. Do not merge until
+the 960×600 in-game capture and before/after composite have been reviewed.
+
+Rebuild after pulling:
+
+```sh
+python3 tools/forsaken_pack.py --validate --extract-candidates
+python3 tools/build_forsaken_pilot.py --pilot
+xdg-open assets/forsaken_v1/runtime/before_after_starter.png
+DUST_AND_DEBT_FORSAKEN_V1=1 DUST_AND_DEBT_RETAINED_CANVAS=1 ./Play_Dust_and_Debt.sh
+```
