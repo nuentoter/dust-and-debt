@@ -1010,6 +1010,7 @@ class Game:
        or (raw in ('space','return') and self.dialog)
        or (self.map_open and raw in ('z','up','down','left','right','w','a','s','d','escape','tab','return'))
        or (self.interior and raw=='k')
+       or (self.screen=='paused' and raw=='m')
        else translate(raw,self.bindings))
   if key=='__unbound__':return
   first=key not in self.keys;self.keys.add(key)
@@ -1089,6 +1090,10 @@ class Game:
   if key=='escape':self.screen='playing' if self.screen=='paused' else 'paused';self.deadeye_active=False;return
   if self.screen=='paused':
    if key=='f1':self.show_help=not self.show_help
+   elif key=='m':
+    if self.save():
+     self.screen='title';self.menu_index=1
+     self.keys.clear();self.audio.set_music_state('title')
    return
   if self.map_open and key in ('z','up','down','left','right','w','a','s','d','escape','tab','return'):
    if key=='z':self.map_zoom=not self.map_zoom;self.map_center=[self.x,self.y]
@@ -2768,8 +2773,9 @@ class Game:
   self.draw_text(480,215,'PAUSED',38,'#efcf9d',True,anchor='center')
   self.draw_text(480,282,'ESC  —  RESUME',17,'#f0d3a5',True,anchor='center')
   self.draw_text(480,330,'F5 SAVE   •   F8 SETTINGS   •   F1 HELP',13,'#e5be86',anchor='center')
-  self.draw_text(480,366,'LAST SAVE: '+(self.last_save_time if self.last_save_ok else ('FAILED' if self.save_error else 'NOT YET')),12,'#e8d2ab',anchor='center')
-  self.draw_text(480,390,'Close window to quit (autosaves).',11,'#d4b995',anchor='center')
+  self.draw_text(480,349,'M — SAVE & RETURN TO MAIN MENU',13,'#efc894',True,anchor='center')
+  self.draw_text(480,376,'LAST SAVE: '+(self.last_save_time if self.last_save_ok else ('FAILED' if self.save_error else 'NOT YET')),11,'#e8d2ab',anchor='center')
+  self.draw_text(480,400,'Close window to quit (autosaves).',10,'#d4b995',anchor='center')
 
  def draw_death(self):
   self.canvas.create_image(0,0,image=self.titleimg,anchor='nw')
