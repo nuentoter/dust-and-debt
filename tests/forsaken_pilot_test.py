@@ -36,6 +36,12 @@ regions=((0,0,256,256,"bleached_dirt"),)
 pilot,changed,mask=make_pilot(world,{"bleached_dirt":seam},
         regions=regions,draw_routes=False,buildings=(building,))
 assert changed>0,changed
+# A visible integration must alter more than a few arbitrary soil pixels.
+assert changed>400,changed
+delta=max(abs(pilot.getpixel((x,y))[c]-world.getpixel((x,y))[c])
+          for x,y in ((30,30),(10,10),(180,20),(50,180),(70,25))
+          for c in range(3))
+assert delta>=10,delta
 assert pilot.size==world.size
 assert pilot.getpixel((100,100))==world.getpixel((100,100))
 assert pilot.getpixel((155,150))==world.getpixel((155,150))
