@@ -312,7 +312,11 @@ def bake_pilot(pack=PACK,source=None):
            for name in TILE_IDS}
     pilot,changed,protected=make_pilot(world,tiles)
     from tools.forsaken_buildings import paint_forsaken_buildings
-    gothic_buildings=paint_forsaken_buildings(pilot,pack,protected_mask=protected)
+    # Use a ROUTES-ONLY protection mask when cleaning the 28px halo around
+    # old rooftops. The terrain mask also excludes 55px around every building;
+    # passing that mask here blocked shadow cleanup and left L-shaped borders.
+    route_only=route_exclusion_mask(pilot.size,buildings=())
+    gothic_buildings=paint_forsaken_buildings(pilot,pack,protected_mask=route_only)
     if len(gothic_buildings)!=len(STARTER_BUILDINGS):
         raise RuntimeError("Forsaken building art incomplete: "+str(len(gothic_buildings)))
     # Mandatory human-visible proof: this is the real 960x600 starting
