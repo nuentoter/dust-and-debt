@@ -115,6 +115,46 @@ def build_seamless(pack=PACK):
     return dest
 
 
+# Crops in the reviewed GFX-A02 board. Still not modular game tiles.
+A02_SAMPLES = (
+    ("wagon_straight",76,245), ("wagon_curve",76,335),
+    ("wagon_rough",220,246), ("trail_straight",485,245),
+    ("trail_fork",749,245), ("rail_ballast",670,505),
+    ("wagon_junction",1230,248), ("road_edge",1240,835),
+)
+
+
+def extract_road_candidates(pack=PACK):
+    """Stage illustrative A02 road parts, not yet validated transparent tiles."""
+    pack=Path(pack)
+    errors=validate_pack(pack)
+    if errors:
+        raise ValueError("Invalid source art pack: "+"; ".join(errors))
+    with Image.open(pack/"source_boards"/"GFX-A02.png") as image_file:
+        if image_file.size!=(1448,1086):
+            raise ValueError("Expected A02 board 1448x1086")
+        image=image_file.convert("RGB")
+    directory=pack/"candidates"/"A02"
+    directory.mkdir(parents=True,exist_ok=True)
+    atlas=Image.new("RGB",(56*4,56*2))
+    records=[]
+    for i,(name,x,y) in enumerate(A02_SAMPLES):
+        crop=image.crop((x-28,y-28,x+28,y+28))
+        crop.save(directory/(name+".png"))
+        atlas.paste(crop,((i%4)*56,(i//4)*56))
+        records.append({"id":name,"file":name+".png",
+                        "crop_size":[56,56],"orientation":"as_reviewed",
+                        "production_status":"concept_crop_only",
+                        "connection_validated":False,"alpha_validated":False,
+                        "route_geometry_unchanged":True})
+    atlas.save(directory/"road_candidates.png")
+    (directory/"candidate_manifest.json").write_text(json.dumps({
+        "source":"GFX-A02","schema_version":1,
+        "production_ready":False,"requires_transparency_cleanup":True,
+        "requires_connections_test":True,"tiles":records},indent=2)+"\n")
+    return directory
+
+
 def route_exclusion_mask(size, buildings=STARTER_BUILDINGS,
                          draw_routes=True):
     """White = editable terrain, black = keep original source world pixels.
@@ -252,11 +292,14 @@ def main():
     parser.add_argument("--pack",type=Path,default=PACK)
     parser.add_argument("--seam-tiles",action="store_true")
     parser.add_argument("--pilot",action="store_true")
+    parser.add_argument("--road-candidates",action="store_true")
     parser.add_argument("--world",type=Path,default=None)
     args=parser.parse_args()
     if args.seam_tiles or args.pilot:
         directory=build_seamless(args.pack)
         print("Created twelve seam-checked tiles:",directory)
+    if args.road_candidates:
+        print("Extracted A02 road/rail candidates:",extract_road_candidates(args.pack))
     if args.pilot:
         output,changed=bake_pilot(args.pack,args.world)
         print("Created optional Forsaken ground pilot:",output,
