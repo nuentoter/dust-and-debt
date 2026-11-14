@@ -294,7 +294,7 @@ def bake_pilot(pack=PACK,source=None):
            for name in TILE_IDS}
     pilot,changed,protected=make_pilot(world,tiles)
     from tools.forsaken_buildings import paint_forsaken_buildings
-    gothic_buildings=paint_forsaken_buildings(pilot,pack)
+    gothic_buildings=paint_forsaken_buildings(pilot,pack,protected_mask=protected)
     if len(gothic_buildings)!=len(STARTER_BUILDINGS):
         raise RuntimeError("Forsaken building art incomplete: "+str(len(gothic_buildings)))
     # Mandatory human-visible proof: this is the real 960x600 starting
