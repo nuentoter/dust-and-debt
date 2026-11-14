@@ -1136,7 +1136,10 @@ class Game:
   elif key=='space':self.fire()
   elif key=='f5':self.save(manual=True)
 
- def key_up(self,e):self.keys.discard(translate(e.keysym,self.bindings))
+ def key_up(self,e):
+  raw=normalized_key(e.keysym)
+  self.keys.discard(raw)
+  self.keys.discard(translate(raw,self.bindings))
  def click(self,e):
   if self.screen=='title':
    if self.menu_confirm_new:
