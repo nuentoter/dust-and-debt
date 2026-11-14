@@ -145,7 +145,7 @@ class Game:
   self.screen='title';self.fullscreen=False
   self.preferences_path=os.path.join(os.path.dirname(SAVE),'preferences.json')
   self.bindings=dict(DEFAULT_KEYS)
-  self.menu_index=0;self.options_tab='audio';self.options_index=0
+  self.menu_index=0;self.menu_confirm_new=False;self.options_tab='audio';self.options_index=0
   self.controls_offset=0;self.rebinding=None;self.options_from='title'
   self.options_error='';self.preferences_loaded=False
   self.font='DejaVu Sans';self.text_fonts={};self.last=time.monotonic();self.frame=0
@@ -228,7 +228,10 @@ class Game:
   self.store_preferences()
 
  def menu_action(self,index):
-  if index==0:self.new_game()
+  if index==0:
+   if os.path.isfile(SAVE) or os.path.isfile(SAVE+'.bak'):
+    self.menu_confirm_new=True
+   else:self.new_game()
   elif index==1:
    if os.path.isfile(SAVE) or os.path.isfile(SAVE+'.bak'):self.continue_game()
    else:self.options_error='NO SAVED GAME AVAILABLE'
@@ -987,6 +990,14 @@ class Game:
   if self.screen=='options':
    self.handle_options_key(raw);return
   if self.screen=='title':
+   if self.menu_confirm_new:
+    if raw in ('y','return','kp_enter'):
+     self.menu_confirm_new=False;self.new_game()
+    elif raw in ('n','escape'):
+     self.menu_confirm_new=False
+    return
+   if raw=='f11':
+    self.fullscreen=not self.fullscreen;self.root.attributes('-fullscreen',self.fullscreen);return
    if raw in ('up','down'):
     self.menu_index=(self.menu_index+(1 if raw=='down' else -1))%4;return
    if raw in ('return','kp_enter','space'):
@@ -1126,9 +1137,14 @@ class Game:
  def key_up(self,e):self.keys.discard(translate(e.keysym,self.bindings))
  def click(self,e):
   if self.screen=='title':
-   for i in range(4):
-    if 340+i*47<=e.y<383+i*47 and 330<=e.x<=630:
-     self.menu_index=i;self.menu_action(i);break
+   if self.menu_confirm_new:
+    if 365<=e.y<=435:
+     if e.x<480:self.menu_confirm_new=False;self.new_game()
+     else:self.menu_confirm_new=False
+   else:
+    for i in range(4):
+     if 340+i*47<=e.y<383+i*47 and 330<=e.x<=630:
+      self.menu_index=i;self.menu_action(i);break
   elif self.screen=='options':
    if 155<=e.y<=201:
     if 245<=e.x<=475:self.options_tab='audio';self.options_index=0
@@ -1140,8 +1156,15 @@ class Game:
     if 0<=index<count:
      self.options_index=index
      if self.options_tab=='audio':
-      if e.x>=610:self.change_volume(index,1)
-      elif e.x<=410:self.change_volume(index,-1)
+      if 418<=e.x<=637:
+       name=('master_volume','music_volume','effects_volume')[index]
+       new=max(0.,min(1.,round((e.x-420)/215*20)/20.))
+       if new!=getattr(self.audio,name):
+        setattr(self.audio,name,new)
+        if name!='effects_volume':self.audio.refresh_music()
+        self.store_preferences()
+      elif e.x>637:self.change_volume(index,1)
+      else:self.change_volume(index,-1)
      elif e.x>610:
       self.rebinding=list(DEFAULT_KEYS)[index]
       self.options_error='PRESS NEW KEY — ESC CANCELS'
@@ -2672,6 +2695,12 @@ class Game:
     self.draw_text(350,y,'›',19,'#efd3a5',True)
    self.draw_text(480,y,label,18,color,True,anchor='center')
   self.draw_text(480,559,'UP / DOWN: SELECT     ENTER: CONFIRM     MOUSE: CLICK',10,'#e2c699',True,anchor='center')
+  if self.menu_confirm_new:
+   self.canvas.create_rectangle(275,291,685,450,fill='#30231a',outline='#e6b779',width=4)
+   self.draw_text(480,309,'START A NEW GAME?',23,'#f5d6a2',True,anchor='center')
+   self.draw_text(480,353,'Existing progress will be overwritten.',13,'#eac3a3',True,anchor='center')
+   self.draw_text(388,399,'YES (Y)',16,'#d8bc8c',True,anchor='center')
+   self.draw_text(564,399,'NO (N)',16,'#d8bc8c',True,anchor='center')
   if self.options_error:self.draw_text(480,582,self.options_error,11,'#efa983',True,anchor='center')
 
  def draw_options(self):
