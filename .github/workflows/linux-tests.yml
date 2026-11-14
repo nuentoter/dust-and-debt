@@ -68,6 +68,9 @@ jobs:
       - name: Enemy tactics and morale regression v2.8
         run: xvfb-run -a python3 tests/enemy_tactics_test.py
 
+      - name: Main menu, key bindings and audio preferences regression
+        run: xvfb-run -a python3 tests/main_menu_test.py
+
       - name: v2.9 presentation save integrity and settings regression
         run: xvfb-run -a python3 tests/presentation_reliability_test.py
 
