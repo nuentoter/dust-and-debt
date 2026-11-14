@@ -245,6 +245,8 @@ def make_pilot(source, tiles, regions=PILOT_REGIONS, draw_routes=True,
         base=image.crop((left,top,right,bottom))
         base_pixels=base.load()
         texture=tile.load()
+        from PIL import ImageStat
+        tile_mean=tuple(ImageStat.Stat(tile).mean)
         local_changed=0
         for yy in range(bottom-top):
             y=top+yy
@@ -265,10 +267,14 @@ def make_pilot(source, tiles, regions=PILOT_REGIONS, draw_routes=True,
                 if feather<=0:
                     continue
                 tint=texture[x%TILE_SIZE,y%TILE_SIZE]
-                alpha=0.78*feather
-                # Material change, not near-invisible luminance noise.
-                output=tuple(round(original*(1.0-alpha)+mapped*alpha)
-                             for original,mapped in zip((r,g,b),tint))
+                # Use approved texture DETAIL, not its average grayscale/
+                # muddy color. Direct blending painted a huge gray square
+                # over the town; subtract the tile mean to preserve the
+                # original ground material and road-adjacent hue.
+                alpha=0.92*feather
+                output=tuple(max(0,min(255,round(
+                    original + alpha*(tint[i]-tile_mean[i]))))
+                    for i,original in enumerate((r,g,b)))
                 if output!=(r,g,b):
                     base_pixels[xx,yy]=output
                     changed+=1
@@ -336,7 +342,8 @@ def bake_pilot(pack=PACK,source=None):
         "gothic_buildings_painted":gothic_buildings,
         "building_count":len(gothic_buildings),
         "pilot_regions":[list(region) for region in PILOT_REGIONS],
-        "texture_strength":0.78,
+        "texture_strength":0.92,
+        "texture_method":"mean-centred detail, no rectangular palette replacement",
         "visibly_repaints_starter_camera":True,
         "visible_starter_pixels":visibly_changed,
         "starter_max_channel_delta":max_delta,
