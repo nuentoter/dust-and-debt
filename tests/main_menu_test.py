@@ -78,6 +78,12 @@ def main():
   assert g.map_zoom
   g.map_open=False
   assert g.save(manual=True)
+  tap(g,'Escape')
+  assert g.screen=='paused'
+  tap(g,'m')
+  assert g.screen=='title' and g.menu_index==1
+  tap(g,'Return')
+  assert g.screen=='playing' and g.bindings['move_up']=='z'
   # A completed save must not be wiped by an accidental New Game click.
   fresh=game.Game(root)
   tap(fresh,'Return')
