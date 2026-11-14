@@ -81,6 +81,9 @@ jobs:
       - name: Persistent text fonts and HUD heading bounds
         run: xvfb-run -a python3 tests/text_rendering_test.py
 
+      - name: GFX-03 approved Gothic building alpha extraction and route-safe replacement QA
+        run: python3 tests/forsaken_buildings_test.py
+
       - name: GFX-03 seamless tiles and protected terrain pilot QA
         run: python3 tests/forsaken_pilot_test.py
 
