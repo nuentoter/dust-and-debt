@@ -293,6 +293,10 @@ def bake_pilot(pack=PACK,source=None):
     tiles={name:Image.open(tiles_dir/(name+".png")).convert("RGB")
            for name in TILE_IDS}
     pilot,changed,protected=make_pilot(world,tiles)
+    from tools.forsaken_buildings import paint_forsaken_buildings
+    gothic_buildings=paint_forsaken_buildings(pilot,pack)
+    if len(gothic_buildings)!=len(STARTER_BUILDINGS):
+        raise RuntimeError("Forsaken building art incomplete: "+str(len(gothic_buildings)))
     # Mandatory human-visible proof: this is the real 960x600 starting
     # viewport, not a distant test region. Refuse to ship a blank visual
     # change and save a side-by-side image for inspection.
@@ -329,6 +333,8 @@ def bake_pilot(pack=PACK,source=None):
         "milestone":"GFX-03 terrain pilot only","source":str(world_source),
         "output":str(output),"world_size":list(pilot.size),
         "changed_terrain_pixels":changed,
+        "gothic_buildings_painted":gothic_buildings,
+        "building_count":len(gothic_buildings),
         "pilot_regions":[list(region) for region in PILOT_REGIONS],
         "texture_strength":0.78,
         "visibly_repaints_starter_camera":True,
