@@ -170,3 +170,32 @@ At some storefronts the preserved collision rectangle may extend beyond the
 new visual wall. Check approaches, signs, road margins, building fronts and
 old-shadow removal before accepting the composition or merging this PR.
 The wider map still has the old artwork outside the pilot regions.
+
+## GFX-03 matte and ground correction — screenshot review (Nov 13)
+
+The first visible live pilot had obvious **gray rectangular soil patches** and
+Gothic buildings with square ground mats. These were actual defects, not
+acceptable art direction:
+
+- `make_pilot` used to mix the full RGB color of a gray A01 soil tile at up
+  to 78% strength into a sharply classified dirt region. That made pasted
+  gray blocks. It now applies **mean-centered per-channel texture detail**
+  while preserving each original terrain pixel's native color. Region edges
+  remain feathered and authored route exclusion remains active.
+- `silhouette` used to fill all pixels between first and last retained
+  points on each row. That implicitly resurrected rectangular backgrounds
+  and could keep labels. It now flood-fills only near-black exterior matte,
+  preserves enclosed building details, and retains the dominant foreground
+  connected component.
+- The previous building eraser tiled approved gray soil directly into the
+  gameplay building rectangle, reproducing the most noticeable squares.
+  It now **samples surrounding original soil and inpaints inside the old
+  footprint only**; nothing outside the gameplay rectangle is rewritten by
+  this eraser, including nearby roads. Gameplay collision is still identical.
+- Sample the exterior ground even when the route-protection halo marks it as
+  protected: the mask deliberately extends 55px beyond buildings, and
+  rejecting those samples would leave only a constant tan fallback.
+
+Validation: run the graphics test suite and inspect
+`assets/forsaken_v1/runtime/before_after_starter.png`. Do not claim this is
+visually accepted until it has been rebuilt and reviewed on the user machine.
