@@ -11,6 +11,8 @@ import os, math, random, json, time, textwrap, sys, shutil
 from dataclasses import dataclass
 from working_frontier import work_offer, shop_prices, daily_stock
 from audio_system import AudioDirector
+from menu_preferences import (DEFAULT_KEYS, CONTROL_LABELS, load_preferences,
+ save_preferences, rebind, translate, normalized_key)
 from lasso_targeting import LASSO_RANGE, throw_segment, choose_target
 from save_schema import SAVE_SCHEMA,validate_save,migrate_save
 from natural_terrain import draw_ground,draw_landforms,landform_solid,hash32,noise
@@ -41,7 +43,7 @@ VW,VH=960,600
 OLD_WW,OLD_WH=4800,3200
 WW,WH=WORLD_WIDTH,WORLD_HEIGHT  # Exactly 10x v2.5 world area; camera-local terrain
 FPS=33
-VERSION='2.9-dev — Presentation & Reliability'
+VERSION='2.9-menu — Main Menu & Controls'
 # Interiors are lightweight procedural rooms: no extra graphics libraries or image files.
 INTERIOR_TYPES={
  'Sheriff':'office','Sheriff Annex':'office','Saloon':'saloon','Sagebrush Saloon':'saloon',
@@ -120,7 +122,7 @@ class Actor:
 
 class Game:
  def __init__(self,root):
-  self.root=root;root.title('DUST & DEBT | Presentation & Reliability v2.9')
+  self.root=root;root.title('DUST & DEBT | Main Menu & Controls')
   root.resizable(False,False)
   canvas_class=RetainedCanvas if os.environ.get('DUST_AND_DEBT_RETAINED_CANVAS')=='1' else tk.Canvas
   self.canvas=canvas_class(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
@@ -141,8 +143,14 @@ class Game:
   self.audio=AudioDirector(bell=root.bell,assets_path=os.path.join(ASSETS,'audio'))
   self.keys=set();self.mouse=(VW//2,VH//2);self.mouse_down=False
   self.screen='title';self.fullscreen=False
+  self.preferences_path=os.path.join(os.path.dirname(SAVE),'preferences.json')
+  self.bindings=dict(DEFAULT_KEYS)
+  self.menu_index=0;self.options_tab='audio';self.options_index=0
+  self.controls_offset=0;self.rebinding=None;self.options_from='title'
+  self.options_error='';self.preferences_loaded=False
   self.font='DejaVu Sans';self.text_fonts={};self.last=time.monotonic();self.frame=0
   self.reset()
+  self.apply_preferences()
   root.bind('<KeyPress>',self.key_down);root.bind('<KeyRelease>',self.key_up)
   root.bind('<Motion>',lambda e:setattr(self,'mouse',(e.x,e.y)))
   root.bind('<ButtonPress-1>',self.click);root.bind('<ButtonRelease-1>',lambda e:setattr(self,'mouse_down',False))
@@ -188,6 +196,90 @@ class Game:
   self.update_npc_schedules()
   self.safe_timer=50.
   self.last_save_ok=False;self.save_error='';self.last_save_time=''
+
+ def apply_preferences(self):
+  p=load_preferences(self.preferences_path)
+  self.bindings=p['keys']
+  for name,value in p['audio'].items():setattr(self.audio,name,value)
+  self.preferences_loaded=os.path.isfile(self.preferences_path)
+  if self.preferences_loaded:
+   self.sound_on=p['sound_on'];self.audio.enabled=self.sound_on
+   self.audio.set_music_enabled(p['music_enabled'])
+
+ def store_preferences(self):
+  try:
+   save_preferences(self.preferences_path,self.bindings,self.audio,
+                    self.audio.music_enabled,self.sound_on)
+   self.options_error=''
+   self.preferences_loaded=True
+   return True
+  except OSError as ex:
+   self.options_error='PREFERENCES NOT SAVED: '+str(ex)
+   return False
+
+ def open_options(self,origin='title'):
+  self.options_from=origin;self.options_tab='audio';self.options_index=0
+  self.controls_offset=0;self.rebinding=None;self.options_error=''
+  self.keys.clear();self.mouse_down=False;self.screen='options'
+
+ def close_options(self):
+  self.rebinding=None;self.keys.clear()
+  self.screen=self.options_from
+  self.store_preferences()
+
+ def menu_action(self,index):
+  if index==0:self.new_game()
+  elif index==1:
+   if os.path.isfile(SAVE) or os.path.isfile(SAVE+'.bak'):self.continue_game()
+   else:self.options_error='NO SAVED GAME AVAILABLE'
+  elif index==2:self.open_options('title')
+  elif index==3:self.quit()
+
+ def change_volume(self,index,delta):
+  name=('master_volume','music_volume','effects_volume')[index]
+  old=getattr(self.audio,name)
+  new=max(0.,min(1.,round(round(old*20)+delta)/20.))
+  if new==old:return
+  setattr(self.audio,name,new)
+  if name!='effects_volume':self.audio.refresh_music()
+  self.store_preferences()
+
+ def handle_options_key(self,key):
+  if self.rebinding is not None:
+   if key=='escape':
+    self.rebinding=None;self.options_error='CANCELLED';return
+   updated,error=rebind(self.bindings,self.rebinding,key)
+   if error:self.options_error=error.upper()
+   else:
+    self.bindings=updated;self.rebinding=None
+    self.store_preferences()
+   return
+  if key=='escape':self.close_options();return
+  if key=='tab':
+   self.options_tab='controls' if self.options_tab=='audio' else 'audio'
+   self.options_index=0;self.options_error='';return
+  if key in ('up','down'):
+   count=3 if self.options_tab=='audio' else len(DEFAULT_KEYS)
+   self.options_index=(self.options_index+(1 if key=='down' else -1))%count
+   if self.options_tab=='controls':
+    self.controls_offset=max(0,min(self.options_index-6,len(DEFAULT_KEYS)-12))
+   return
+  if self.options_tab=='audio':
+   if key in ('left','right'):
+    self.change_volume(self.options_index,-1 if key=='left' else 1)
+  else:
+   if key in ('return','kp_enter'):
+    self.rebinding=list(DEFAULT_KEYS)[self.options_index]
+    self.options_error='PRESS NEW KEY — ESC CANCELS'
+   elif key=='backspace':
+    action=list(DEFAULT_KEYS)[self.options_index]
+    updated,error=rebind(self.bindings,action,DEFAULT_KEYS[action])
+    if error:self.options_error=error.upper()
+    else:self.bindings=updated;self.store_preferences()
+   elif key in ('prior','next'):
+    self.options_index=max(0,min(len(DEFAULT_KEYS)-1,
+                           self.options_index+(-10 if key=='prior' else 10)))
+    self.controls_offset=max(0,min(len(DEFAULT_KEYS)-12,self.options_index-6))
 
  def in_safe_settlement(self,x,y):
   return (self.in_town(x,y) or (3120<x<3890 and 1500<y<2230) or
