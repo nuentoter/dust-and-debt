@@ -29,74 +29,90 @@ CROPS = {
 
 
 def silhouette(crop):
-    """Cut an actual building silhouette from the dark review background.
+    """Convert a D01 board crop to a silhouette, retaining dark doors/walls.
 
-    A flood fill travels through near-neutral, near-black pixels connected to
-    the *outside* of the crop. Dark windows enclosed within the illustration
-    are preserved. Selecting the largest foreground island removes the thin
-    leftover review-frame lines that were visible below the extracted sprites.
-    Never fill an entire scanline: it would reintroduce rectangular mattes.
+    Board artwork contains black between roof and storefront and thin gold
+    review-frame lines. A background flood fill alone leaks through those
+    windows, deleting lower halves of buildings. Instead:
+      1. trim thin detached review-border scanlines,
+      2. identify the dominant building component with a forgiving matte,
+      3. fill enclosed rows between the structure's left and right outline,
+         never expanding outside the row's actual building silhouette.
     """
     from collections import deque
-    rgb=crop.convert("RGB")
-    w,h=rgb.size
-    pixels=rgb.load()
-    background=bytearray(w*h)
-    pending=deque()
+    image=crop.convert("RGB")
+    w,h=image.size
+    rgb=image.load()
 
-    def dark_matte(c):
-        r,g,b=c
-        return max(c)<39 and abs(r-g)<9 and abs(g-b)<10 and abs(r-b)<10
+    def foreground(x,y):
+        r,g,b=rgb[x,y]
+        # Neutral near-black belongs to the board background. Warm dark wood
+        # and roofs (even low-saturation stone) should remain.
+        return max(r,g,b)>35 and (r+g+b)>85
 
-    def flood_seed(x,y):
-        pos=y*w+x
-        if not background[pos] and dark_matte(pixels[x,y]):
-            background[pos]=1
-            pending.append(pos)
-
-    for x in range(w):
-        flood_seed(x,0)
-        flood_seed(x,h-1)
+    active=bytearray(w*h)
+    visited=bytearray(w*h)
     for y in range(h):
-        flood_seed(0,y)
-        flood_seed(w-1,y)
-    while pending:
-        pos=pending.popleft()
-        x,y=pos%w,pos//w
-        for xx,yy in ((x-1,y),(x+1,y),(x,y-1),(x,y+1)):
-            if 0<=xx<w and 0<=yy<h:
-                flood_seed(xx,yy)
-
-    # Pick the dominant structure, excluding detached presentation-board lines.
-    seen=bytearray(w*h)
+        for x in range(w):
+            if foreground(x,y):active[y*w+x]=1
+    # A separated gold outline along the upper panel edge is only 1-3 px.
+    # Remove narrow rows near the crop's uppermost edge before components.
+    for y in range(min(12,h)):
+        count=sum(active[y*w:(y+1)*w])
+        if count>int(w*0.65) and (
+                y==0 or sum(active[(y-1)*w:y*w])<int(w*0.2)):
+            active[y*w:(y+1)*w]=bytes(w)
     largest=[]
     for y in range(h):
         for x in range(w):
-            pos=y*w+x
-            if background[pos] or seen[pos]:
-                continue
-            seen[pos]=1
-            component=[pos]
-            for current in component:
-                cx,cy=current%w,current//w
-                for xx,yy in ((cx-1,cy),(cx+1,cy),(cx,cy-1),(cx,cy+1)):
-                    if 0<=xx<w and 0<=yy<h:
-                        ni=yy*w+xx
-                        if not background[ni] and not seen[ni]:
-                            seen[ni]=1
-                            component.append(ni)
-            if len(component)>len(largest):
-                largest=component
-    if len(largest)<500:
-        raise ValueError("Building art has no isolated non-matte component")
+            origin=y*w+x
+            if visited[origin] or not active[origin]:continue
+            visited[origin]=1
+            queue=deque([origin])
+            group=[]
+            while queue:
+                current=queue.popleft()
+                group.append(current)
+                xx,yy=current%w,current//w
+                for nx,ny in ((xx-1,yy),(xx+1,yy),(xx,yy-1),(xx,yy+1)):
+                    if 0<=nx<w and 0<=ny<h:
+                        neighbour=ny*w+nx
+                        if not visited[neighbour] and active[neighbour]:
+                            visited[neighbour]=1
+                            queue.append(neighbour)
+            if len(group)>len(largest):largest=group
+    if len(largest)<500:raise ValueError("D01 crop missing building silhouette")
+    keep=bytearray(w*h)
+    for pos in largest:keep[pos]=1
+    # Recover the dark windows and lower façade even when disconnected from
+    # roof by a near-black porch. Only bridge horizontal gaps within rows
+    # supported by the building's actual roof/body envelope.
     alpha=Image.new("L",(w,h),0)
-    a=alpha.load()
+    output=alpha.load()
+    rows=[[] for _ in range(h)]
     for pos in largest:
-        a[pos%w,pos//w]=255
+        rows[pos//w].append(pos%w)
+    supported=[y for y,row in enumerate(rows) if len(row)>=10]
+    if not supported:raise ValueError("D01 crop contains only detached markings")
+    first,last=min(supported),max(supported)
+    for y in range(first,last+1):
+        xs=rows[y]
+        if not xs:
+            # A one-row dark gap is inside the facade, not empty sky.
+            nearest_above=next((rows[i] for i in range(y-1,first-1,-1)
+                                if rows[i]),[])
+            nearest_below=next((rows[i] for i in range(y+1,last+1)
+                                if rows[i]),[])
+            if not nearest_above or not nearest_below:continue
+            lo=max(min(nearest_above),min(nearest_below))
+            hi=min(max(nearest_above),max(nearest_below))
+        else:
+            lo,hi=min(xs),max(xs)
+        for x in range(lo,hi+1):output[x,y]=255
     bounds=alpha.getbbox()
-    result=crop.convert("RGBA")
-    result.putalpha(alpha)
-    return result.crop(bounds)
+    sprite=crop.convert("RGBA")
+    sprite.putalpha(alpha)
+    return sprite.crop(bounds)
 
 
 
@@ -134,68 +150,84 @@ def extract_building_sprites(pack=PACK):
 
 
 def _erase_old_art(image,rect,ground,protected_mask=None):
-    """Inpaint the old structure from neighbouring soil, not a 64px tile box.
+    """Erase the legacy building and its shadow with a feathered local repair.
 
-    The prior implementation tiled an ash-gray texture across the entire
-    gameplay rectangle and up to 12px outside it. This produced the huge
-    square/rectangular mats in screenshots. Here we sample neighbouring
-    ground along four exterior sides, interpolate *inside* the old footprint,
-    and never touch any exterior pixels (or authored roads).
+    A rectangular repeated-tile fill caused the previous screenshots'
+    conspicuous patches. This reconstruction uses the natural ground around
+    the old roof, interpolates that ground across the building, and blends the
+    repair outward over 28px. Authored roads outside the original footprint
+    are untouched where the route protection mask is black.
     """
     x,y,w,h=rect
+    outer=28
+    left=max(0,x-outer)
+    top=max(0,y-outer)
+    right=min(image.width,x+w+outer)
+    bottom=min(image.height,y+h+outer)
     original=image.copy().load()
-    out=image.load()
-    width,height=image.size
-    protection=protected_mask.load() if protected_mask is not None else None
+    dest=image.load()
+    protected=protected_mask.load() if protected_mask is not None else None
 
-    def soil_color(px,py):
-        px=min(width-1,max(0,px))
-        py=min(height-1,max(0,py))
-        # Route mask includes a 55px exclusion HALO around every building.
-        # Sampling inside that halo would reject *all* neighbouring soil and
-        # force one constant fallback colour, recreating a square lot.
-        # Use actual original earth pixels outside the footprint instead.
+    def earth(px,py):
+        px=min(image.width-1,max(0,px))
+        py=min(image.height-1,max(0,py))
         r,g,b=original[px,py]
-        if 115<r<243 and 75<g<215 and 52<b<190 and r>=g+8 and g>=b-5:
+        if 118<=r<=239 and 78<=g<=214 and 50<=b<=189 and r>=g+7 and g>=b-6:
             return (r,g,b)
         return None
 
-    # Weighted median of actual ground around the historical sprite. This
-    # fallback avoids copying road/roof/water pixels into the reconstruction.
+    # Each repair column uses local colours ABOVE and BELOW the source roof,
+    # and every row also samples ground to the left and right.
     perimeter=[]
-    for dy in range(0,h+1,5):
-        for xx in (x-18,x+w+18):
-            sample=soil_color(xx,y+dy)
-            if sample:perimeter.append(sample)
-    for dx in range(0,w+1,5):
-        for yy in (y-18,y+h+18):
-            sample=soil_color(x+dx,yy)
-            if sample:perimeter.append(sample)
+    for xx in range(left,right,7):
+        for yy in (max(0,y-outer-9),min(image.height-1,y+h+outer+9)):
+            sample=earth(xx,yy)
+            if sample is not None:perimeter.append(sample)
+    for yy in range(top,bottom,7):
+        for xx in (max(0,x-outer-9),min(image.width-1,x+w+outer+9)):
+            sample=earth(xx,yy)
+            if sample is not None:perimeter.append(sample)
     if perimeter:
         fallback=tuple(sorted(sample[c] for sample in perimeter)[len(perimeter)//2]
                        for c in range(3))
     else:
-        fallback=(186,147,108)
+        fallback=(189,151,109)
 
-    def color_or_fallback(px,py):
-        return soil_color(px,py) or fallback
+    def sample(px,py):
+        return earth(px,py) or fallback
 
-    # Rebuild old roof pixels with the local terrain's colors rather than
-    # pasting a repeated grayscale tile or a rectangular shadow.
-    for yy in range(max(0,y),min(height,y+h)):
-        t=(yy-y+1)/(h+1)
-        for xx in range(max(0,x),min(width,x+w)):
-            u=(xx-x+1)/(w+1)
-            left=color_or_fallback(x-18,yy)
-            right=color_or_fallback(x+w+18,yy)
-            top=color_or_fallback(xx,y-18)
-            bottom=color_or_fallback(xx,y+h+18)
-            horizontal=tuple(left[c]*(1-u)+right[c]*u for c in range(3))
-            vertical=tuple(top[c]*(1-t)+bottom[c]*t for c in range(3))
-            # Subtle deterministic grain, no material hue change.
-            grain=((xx*31+yy*17)%7)-3
-            out[xx,yy]=tuple(max(0,min(255,round(
-                (horizontal[c]+vertical[c])*0.5+grain))) for c in range(3))
+    for py in range(top,bottom):
+        vy=(py-top+1)/max(1,bottom-top+1)
+        for px in range(left,right):
+            inside=x<=px<x+w and y<=py<y+h
+            if not inside and protected is not None and protected[px,py]==0:
+                continue
+            if inside:
+                alpha=1.0
+            else:
+                dx=max(x-px,px-(x+w-1),0)
+                dy=max(y-py,py-(y+h-1),0)
+                d=max(dx,dy)
+                if d>=outer:continue
+                t=1.0-d/outer
+                alpha=t*t*(3-2*t)
+            # Sample 38px beyond the artifact itself, not from its old shadow.
+            lx=sample(x-outer-20,py)
+            rx=sample(x+w+outer+20,py)
+            ty=sample(px,y-outer-20)
+            by=sample(px,y+h+outer+20)
+            u=(px-left+1)/max(1,right-left+1)
+            candidate=tuple(round(
+                0.5*(lx[c]*(1-u)+rx[c]*u)+
+                0.5*(ty[c]*(1-vy)+by[c]*vy))
+                for c in range(3))
+            # Keep existing natural microtexture rather than painting a flat
+            # monotone rectangle, without retaining old roof/outline pixels.
+            grain=((px*37+py*23)%9)-4
+            candidate=tuple(max(0,min(255,v+grain)) for v in candidate)
+            old=original[px,py]
+            dest[px,py]=tuple(round(old[c]*(1-alpha)+candidate[c]*alpha)
+                              for c in range(3))
 
 
 
