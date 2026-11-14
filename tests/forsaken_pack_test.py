@@ -10,6 +10,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from PIL import Image
 from tools.forsaken_pack import EXPECTED, validate_pack, preview, extract_terrain_candidates
+from tools.build_forsaken_pilot import extract_road_candidates
 from cinder_creek_gfx import select_world_image, ZONE_BOUNDS
 
 with tempfile.TemporaryDirectory() as temp:
@@ -43,6 +44,12 @@ with tempfile.TemporaryDirectory() as temp:
     assert len(manifest_candidates["tiles"])==12
     assert manifest_candidates["world_ready"] is False
     assert all(tile["seamless"] is False for tile in manifest_candidates["tiles"])
+    roads=extract_road_candidates(pack)
+    roadmap=json.loads((roads/"candidate_manifest.json").read_text())
+    assert len(roadmap["tiles"])==8
+    assert roadmap["production_ready"] is False
+    assert all(not item["connection_validated"] for item in roadmap["tiles"])
+    assert Image.open(roads/"road_candidates.png").size==(224,112)
     # SHA mismatch must be rejected.
     (source/"GFX-A01.png").write_bytes(b"corrupted")
     assert any("SHA" in issue or "PNG" in issue for issue in validate_pack(pack))
