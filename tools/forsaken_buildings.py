@@ -151,10 +151,12 @@ def _erase_old_art(image,rect,ground,protected_mask=None):
     def soil_color(px,py):
         px=min(width-1,max(0,px))
         py=min(height-1,max(0,py))
-        if protection is not None and protection[px,py]==0:
-            return None
+        # Route mask includes a 55px exclusion HALO around every building.
+        # Sampling inside that halo would reject *all* neighbouring soil and
+        # force one constant fallback colour, recreating a square lot.
+        # Use actual original earth pixels outside the footprint instead.
         r,g,b=original[px,py]
-        if r>98 and g>67 and b>48 and r>=g and g>=b-12:
+        if 115<r<243 and 75<g<215 and 52<b<190 and r>=g+8 and g>=b-5:
             return (r,g,b)
         return None
 
