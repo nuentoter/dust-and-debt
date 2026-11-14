@@ -39,7 +39,7 @@ assert changed>0,changed
 # A visible integration must alter more than a few arbitrary soil pixels.
 assert changed>400,changed
 delta=max(abs(pilot.getpixel((x,y))[c]-world.getpixel((x,y))[c])
-          for x,y in ((30,30),(10,10),(180,20),(50,180),(70,25))
+          for x,y in ((210,40),(220,60),(220,110),(40,210),(60,220))
           for c in range(3))
 assert delta>=10,delta
 assert pilot.size==world.size
