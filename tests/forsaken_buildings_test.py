@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """GFX-03 Gothic buildings: border removal, alpha, ground and route safety."""
 import sys
+import tempfile
 from pathlib import Path
 from PIL import Image,ImageDraw
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from tools.forsaken_buildings import silhouette, _erase_old_art, CROPS
+from tools.forsaken_buildings import silhouette, _erase_old_art, CROPS, paint_forsaken_buildings
 from cinder_creek_gfx import STARTER_BUILDINGS
 
 # An isolated label/frame line must never become part of the sprite.
@@ -57,6 +58,15 @@ _erase_old_art(shadow,(50,50,60,60),ground,route_mask)
 assert shadow.getpixel((49,68))!=before.getpixel((49,68))
 assert shadow.getpixel((31,68))==before.getpixel((31,68))
 assert shadow.getpixel((10,10))==before.getpixel((10,10))
+
+# No approved manual RGBA images: rendering must preserve legacy art,
+# instead of silently accepting a dark-background concept extraction.
+with tempfile.TemporaryDirectory() as tmp:
+    unchanged=Image.new("RGB",(200,160),(187,145,105))
+    snapshot=unchanged.tobytes()
+    result=paint_forsaken_buildings(unchanged,pack=Path(tmp),buildings=())
+    assert result==[]
+    assert unchanged.tobytes()==snapshot
 
 assert len(STARTER_BUILDINGS)==10
 assert set(name for name,*_ in STARTER_BUILDINGS)==set(CROPS)
