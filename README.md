@@ -1,6 +1,6 @@
 ## Main Menu & Preferences (November 2026)
 
-The title screen now has **NEW GAME**, **CONTINUE**, **OPTIONS**, and **QUIT**. Use Up/Down + Enter, or click a menu entry. Continue is displayed disabled until a primary or backup save file exists (the loader still validates before loading). New Game asks for confirmation when progress exists so an accidental click does not overwrite it.
+The title screen now has **NEW GAME**, **CONTINUE**, **OPTIONS**, and **QUIT**. From a paused game, press **M** to save and return to the main menu; Continue will be preselected. Use Up/Down + Enter, or click a menu entry. Continue is displayed disabled until a primary or backup save file exists (the loader still validates before loading). New Game asks for confirmation when progress exists so an accidental click does not overwrite it.
 
 **Options contains only two groups for this milestone:**
 - **Volume:** Master, Music and Sound Effects (0–100%, 5% steps). Choose a row with Up/Down, then adjust with Left/Right or click a position on its volume bar.
