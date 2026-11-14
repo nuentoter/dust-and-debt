@@ -94,20 +94,39 @@ def silhouette(crop):
         rows[pos//w].append(pos%w)
     supported=[y for y,row in enumerate(rows) if len(row)>=10]
     if not supported:raise ValueError("D01 crop contains only detached markings")
-    first,last=min(supported),max(supported)
+    first=min(supported)
+    # The lower facade may be separated from the roof by a dark porch.
+    # Recollect ALL genuine foreground rows below the roof while rejecting
+    # tiny detached panel strokes near the crop edges.
+    candidate_rows={}
+    center_lo=w//3
+    center_hi=(w*2)//3
+    for y in range(first,h):
+        if y>=h-4:continue
+        candidates=[x for x in range(w) if active[y*w+x]]
+        if len(candidates)<max(9,w//11):
+            continue
+        # Keep rows with actual building pixels through the centre, not
+        # isolated border/label lines outside the building.
+        if not any(center_lo<=x<=center_hi for x in candidates):
+            continue
+        if y<17 and len(candidates)>int(w*0.78):
+            continue
+        candidate_rows[y]=(min(candidates),max(candidates))
+    if not candidate_rows:
+        raise ValueError("D01 silhouette has no supported body rows")
+    first,last=min(candidate_rows),max(candidate_rows)
     for y in range(first,last+1):
-        xs=rows[y]
-        if not xs:
-            # A one-row dark gap is inside the facade, not empty sky.
-            nearest_above=next((rows[i] for i in range(y-1,first-1,-1)
-                                if rows[i]),[])
-            nearest_below=next((rows[i] for i in range(y+1,last+1)
-                                if rows[i]),[])
-            if not nearest_above or not nearest_below:continue
-            lo=max(min(nearest_above),min(nearest_below))
-            hi=min(max(nearest_above),max(nearest_below))
+        if y in candidate_rows:
+            lo,hi=candidate_rows[y]
         else:
-            lo,hi=min(xs),max(xs)
+            above=next((candidate_rows[i] for i in range(y-1,first-1,-1)
+                        if i in candidate_rows),None)
+            below=next((candidate_rows[i] for i in range(y+1,last+1)
+                        if i in candidate_rows),None)
+            if above is None or below is None:continue
+            lo=max(above[0],below[0])
+            hi=min(above[1],below[1])
         for x in range(lo,hi+1):output[x,y]=255
     bounds=alpha.getbbox()
     sprite=crop.convert("RGBA")
