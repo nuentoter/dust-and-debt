@@ -77,7 +77,7 @@ After installing the graphics ZIP and updating this branch:
 
 ```sh
 python3 tools/forsaken_pack.py --validate --extract-candidates
-python3 tools/build_forsaken_pilot.py --seam-tiles
+python3 tools/build_forsaken_pilot.py --seam-tiles --road-candidates
 python3 tests/forsaken_pilot_test.py
 python3 tools/build_forsaken_pilot.py --pilot
 DUST_AND_DEBT_FORSAKEN_V1=1 DUST_AND_DEBT_RETAINED_CANVAS=1 ./Play_Dust_and_Debt.sh
@@ -118,3 +118,16 @@ stable, and the three trial areas. Report any obvious rectangle, road seam,
 washed-out ground, texture repetition, or frame-time regression. Before
 merging, run `xvfb-run -a python3 tools/benchmark_renderer.py --frames 24`
 on the target laptop and compare with the previous renderer settings.
+
+### A02 road/rail candidate handoff
+
+The same CLI with `--road-candidates` extracts eight small RGB crops
+from the approved A02 concept board under
+`assets/forsaken_v1/candidates/A02/`. The output
+`road_candidates.png` makes it easy to compare wagons, trail forks and
+railroad ballast. Its manifest explicitly marks every item
+`connection_validated=false` and `alpha_validated=false`.
+**Do not paste these presentation snippets into the runtime world.**
+They require alpha cleanup, directional matching, junction tiling, and a
+road connectivity QA pass first. The initial playable terrain pilot
+preserves the existing roads exactly.
