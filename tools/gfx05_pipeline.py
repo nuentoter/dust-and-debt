@@ -224,14 +224,18 @@ def main():
         parser.error("Choose --verify, --stage or --pilot")
     if args.verify:
         print("PASS: verified 17 sheets",verify_source(args.archive)["pack_version"])
-    if args.stage or args.pilot:
-        manifest=stage(args.archive,args.out)
-        print("PASS: staged 12 A01 seam-matched PILOT textures and 12 unvalidated A02 samples")
-        print("PREVIEWS:",args.out/"terrain_review.png",args.out/"roads_review.png")
     if args.pilot:
+        # bake() stages once already; avoid redundant 47MB source checksum
+        # and 56-swatch extraction work on older machines.
         output=args.out/"world_gfx05.png"
         count=bake(args.archive,args.out,args.world,output)
+        print("PASS: staged A01/A02 concept candidates")
+        print("PREVIEWS:",args.out/"terrain_review.png",args.out/"roads_review.png")
         print("PASS: changed",count,"original soil pixels, preserved authored roads")
         print("RUN: DUST_AND_DEBT_GFX05=1 ./Play_Dust_and_Debt.sh")
+    elif args.stage:
+        stage(args.archive,args.out)
+        print("PASS: staged 12 A01 seam-matched PILOT textures and 12 unvalidated A02 samples")
+        print("PREVIEWS:",args.out/"terrain_review.png",args.out/"roads_review.png")
 if __name__=="__main__":
     main()
