@@ -24,7 +24,8 @@ STARTER_BUILDINGS = (
     ("Ranch", 1470, 850, 160, 125),
 )
 
-def select_world_image(assets_root, enabled=False, forsaken_enabled=False):
+def select_world_image(assets_root, enabled=False, forsaken_enabled=False,
+                       gfx05_enabled=False):
     """Load only a dimension-checked, explicitly prepared Forsaken world.
 
     Source presentation boards are never loaded as world images. The new
@@ -32,6 +33,13 @@ def select_world_image(assets_root, enabled=False, forsaken_enabled=False):
     """
     legacy = os.path.join(assets_root, BASE_RELATIVE_PATH)
     upgraded = os.path.join(assets_root, ART_RELATIVE_PATH)
+    # GFX-05 is an opt-in soil-only pilot. The renderer does not use the
+    # concept boards or candidates unless the offline bake explicitly created
+    # a correctly sized world image. Prioritize the latest explicit flag.
+    if gfx05_enabled:
+        candidate = os.path.join(assets_root, "forsaken_v1", "gfx05", "world_gfx05.png")
+        if _verified_world_png(candidate):
+            return candidate
     if forsaken_enabled:
         candidate = os.path.join(assets_root, "forsaken_v1", "runtime", "world_forsaken.png")
         if _verified_world_png(candidate):
