@@ -19,10 +19,10 @@ OUT=ROOT/"assets"/"forsaken_v1"/"gfx08"
 # Curated single-object crops from the 1536x1024 user-approved B01 board.
 # The sheet contains text and neighboring sprites; avoid entire panel crops.
 CROPS={
-    "bush":(20,518,110,598),
-    "fern":(16,779,101,865),
-    "stump":(497,501,566,590),
-    "rock":(500,764,574,850),
+    "bush":(133,519,232,598),
+    "fern":(22,777,107,852),
+    "stump":(644,519,715,586),
+    "rock":(664,789,730,845),
 }
 SIZES={"bush":(36,26),"fern":(30,24),"stump":(32,30),"rock":(34,28)}
 CLASS={"bush":"shrub","fern":"grass","stump":"stump","rock":"boulder"}
