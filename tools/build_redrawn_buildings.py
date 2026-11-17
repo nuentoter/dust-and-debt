@@ -96,6 +96,63 @@ def soil_color(original,x,y,w,h):
     return tuple(sorted(s[c] for s in samples)[len(samples)//2]
                  for c in range(3))
 
+# Legacy build_assets.py rendered an old rectangular cast shadow outside
+# each old building collider: a fixed brown (158,126,84) band 11px right
+# and about 14px below, with a 1px almost-black border. Unlike the new art,
+# this is NOT lighting and must be removed rather than carried forward.
+OLD_SHADOW=(158,126,84)
+OLD_OUTLINES=((48,45,41),(58,48,41))
+
+def _old_shadow_pixel(pixel):
+    return (all(abs(pixel[i]-OLD_SHADOW[i])<=2 for i in range(3))
+            or pixel in OLD_OUTLINES)
+
+def remove_legacy_building_shadow(result,original,x,y,w,h):
+    """Restore ONLY legacy shadow/border ink outside the gameplay footprint.
+
+    Read from the unmodified world beyond the original painted halo; never
+    paint an entire rectangle or flatten routes on surrounding ground.
+    Repaired pixels are outside the collider, and game geometry is untouched.
+    Returns number of genuinely affected pixels for QA.
+    """
+    src=original.load()
+    dst=result.load()
+    max_x,max_y=result.size
+    changed=0
+    # Original raster: 1px dark frame, brown band to the right (+11px)
+    # and below (+14px). Margin 2px accommodates pixel rounding.
+    x0=max(0,x)
+    y0=max(0,y)
+    x1=min(max_x,x+w+14)
+    y1=min(max_y,y+h+18)
+    for py in range(y0,y1):
+        for px in range(x0,x1):
+            if px<x+w and py<y+h:
+                continue
+            old=src[px,py]
+            if not _old_shadow_pixel(old):
+                continue
+            # Use unaltered ground just beyond the shadow on the nearest
+            # exterior side. Avoid injecting distant/tiled material.
+            if px>=x+w and py<y+h:
+                sample_x=min(max_x-1,x+w+22)
+                sample_y=py
+            elif py>=y+h and px<x+w:
+                sample_x=px
+                sample_y=min(max_y-1,y+h+24)
+            else:
+                sample_x=min(max_x-1,x+w+22)
+                sample_y=min(max_y-1,y+h+24)
+            replacement=src[sample_x,sample_y]
+            # If the sample is yet another old-shadow pixel, do not
+            # introduce a duplicated shadow in the repaired scene.
+            if _old_shadow_pixel(replacement):
+                continue
+            dst[px,py]=replacement
+            changed+=1
+    return changed
+
+
 def bake_world(original,directory,locations=BUILDINGS):
     result=original.convert("RGB").copy()
     placed=[]
@@ -113,13 +170,15 @@ def bake_world(original,directory,locations=BUILDINGS):
                 grain=((xx+x)*37+(yy+y)*23)%9-4
                 p[xx,yy]=tuple(max(0,min(255,c+grain)) for c in dirt)
         result.paste(box,(x,y))
+        cleaned_shadow_pixels=remove_legacy_building_shadow(result,original,x,y,w,h)
         scale=min((w-8)/art.width,(h+8)/art.height)
         dims=(max(1,round(art.width*scale)),max(1,round(art.height*scale)))
         art=art.resize(dims,Image.Resampling.NEAREST)
         sx=x+(w-dims[0])//2; sy=y+h-dims[1]
         result.paste(art,(sx,sy),art)
         placed.append({"name":name,"image":stem,"south_anchor":[x+w//2,y+h],
-                       "draw_bounds":[sx,sy,*dims]})
+                       "draw_bounds":[sx,sy,*dims],
+                       "removed_legacy_shadow_pixels":cleaned_shadow_pixels})
     return result,placed
 
 def main():
