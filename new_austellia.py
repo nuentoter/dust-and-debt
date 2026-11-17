@@ -370,7 +370,7 @@ def draw_bridge_decks(canvas,camx,camy,width,height,decks=BRIDGE_DECKS):
                        fill='#3e3831',width=5)
 
 
-def draw_local_geography(canvas,camx,camy,width,height):
+def draw_local_geography(canvas,camx,camy,width,height,route_palette=None):
  """Only draw river/coast/road segments intersecting the camera viewport."""
  def visible(a,b,pad=450):
   return (max(a[0],b[0])>=camx-pad and min(a[0],b[0])<=camx+width+pad and
@@ -396,42 +396,48 @@ def draw_local_geography(canvas,camx,camy,width,height):
   if camx-rx<lx<camx+width+rx and camy-ry<ly<camy+height+ry:
    canvas.create_oval(lx-rx-camx,ly-ry-camy,lx+rx-camx,ly+ry-camy,
                       fill="#789e9f",outline="#c9c1a3",width=8)
- for points in ROADS:
-  for a,b in zip(points,points[1:]):
-   if not visible(a,b):continue
-   x1,y1=xy(a);x2,y2=xy(b)
-   dx=x2-x1;dy=y2-y1
-   length=math.hypot(dx,dy) or 1.
-   nx,ny=-dy/length,dx/length
-   # Soft road shoulder, compacted center, wheel wear.
-   canvas.create_line(x1,y1,x2,y2,width=126,fill="#9f8c6f",capstyle='round')
-   canvas.create_line(x1,y1,x2,y2,width=101,fill="#cbb18a",capstyle='round')
-   canvas.create_line(x1,y1,x2,y2,width=76,fill="#d6bb92",capstyle='round')
-   for sign in (-1,1):
-    shift=sign*29
-    canvas.create_line(x1+nx*shift,y1+ny*shift,x2+nx*shift,y2+ny*shift,
-                       width=3,fill="#9d8566",dash=(20,18))
- for key,points in SECONDARY_ROADS:
-  for a,b in zip(points,points[1:]):
-   if not visible(a,b):continue
-   x1,y1=xy(a);x2,y2=xy(b)
-   canvas.create_line(x1,y1,x2,y2,width=84,fill='#8e7a5e',capstyle='round')
-   canvas.create_line(x1,y1,x2,y2,width=60,fill='#b59a76',capstyle='round')
-   canvas.create_line(x1,y1,x2,y2,width=31,fill='#c4a77d',capstyle='round')
-   canvas.create_line(x1,y1,x2,y2,width=2,fill='#8e7457',dash=(18,26))
- for key,kind,name,points in TRAILS:
-  for a,b in zip(points,points[1:]):
-   if not visible(a,b):continue
-   x1,y1=xy(a);x2,y2=xy(b)
-   canvas.create_line(x1,y1,x2,y2,width=33,fill='#847358',capstyle='round')
-   canvas.create_line(x1,y1,x2,y2,width=18,fill='#b9a47e',capstyle='round')
-   canvas.create_line(x1,y1,x2,y2,width=2,fill='#dfcaa0',dash=(7,19))
- for points in RAILS:
-  for a,b in zip(points,points[1:]):
-   if not visible(a,b):continue
-   x1,y1=xy(a);x2,y2=xy(b)
-   canvas.create_line(x1,y1,x2,y2,width=25,fill="#745c48")
-   canvas.create_line(x1,y1,x2,y2,width=4,fill="#3e3430",dash=(8,10))
+ if route_palette is not None:
+  # New A02-inspired paint uses the same route vectors; bridge decks render
+  # after both styles so ford clearance and layering remain untouched.
+  from forsaken_route_renderer import draw_forsaken_routes
+  draw_forsaken_routes(canvas,camx,camy,width,height,route_palette)
+ else:
+  for points in ROADS:
+   for a,b in zip(points,points[1:]):
+    if not visible(a,b):continue
+    x1,y1=xy(a);x2,y2=xy(b)
+    dx=x2-x1;dy=y2-y1
+    length=math.hypot(dx,dy) or 1.
+    nx,ny=-dy/length,dx/length
+    # Soft road shoulder, compacted center, wheel wear.
+    canvas.create_line(x1,y1,x2,y2,width=126,fill="#9f8c6f",capstyle='round')
+    canvas.create_line(x1,y1,x2,y2,width=101,fill="#cbb18a",capstyle='round')
+    canvas.create_line(x1,y1,x2,y2,width=76,fill="#d6bb92",capstyle='round')
+    for sign in (-1,1):
+     shift=sign*29
+     canvas.create_line(x1+nx*shift,y1+ny*shift,x2+nx*shift,y2+ny*shift,
+                        width=3,fill="#9d8566",dash=(20,18))
+  for key,points in SECONDARY_ROADS:
+   for a,b in zip(points,points[1:]):
+    if not visible(a,b):continue
+    x1,y1=xy(a);x2,y2=xy(b)
+    canvas.create_line(x1,y1,x2,y2,width=84,fill='#8e7a5e',capstyle='round')
+    canvas.create_line(x1,y1,x2,y2,width=60,fill='#b59a76',capstyle='round')
+    canvas.create_line(x1,y1,x2,y2,width=31,fill='#c4a77d',capstyle='round')
+    canvas.create_line(x1,y1,x2,y2,width=2,fill='#8e7457',dash=(18,26))
+  for key,kind,name,points in TRAILS:
+   for a,b in zip(points,points[1:]):
+    if not visible(a,b):continue
+    x1,y1=xy(a);x2,y2=xy(b)
+    canvas.create_line(x1,y1,x2,y2,width=33,fill='#847358',capstyle='round')
+    canvas.create_line(x1,y1,x2,y2,width=18,fill='#b9a47e',capstyle='round')
+    canvas.create_line(x1,y1,x2,y2,width=2,fill='#dfcaa0',dash=(7,19))
+  for points in RAILS:
+   for a,b in zip(points,points[1:]):
+    if not visible(a,b):continue
+    x1,y1=xy(a);x2,y2=xy(b)
+    canvas.create_line(x1,y1,x2,y2,width=25,fill="#745c48")
+    canvas.create_line(x1,y1,x2,y2,width=4,fill="#3e3430",dash=(8,10))
  # Shared deck frames keep painted timber and passable river surfaces aligned.
  draw_bridge_decks(canvas,camx,camy,width,height)
  # Coastal islands remain visible, but are not invisible pedestrian bridges.
