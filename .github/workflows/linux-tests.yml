@@ -81,6 +81,9 @@ jobs:
       - name: Persistent text fonts and HUD heading bounds
         run: xvfb-run -a python3 tests/text_rendering_test.py
 
+      - name: GFX-05 verified 17-sheet importer, soil staging and alpha collision policy
+        run: python3 tests/gfx05_pipeline_test.py
+
       - name: GFX-04 newly redrawn magenta D01 extraction and bake QA
         run: python3 tests/redrawn_buildings_test.py
 
