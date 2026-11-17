@@ -43,7 +43,7 @@ draw_forsaken_routes(fake,x-350,y-220,700,440,pal)
 assert fake.lines,"No visible actual source routes drawn"
 assert all("gfx06_route" in opt["tags"] for _,opt in fake.lines)
 assert any(opt["width"]==126 for _,opt in fake.lines),"Primary road missing"
-assert any(opt["dash"]==(13,16) for _,opt in fake.lines),"Wagon ruts missing"
+assert any(opt.get("dash")== (13,16) for _,opt in fake.lines),"Wagon ruts missing"
 assert before==(repr(ROADS),repr(SECONDARY_ROADS),repr(TRAILS),repr(RAILS))
 
 with tempfile.TemporaryDirectory() as d:
