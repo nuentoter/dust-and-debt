@@ -5,7 +5,7 @@ import tempfile
 from pathlib import Path
 from PIL import Image,ImageDraw
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from tools.build_redrawn_buildings import extract,bake_world,BUILDINGS,magenta
+from tools.build_redrawn_buildings import extract,bake_world,BUILDINGS,magenta,remove_legacy_building_shadow
 
 from cinder_creek_gfx import STARTER_BUILDINGS
 assert len(BUILDINGS)==len(STARTER_BUILDINGS)==10
@@ -37,6 +37,13 @@ with tempfile.TemporaryDirectory() as folder:
     world=Image.new("RGB",(500,400),(185,147,105))
     d=ImageDraw.Draw(world)
     d.rectangle((40,40,178,136),fill=(50,38,30))
+    # A fixed one-pixel frame and brown exterior halo must disappear,
+    # while a nearby darker trail remains exactly as it was.
+    d.line((178,40,178,136),fill=(48,45,41))
+    d.line((40,136,178,136),fill=(58,48,41))
+    d.rectangle((179,40,189,150),fill=(158,126,84))
+    d.rectangle((40,137,178,150),fill=(158,126,84))
+    d.rectangle((196,40,200,160),fill=(92,69,48))
     before=world.copy()
     result,placed=bake_world(world,assets,locations=(("Mock",40,40,138,96,"sheriff"),))
     assert len(placed)==1
@@ -44,5 +51,9 @@ with tempfile.TemporaryDirectory() as folder:
     assert world.tobytes()==before.tobytes()
     assert result.getpixel((10,10))==before.getpixel((10,10))
     assert result.getpixel((495,395))==before.getpixel((495,395))
+    assert result.getpixel((181,90))!=(158,126,84)
+    assert result.getpixel((90,142))!=(158,126,84)
+    assert result.getpixel((198,90))==before.getpixel((198,90))
+    assert placed[0]["removed_legacy_shadow_pixels"]>100
     assert result.getpixel((109,90))!=before.getpixel((109,90))
 print("GFX-04 magenta extraction, alpha, sprite bake and immutable geometry OK")
