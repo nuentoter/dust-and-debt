@@ -125,7 +125,9 @@ class Game:
   self.canvas=canvas_class(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
   assert validate_starter_geometry(BUILDINGS), 'Cinder Creek authored building positions changed'
-  self.world=tk.PhotoImage(file=select_world_image(ASSETS, os.environ.get('DUST_AND_DEBT_GFX02')=='1', os.environ.get('DUST_AND_DEBT_FORSAKEN_V1')=='1', os.environ.get('DUST_AND_DEBT_GFX05')=='1' or os.environ.get('DUST_AND_DEBT_GFX06')=='1'))
+  selected_world=select_world_image(ASSETS, os.environ.get('DUST_AND_DEBT_GFX02')=='1', os.environ.get('DUST_AND_DEBT_FORSAKEN_V1')=='1', os.environ.get('DUST_AND_DEBT_GFX05')=='1' or os.environ.get('DUST_AND_DEBT_GFX06')=='1', os.environ.get('DUST_AND_DEBT_GFX07')=='1')
+  self.gfx07_active=(os.environ.get('DUST_AND_DEBT_GFX07')=='1' and selected_world.endswith('world_gfx07.png'))
+  self.world=tk.PhotoImage(file=selected_world)
   # Only load the A02 style after a successful offline source-board
   # verification/export; do not treat the presentation sheet as tiles.
   self.route_palette=None
@@ -2102,7 +2104,8 @@ class Game:
   draw_local_geography(self.canvas,self.camx,self.camy,VW,VH,self.route_palette)
   if self.camx<OLD_WW and self.camy<OLD_WH:
    self.canvas.create_image(-self.camx,-self.camy,image=self.world,anchor='nw')
-   draw_starting_transition(self.canvas,self.camx,self.camy,VW,VH,OLD_WW,OLD_WH)
+   if not self.gfx07_active:
+    draw_starting_transition(self.canvas,self.camx,self.camy,VW,VH,OLD_WW,OLD_WH)
   draw_frontier_towns(self.canvas,self.camx,self.camy,VW,VH)
   draw_landmark(self.canvas,self.camx,self.camy,VW,VH)
   draw_waystations(self.canvas,self.camx,self.camy,VW,VH)
