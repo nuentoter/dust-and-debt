@@ -81,6 +81,9 @@ jobs:
       - name: Persistent text fonts and HUD heading bounds
         run: xvfb-run -a python3 tests/text_rendering_test.py
 
+      - name: GFX-08 B01 wilderness sprite extraction and alpha/collision safety
+        run: python3 tests/gfx08_wilderness_test.py
+
       - name: GFX-07 Cinder Creek original roads, protected buildings and world seam
         run: python3 tests/gfx07_starter_roads_test.py
 

@@ -140,6 +140,11 @@ class Game:
      self.route_palette=validated_palette(settings['palette'])
    except (OSError,ValueError,TypeError,KeyError):
     pass
+  # GFX08: once-only small transparent sprites; keeps Tk image refs alive.
+  self.gfx08_wilderness={}
+  if os.environ.get('DUST_AND_DEBT_GFX08')=='1':
+   from forsaken_wilderness import load_wilderness
+   self.gfx08_wilderness=load_wilderness(ASSETS)
   self.titleimg=tk.PhotoImage(file=os.path.join(ASSETS,'title.png'))
   self.mapimg=tk.PhotoImage(file=os.path.join(ASSETS,'map.png'))
   self.mapthumb=self.mapimg.subsample(4,4)
@@ -1431,6 +1436,10 @@ class Game:
     if self.in_town(wx,wy) or self.is_frontier_road(wx,wy) or is_water(wx,wy):continue
     if any(bx-45<wx<bx+bw+45 and by-45<wy<by+bh+45 for _,bx,by,bw,bh in BUILDINGS):continue
     sx,sy=self.pos(wx,wy)
+    if self.gfx08_wilderness:
+     from forsaken_wilderness import draw_wilderness
+     if draw_wilderness(self.canvas,self.gfx08_wilderness,sx,sy,h):
+      continue
     if h%4==0:
      for off in (-7,0,8):self.canvas.create_line(sx+off,sy+6,sx+off-3,sy-6-(h%6),fill='#9f8658',width=2)
     elif h%4==1:
