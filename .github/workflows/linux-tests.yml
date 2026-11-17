@@ -81,6 +81,9 @@ jobs:
       - name: Persistent text fonts and HUD heading bounds
         run: xvfb-run -a python3 tests/text_rendering_test.py
 
+      - name: GFX-06 source-derived Forsaken connected routes and geometry safety
+        run: python3 tests/gfx06_routes_test.py
+
       - name: GFX-05 verified 17-sheet importer, soil staging and alpha collision policy
         run: python3 tests/gfx05_pipeline_test.py
 
