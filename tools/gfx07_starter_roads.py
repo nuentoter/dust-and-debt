@@ -25,6 +25,7 @@ PALETTE=ASSETS/"forsaken_v1"/"gfx06"/"route_palette.json"
 BASE=ASSETS/"world.png"
 BUILDING_WORLD=ASSETS/"forsaken_v1"/"runtime"/"world_forsaken.png"
 TERRAIN_WORLD=ASSETS/"forsaken_v1"/"gfx05"/"world_gfx05.png"
+STAGED_TERRAIN=ASSETS/"forsaken_v1"/"gfx05"/"candidates"/"A01"
 
 # Authored OLD Cinder Creek image road centres from build_assets.py.
 # Coordinates must not be moved to conceal seams: these locations match the
@@ -214,12 +215,34 @@ def resolve_base(world=BASE,building=BUILDING_WORLD,terrain=TERRAIN_WORLD):
     if Path(terrain).is_file():return Path(terrain),"GFX05 terrain"
     return Path(world),"original world"
 
-def build(source,palette,out=OUTPUT,feather=True):
+def add_staged_terrain(source,directory=STAGED_TERRAIN):
+    """Optional A01 soil-only tint, using already seam-checked GFX05 samples.
+
+    Does not touch protected roads, water or original building rectangles.
+    Returns unchanged source if the soil tiles have not yet been staged.
+    """
+    tile=Path(directory)/"ash_gray_earth.png"
+    if not tile.is_file():
+        return source,0
+    from tools.build_forsaken_pilot import make_pilot
+    with Image.open(tile) as candidate:
+        earth=candidate.convert("RGB")
+    result,count,_=make_pilot(source,{"ash_gray_earth":earth},
+        regions=((0,0,1330,1090,"ash_gray_earth"),),
+        draw_routes=True,buildings=STARTER_BUILDINGS)
+    return result,count
+
+
+def build(source,palette,out=OUTPUT,feather=True,terrain=True):
     with Image.open(source) as image:
         if image.size!=ZONE_BOUNDS[2:]:
             raise ValueError("The source world must be exactly 4800x3200")
         baseline=image.convert("RGB")
-    baked,meta=render_starter_roads(baseline,palette)
+    if terrain:
+        material,terrain_changed=add_staged_terrain(baseline)
+    else:
+        material,terrain_changed=baseline,0
+    baked,meta=render_starter_roads(material,palette)
     result=add_world_edge_feather(baked) if feather else baked.convert("RGBA")
     out=Path(out);out.parent.mkdir(parents=True,exist_ok=True)
     result.save(out)
@@ -233,6 +256,7 @@ def build(source,palette,out=OUTPUT,feather=True):
     manifest={"stage":"GFX07","source":str(source),"output":str(out),
               "image_dimensions":list(result.size),"image_mode":result.mode,
               "east_south_alpha_feather":bool(feather),
+              "gfx05_staged_terrain_pixels_changed":terrain_changed,
               **meta,"source_sha256":hashlib.sha256(Path(source).read_bytes()).hexdigest(),
               "visual_approval":"pending"}
     (out.parent/"gfx07_manifest.json").write_text(json.dumps(manifest,indent=2)+"\n")
@@ -245,10 +269,11 @@ def main():
     parser.add_argument("--palette",type=Path,default=PALETTE)
     parser.add_argument("--out",type=Path,default=OUTPUT)
     parser.add_argument("--no-feather",action="store_true")
+    parser.add_argument("--no-terrain",action="store_true")
     args=parser.parse_args()
     source,label=(args.source,"explicit source") if args.source else resolve_base()
     palette=get_palette(args.palette)
-    result=build(source,palette,args.out,not args.no_feather)
+    result=build(source,palette,args.out,not args.no_feather,not args.no_terrain)
     print("PASS: GFX-07 starter roads + edge alpha feather",label)
     print("Original road ink removed:",result["old_road_pixels_removed"])
     print("Compare:",args.out.parent/"gfx07_starter_before_after.png")
