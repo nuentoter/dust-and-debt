@@ -49,6 +49,31 @@ A comparative run is simply:
 DUST_AND_DEBT_RETAINED_CANVAS=1 ./Play_Dust_and_Debt.sh
 ```
 
+
+## GFX-02 architecture pass (second iteration)
+
+The offline builder now paints **ten coordinate-aligned buildings** in richer
+Western pixel art via `tools/cinder_creek_buildings.py`. Each building gets
+shingled roof courses, color-specific clapboard fronts, framed windows,
+wooden porch surfaces, a centered entrance and a fitted name sign. A stable,
+rail station, sheriff and doctor also receive distinguishing architectural
+markings. Shapes remain inside the preserved building rectangles; no collision,
+NPC, quest or door positions have moved. These are newly drawn assets, not
+cropped from the illustrative style reference or town mockup.
+
+Rebuild after pulling the branch:
+
+```sh
+python3 tools/build_cinder_creek_scene.py
+DUST_AND_DEBT_GFX02=1 DUST_AND_DEBT_RETAINED_CANVAS=1 ./Play_Dust_and_Debt.sh
+```
+
+The builder overwrites its own `world_gfx02.png` and records
+`redrawn_buildings` and `building_names` in the manifest. The game remains
+opt-in. This is a noticeably more complete architectural pass, but not yet a
+hand-authored tile atlas or foreground canopy/roof sorting system. Full style
+parity and street-level prop placement are later steps.
+
 ## Acceptance gates
 
 - [ ] Compare standard and GFX02 renders at the sheriff, saloon, general
@@ -64,3 +89,66 @@ DUST_AND_DEBT_RETAINED_CANVAS=1 ./Play_Dust_and_Debt.sh
 The new art replaces only the starter image already used by game.py; all
 other map terrain and existing v2.9 road, trail and collision layers remain
 unchanged. We do not change save compatibility or player progression.
+
+
+## Real tileset artwork import (third iteration)
+
+The game can now **use cut-out pixels from the supplied A Western Tale reference sheet**, instead of having Pillow draw simulated roofs and storefronts.
+
+An eight-sprite transparent PNG pack has been prepared from the user's uploaded sheet. Its files belong in `assets/gfx02/cinder_creek/sprites/`, with names:
+
+```text
+saloon.png   store.png   smithy.png  house.png
+stable.png   church.png  sheriff.png inn.png
+```
+
+**Install the provided sprite ZIP at the repository root** (it has the correct directory paths). Alternatively, run `python3 tools/extract_western_sheet.py '/path/to/A Western Tale_ Village Tileset.png'` to extract the same eight sprites directly from the original user-supplied PNG. Then run:
+
+```sh
+python3 tools/build_cinder_creek_scene.py --require-sheet
+DUST_AND_DEBT_RETAINED_CANVAS=1 DUST_AND_DEBT_GFX02=1 ./Play_Dust_and_Debt.sh
+```
+
+`--require-sheet` is important: it refuses to silently substitute the geometric artwork when the eight image files are not installed. Without this flag the CI build, which does not include the separately supplied PNG sprite pack, safely falls back to procedural art. The JSON build manifest records `art_source` (either `user_supplied_sheet` or `procedural_fallback`) and lists the buildings repainted from source sprites.
+
+The imported sprites are resized with nearest-neighbor sampling and alpha composited within the existing collision rectangles: sheriff=sheriff, saloon=saloon, general store=store, doctor=church, stable=stable, hotel=inn, station=smithy with a STATION placard, cabin/outpost=house, ranch=stable. These replacements are deliberately **art-only**: doors, NPCs, prompts, and missions are unchanged. Some asset reuse is temporary until unique sprites are available. A simple matching dirt patch hides the old geometric roof under transparent sprite edges.
+
+The sprites are a separate downloadable binary pack, not committed to this PR. A newly pulled branch alone **will not** display the uploaded sheet: install the ZIP and regenerate the artwork locally. For redistribution of the game assets, check the original sheet's reuse rights.
+
+
+
+## Fourth iteration — integrated shadows, art standards and QA
+
+A user screenshot of the imported sprites revealed the old geometric lot outline,
+flat rectangle-shaped shadow and inconsistent sprite stretching. This update
+corrects the **baking pipeline**, not gameplay:
+
+- Samples source terrain beyond the original building and its baked shadow.
+  Clears the full old roof/halo, then blends replacement dirt into surrounding
+  land over a feathered outer region, instead of drawing a hard-edged lot.
+- Uses the imported sprite's **alpha mask** to place a small warm-brown shadow
+  at offset (+5,+6). Transparent corners no longer receive square shadows.
+- Trims transparent padding, preserves the source aspect ratio, and places
+  building fronts at the south/bottom of their existing gameplay footprint.
+- Rejects blank, entirely opaque or otherwise malformed source-sprite PNGs
+  when a pack is present. When no pack is installed, the explicit procedural
+  fallback remains available, but `--require-sheet` blocks that fallback.
+- Adds a machine-readable `assets/gfx02/asset_rules.json`, the project-wide
+  `docs/GRAPHICS_ASSET_STANDARD.md`, and reusable validation command
+  `tools/validate_graphics_assets.py`.
+- Adds visual-seam/shadow/pivot test cases and CI validation.
+
+To try the latest build using your already installed sheet sprites:
+
+```sh
+git pull --ff-only origin graphics/gfx-02-building-art
+python3 tools/build_cinder_creek_scene.py --require-sheet
+python3 tools/validate_graphics_assets.py --require-sheet
+DUST_AND_DEBT_RETAINED_CANVAS=1 DUST_AND_DEBT_GFX02=1 ./Play_Dust_and_Debt.sh
+```
+
+**Important:** source sprite proportions now remain correct, so some buildings
+will appear narrower within their previously oversized collision footprints.
+That is intentional for visual quality but requires inspection of nearby door
+prompts and the walkable visual boundary. The graphical image is still
+experimental until local play/screenshot review establishes acceptance.
