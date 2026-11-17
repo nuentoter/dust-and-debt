@@ -125,7 +125,19 @@ class Game:
   self.canvas=canvas_class(root,width=VW,height=VH,bg='#19140f',highlightthickness=0,cursor='crosshair')
   self.canvas.pack()
   assert validate_starter_geometry(BUILDINGS), 'Cinder Creek authored building positions changed'
-  self.world=tk.PhotoImage(file=select_world_image(ASSETS, os.environ.get('DUST_AND_DEBT_GFX02')=='1', os.environ.get('DUST_AND_DEBT_FORSAKEN_V1')=='1', os.environ.get('DUST_AND_DEBT_GFX05')=='1'))
+  self.world=tk.PhotoImage(file=select_world_image(ASSETS, os.environ.get('DUST_AND_DEBT_GFX02')=='1', os.environ.get('DUST_AND_DEBT_FORSAKEN_V1')=='1', os.environ.get('DUST_AND_DEBT_GFX05')=='1' or os.environ.get('DUST_AND_DEBT_GFX06')=='1'))
+  # Only load the A02 style after a successful offline source-board
+  # verification/export; do not treat the presentation sheet as tiles.
+  self.route_palette=None
+  if os.environ.get('DUST_AND_DEBT_GFX06')=='1':
+   try:
+    candidate=os.path.join(ASSETS,'forsaken_v1','gfx06','route_palette.json')
+    with open(candidate,encoding='utf-8') as stream:settings=json.load(stream)
+    if settings.get('schema_version')==1 and settings.get('art_source')=='GFX-A02 approved 17-board master':
+     from forsaken_route_renderer import validated_palette
+     self.route_palette=validated_palette(settings['palette'])
+   except (OSError,ValueError,TypeError,KeyError):
+    pass
   self.titleimg=tk.PhotoImage(file=os.path.join(ASSETS,'title.png'))
   self.mapimg=tk.PhotoImage(file=os.path.join(ASSETS,'map.png'))
   self.mapthumb=self.mapimg.subsample(4,4)
@@ -2087,7 +2099,7 @@ class Game:
 
  def draw_world(self):
   self.draw_far_terrain()
-  draw_local_geography(self.canvas,self.camx,self.camy,VW,VH)
+  draw_local_geography(self.canvas,self.camx,self.camy,VW,VH,self.route_palette)
   if self.camx<OLD_WW and self.camy<OLD_WH:
    self.canvas.create_image(-self.camx,-self.camy,image=self.world,anchor='nw')
    draw_starting_transition(self.canvas,self.camx,self.camy,VW,VH,OLD_WW,OLD_WH)
