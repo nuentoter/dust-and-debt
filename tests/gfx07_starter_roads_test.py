@@ -57,8 +57,8 @@ assert edge.mode=="RGBA"
 assert edge.getpixel((0,0))[3]==255
 assert edge.getpixel((319,40))[3]==0
 assert edge.getpixel((40,239))[3]==0
-assert 0<edge.getpixel((300,100))[3]<255
-assert 0<edge.getpixel((100,225))[3]<255
+assert 0<edge.getpixel((310,100))[3]<255
+assert 0<edge.getpixel((100,233))[3]<255
 
 with tempfile.TemporaryDirectory() as folder:
     root=Path(folder)
