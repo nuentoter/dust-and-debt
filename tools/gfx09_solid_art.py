@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """GFX-09 approved B01 trees and boulders -> actual transparent game sprites.
 
-The approved 1536x1024 GFX-B01 board has a high-contrast magenta matte.
+The approved 1536x1024 GFX-B01 board has a high-contrast magenta matte.\nFor boulders, reuse the clean approved GFX08 rock asset: the B01 rock\npanel has overlapping objects, and slicing them would repeat prior crop bugs.
 Dark-backed B02/B03 and presentation borders are NEVER auto-keyed.
 A separate QA manifest contains lower-foot alpha collision CANDIDATES only.
 No collision is activated by this build step.
@@ -25,7 +25,6 @@ OUT=ROOT/"assets"/"forsaken_v1"/"gfx09"
 SPECS={
  "pine": {"box":(500,158,576,333),"size":(54,92),"kind":"tree"},
  "dead_tree": {"box":(20,171,165,333),"size":(72,88),"kind":"dead_tree"},
- "boulder": {"box":(490,787,605,868),"size":(58,42),"kind":"boulder"},
 }
 SOURCE_SIZE=(1536,1024)
 
