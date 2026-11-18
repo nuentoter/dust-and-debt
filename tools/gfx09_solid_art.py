@@ -28,6 +28,17 @@ SPECS={
 }
 SOURCE_SIZE=(1536,1024)
 
+def is_matte_fringe(r,g,b):
+    """Remove magenta spill, but preserve low-saturation wood/slate shadows.
+
+    This is deliberately narrow: green must be far below both red and blue
+    and bright enough to distinguish spill from Gothic dark purples.
+    """
+    return (r>=76 and b>=76
+            and g<=max(42,int(min(r,b)*.38))
+            and min(r,b)-g>=59
+            and b>=r*.70 and r>=b*.62)
+
 def convert_sprite(board,box,size):
     if board.mode!="RGB":
         raise ValueError("Source artwork must be RGB")
@@ -40,7 +51,7 @@ def convert_sprite(board,box,size):
     for y in range(region.height):
         for x in range(region.width):
             rgb=src[x,y]
-            dst[x,y]=(0,0,0,0) if is_matte(*rgb) else (*rgb,255)
+            dst[x,y]=(0,0,0,0) if (is_matte(*rgb) or is_matte_fringe(*rgb)) else (*rgb,255)
     alpha=result.getchannel("A")
     bounds=alpha.getbbox()
     if not bounds:
