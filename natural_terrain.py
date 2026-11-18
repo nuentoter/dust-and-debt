@@ -153,7 +153,7 @@ def draw_ground(canvas,camx,camy,width,height):
                 canvas.create_arc(sx-rx*.55,sy-ry*.46,sx+rx*.7,sy+ry*.5,
                                   start=30,extent=110,style='arc',outline='#9a886a',width=2)
 
-def draw_landforms(canvas,camx,camy,width,height):
+def draw_landforms(canvas,camx,camy,width,height,solid_images=None):
     """Contour bands, gravel fields, dry wash traces, and boulders."""
     for name,pts in RIDGES:
         # Draw only a ridge segment near the camera.
@@ -172,9 +172,15 @@ def draw_landforms(canvas,camx,camy,width,height):
             ax,ay=a[0]-camx,a[1]-camy;bx,by=b[0]-camx,b[1]-camy
             canvas.create_line(ax,ay,bx,by,width=36,fill='#987b61',capstyle='round')
             canvas.create_line(ax,ay,bx,by,width=17,fill='#c2a583',capstyle='round')
-    for rx,ry,rad,solid in ROCKS:
-        if not _visible(rx,ry,camx,camy,width,height,rad+15):continue
+    for index,(rx,ry,rad,solid) in enumerate(ROCKS):
+        if not _visible(rx,ry,camx,camy,width,height,rad+90):continue
         x=rx-camx;y=ry-camy
+        if solid_images:
+            from forsaken_solid_objects import draw_rock_sprite
+            # Existing world geometry and ROCKS are unchanged. No added
+            # tree instance means no previously walkable land becomes solid.
+            if draw_rock_sprite(canvas,solid_images,x,y,rad,solid,biome_at(rx,ry),index):
+                continue
         canvas.create_oval(x-rad*.95,y-rad*.25,x+rad*1.1,y+rad*.52,
                            fill='#73695b',outline='')
         canvas.create_polygon(x-rad,y,x-rad*.6,y-rad*.62,x+rad*.38,y-rad*.81,

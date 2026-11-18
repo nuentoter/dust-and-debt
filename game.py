@@ -145,6 +145,10 @@ class Game:
   if os.environ.get('DUST_AND_DEBT_GFX08')=='1':
    from forsaken_wilderness import load_wilderness
    self.gfx08_wilderness=load_wilderness(ASSETS)
+  self.gfx09_solid_images={}
+  if os.environ.get('DUST_AND_DEBT_GFX09')=='1':
+   from forsaken_solid_objects import load_solid_art
+   self.gfx09_solid_images=load_solid_art(ASSETS)
   self.titleimg=tk.PhotoImage(file=os.path.join(ASSETS,'title.png'))
   self.mapimg=tk.PhotoImage(file=os.path.join(ASSETS,'map.png'))
   self.mapthumb=self.mapimg.subsample(4,4)
@@ -2046,7 +2050,7 @@ class Game:
   # Organic, deterministic landforms replace the old square terrain tile grid.
   c=self.canvas
   draw_ground(c,self.camx,self.camy,VW,VH)
-  draw_landforms(c,self.camx,self.camy,VW,VH)
+  draw_landforms(c,self.camx,self.camy,VW,VH,self.gfx09_solid_images)
   draw_starter_spur(c,self.camx,self.camy,VW,VH)
 
  def draw_expansion_markers(self):

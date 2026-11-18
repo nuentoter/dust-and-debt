@@ -81,6 +81,9 @@ jobs:
       - name: Persistent text fonts and HUD heading bounds
         run: xvfb-run -a python3 tests/text_rendering_test.py
 
+      - name: GFX-09 solid trees and boulders preserving authored rock geometry
+        run: python3 tests/gfx09_solid_art_test.py
+
       - name: GFX-08 B01 wilderness sprite extraction and alpha/collision safety
         run: python3 tests/gfx08_wilderness_test.py
 
